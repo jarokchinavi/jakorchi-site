@@ -308,6 +308,10 @@ html[dir=rtl] .drawer{left:auto;right:0;box-shadow:-6px 0 30px rgba(0,0,0,.35)}h
 html[dir=rtl] .sbm{margin-left:0;margin-right:-8px}html[dir=rtl] .sblogo{margin:0 -4px 0 4px}html[dir=rtl] .sbar{padding:0 14px 0 6px}
 html[dir=rtl] body{font-family:"Noto Sans Arabic","Segoe UI","Geeza Pro",Tahoma,system-ui,sans-serif}
 .row h2{overflow-wrap:anywhere}
-html body.ex .stage{bottom:calc(0px - var(--iosgap,0px))!important}
-html body.ex .sheet{bottom:calc(env(safe-area-inset-bottom,0px) - var(--iosgap,0px))}
-.drawer{bottom:calc(0px - var(--iosgap,0px))}
+/* iPhone home-screen app (see fixIosGap in js/app.js). On the map screen the page becomes exactly as tall as the real
+   screen; <body> is the frame: the layers sit inside it (absolute) and nothing sticks out, so the page cannot scroll.
+   The page itself stays scrollable (overflow auto) so iOS draws the part below its too-short viewport. */
+html.iosgap.exv{height:calc(100% + var(--iosgap,0px));overflow-y:auto;overscroll-behavior:none}
+html.iosgap.exv body{position:relative;height:100%;overflow:hidden}
+html.iosgap.exv .stage{position:absolute!important}
+html.iosgap.exv .sheet,html.iosgap.exv .drawer,html.iosgap.exv .scrim,html.iosgap.exv #rvModal,html.iosgap.exv #toast,html.iosgap.exv #splash{position:absolute}

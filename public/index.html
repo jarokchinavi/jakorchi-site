@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="spl exv">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -30,6 +30,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@700&text=Jakorchi&display=swap" rel="stylesheet" media="print" data-font>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Noto+Sans+KR:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet" media="print" data-font>
 <style>
+html.spl{background:#1c2340}
 #splash{position:fixed;inset:0;z-index:99999;background:#1c2340;display:grid;place-items:center;transition:opacity .25s;animation:splx .01s 4s forwards}
 #splash.out{opacity:0;pointer-events:none}@keyframes splx{to{opacity:0;visibility:hidden;pointer-events:none}}
 #splash .spl{display:grid;justify-items:center;gap:10px;color:#f4ecdc}#splash svg{width:112px;height:112px;border-radius:26px;box-shadow:0 0 0 1.5px rgba(201,164,92,.6),0 10px 30px rgba(0,0,0,.4)}
@@ -39,7 +40,7 @@
 </head>
 <body class="ex">
 <div id="splash" aria-hidden="true"><div class="spl"><svg viewBox="0 0 512 512"><rect width="512" height="512" fill="#1c2340" stroke="none"/><g fill="none" stroke="#c9a45c" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"><path d="M256 292C214 246 190 214 190 178a66 66 0 0 1 132 0c0 36-24 68-66 114"/><path d="M150 286c-16-22 16-40 0-62s16-40 0-62"/><path d="M362 286c16-22-16-40 0-62s-16-40 0-62"/></g><circle cx="256" cy="178" r="24" fill="#c8321f" stroke="none"/><path d="M130 306h252c0 66-53 106-126 106s-126-40-126-106z" fill="#f4ecdc" stroke="none"/><path d="M218 430h76" fill="none" stroke="#f4ecdc" stroke-width="16" stroke-linecap="round"/></svg><b>Jakorchi</b><small>日本 · 한국 · 中国</small></div></div>
-<link rel="stylesheet" href="/css/app.css?v=2026-11-09.6">
+<link rel="stylesheet" href="/css/app.css?v=2026-11-09.7">
 <header class="bar"><div class="bar-in"><div class="brand"><button class="ibtn mbtn" id="menuBtn" aria-label="Menu" data-ia="Menu" aria-expanded="false" aria-controls="drawer"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="seal" aria-hidden="true"><svg viewBox="0 0 512 512"><rect width="512" height="512" fill="#1c2340" stroke="none"/><g fill="none" stroke="#c9a45c" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"><path d="M256 292C214 246 190 214 190 178a66 66 0 0 1 132 0c0 36-24 68-66 114"/><path d="M150 286c-16-22 16-40 0-62s16-40 0-62"/><path d="M362 286c16-22-16-40 0-62s-16-40 0-62"/></g><circle cx="256" cy="178" r="24" fill="#c8321f" stroke="none"/><path d="M130 306h252c0 66-53 106-126 106s-126-40-126-106z" fill="#f4ecdc" stroke="none"/><path d="M218 430h76" fill="none" stroke="#f4ecdc" stroke-width="16" stroke-linecap="round"/></svg></div><div class="bt"><h1 aria-label="Jakorchi"><span class="w1">J</span>akorchi</h1><p class="tagl"><span aria-hidden="true">日本<i>·</i>한국<i>·</i>中国</span><span class="sr" data-i="Japan · Korea · China">Japan · Korea · China</span></p></div></div></div></header>
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Menu" data-ia="Menu">
@@ -50,7 +51,7 @@
   <div class="dr-s" data-i="Language">Language</div><div class="dr-lang" id="drLang"></div>
   <div class="dr-s" data-i="Map letters">Map letters</div><div class="dr-lang" id="drMap"></div>
   <div class="dr-s" data-i="Distance">Distance</div><div class="dr-lang" id="drUnits"></div>
-  <div class="dr-f"><span data-i="Map and place data © OpenStreetMap contributors (ODbL).">Map and place data © OpenStreetMap contributors (ODbL).</span><br><span data-i="Version">Version</span> <b id="buildNo">2026-11-09.6</b></div>
+  <div class="dr-f"><span data-i="Map and place data © OpenStreetMap contributors (ODbL).">Map and place data © OpenStreetMap contributors (ODbL).</span><br><span data-i="Version">Version</span> <b id="buildNo">2026-11-09.7</b></div>
  </div>
 </aside>
 <main>
@@ -110,6 +111,6 @@
 </main>
 <div class="sheet" id="sheet" role="dialog" aria-label="Place details"><div class="grab" id="grab"><span></span></div><button class="sx" id="sx" aria-label="Close">✕</button><div class="sbody" id="sbody"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
-<script src="/js/app.js?v=2026-11-09.6"></script>
+<script src="/js/app.js?v=2026-11-09.7"></script>
 </body>
 </html>

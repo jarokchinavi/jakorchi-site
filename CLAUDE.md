@@ -9,6 +9,7 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = the source 
 - Data = OpenStreetMap + visitors. Never Google Places / Yelp / Tripadvisor / Naver / Dianping data. Never invent restaurant facts.
 - Ask first: unverified downloads, deleting things, anything that can't be undone. Never type passwords, create accounts or show secret keys.
 - Simple edits: just do them. Big or unclear: ask once. Full test only when a big task is finished.
+- If vital information is missing: say what is missing in 1–2 simple sentences and stop.
 - End of a task: what changed (short) · honest findings · what the owner must do next (often nothing).
 - Update `docs/` only when something lasting changed or the owner asks. Don't mention the notes in every reply.
 

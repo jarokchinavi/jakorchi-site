@@ -1,9 +1,21 @@
 /* Jakorchi app. Version number: change it with tools/bump-version.py */
-const BUILD="2026-11-09.6";
-/* iPhone home-screen app bug: with the see-through status bar the page ends short by the status-bar height,
-   leaving an empty band at the bottom. Measure that band and let the map (and bottom sheets) cover it. */
-function fixIosGap(){let g=0;try{if(navigator.standalone===true){const p=innerHeight>=innerWidth,full=p?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height);g=Math.round(full-innerHeight);if(!(g>0&&g<120))g=0}}catch(e){}document.documentElement.style.setProperty("--iosgap",g+"px")}
-fixIosGap();addEventListener("resize",fixIosGap);addEventListener("orientationchange",()=>setTimeout(fixIosGap,300));
+const BUILD="2026-11-09.7";
+/* iPhone home-screen app: with the see-through status bar, iOS lays the page out shorter than the screen (by the
+   status-bar height). Layers pinned to that short viewport (position:fixed) stop short and an empty band shows at the
+   bottom; stretching them past the edge is not drawn. So: measure the band once, make the page itself as tall as the
+   real screen and let the map screen's layers sit in the page (absolute, inside <body>) instead of on the short
+   viewport. CSS: "html.iosgap.exv" rules (exv = the map screen is showing). */
+let iosGapP=0;
+function iosProbe(){const de=document.documentElement,p=document.createElement("div");p.style.cssText="position:fixed;left:0;bottom:0;width:1px;height:1px;visibility:hidden;pointer-events:none";document.body.appendChild(p);const fb=Math.round(p.getBoundingClientRect().bottom);p.remove();return{full:Math.max(screen.width,screen.height),inner:innerHeight,client:de.clientHeight,fixedBottom:fb}}
+function fixIosGap(){const de=document.documentElement;let g=0;
+ try{if(navigator.standalone===true&&matchMedia("(orientation:portrait)").matches){
+  if(!iosGapP){de.classList.remove("iosgap");const m=iosProbe(),v=m.full-Math.min(m.inner,m.client||m.inner,m.fixedBottom||m.inner);iosGapP=v>0&&v<=70?Math.round(v):0}
+  g=iosGapP}}catch(e){}
+ de.style.setProperty("--iosgap",g+"px");de.classList.toggle("iosgap",g>0);
+ try{if(map)setTimeout(()=>map.invalidateSize(),60)}catch(e){}}
+/* the map screen must never be scrolled away in this mode (a focus jump could do it) */
+addEventListener("scroll",()=>{const c=document.documentElement.classList;if(c.contains("iosgap")&&c.contains("exv")&&(scrollY||scrollX))scrollTo(0,0)},{passive:true});
+fixIosGap();addEventListener("load",fixIosGap);setTimeout(fixIosGap,1200);addEventListener("orientationchange",()=>setTimeout(fixIosGap,350));
 // ===== DATA: replace the examples with your own checked places. rating: your own score 1-5 (or null) =====
 function R(id,country,city,area,name,loc,cuisine,price,rating,eng,halal,vegan,lat,lng,cat="restaurant"){return {cat,src:"example",exRating:true,id,country,city,area,name,loc,cuisine,price,rating,eng,halal,vegan,lat,lng,
  dish:"(Example) Signature dish",vibe:"(Example) Casual and busy",warn:"(Example) Check cash or card, and possible queue",order:"(Example) Point at the menu or use the Phrases page."}}
@@ -102,7 +114,7 @@ function flash(msg){let e=document.getElementById("toast");if(!e){e=document.cre
 function shareText(t,el){if(navigator.share)navigator.share({text:t}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>el.textContent=T("Copied. Paste it into a message."),()=>el.textContent=T("Copy failed."));else el.textContent=T("Sharing is not supported here.")}
 
 $("#themeBtn").onclick=()=>{const r=document.documentElement;r.setAttribute("data-theme",getComputedStyle(r).getPropertyValue("--bg").trim()==="#0e141b"?"light":"dark");if(vlayer)loadVector();setTimeout(syncDark,0)};
-function goTab(v){if(v!=="explore")closeSheet();document.body.classList.toggle("ex",v==="explore");document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id===v));curView=v;if(v==="explore"&&map)setTimeout(()=>map.invalidateSize(),50);if(v==="lists")drawLists();closeDrawer(false);scrollTo(0,0)}
+function goTab(v){if(v!=="explore")closeSheet();document.body.classList.toggle("ex",v==="explore");document.documentElement.classList.toggle("exv",v==="explore");document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id===v));curView=v;if(v==="explore"&&map)setTimeout(()=>map.invalidateSize(),50);if(v==="lists")drawLists();closeDrawer(false);scrollTo(0,0)}
 
 // ===== MAP =====
 let map=null,markers={},meLayer=null;
@@ -655,7 +667,7 @@ function applyMapLang(){try{if(!glLayer)return;const m=glLayer.getMaplibreMap();
 function syncDark(){document.getElementById("map").classList.toggle("mapdark",isDark());barColor()}
 /* phone status bar takes the colour of the app (navy only while the start screen shows) */
 function barColor(){const t=document.querySelector('meta[name="theme-color"]');if(t)t.content=document.getElementById("splash")?"#1c2340":isDark()?"#0e141b":"#eef1f5"}
-function splashOff(){const e=document.getElementById("splash");if(!e)return;e.classList.add("out");setTimeout(()=>{e.remove();barColor()},260)}
+function splashOff(){const e=document.getElementById("splash");if(!e)return;e.classList.add("out");setTimeout(()=>{e.remove();document.documentElement.classList.remove("spl");barColor()},260)}
 function loadGL(){if(BASEMAP.url||!map||glLayer||loadGL.t)return;loadGL.t=1;const stP=styleGet();
  const css=document.createElement("link");css.rel="stylesheet";css.href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css";css.integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V";css.crossOrigin="anonymous";document.head.appendChild(css);
  /* fingerprints of the exact files (checked by the browser: a changed or tampered file is refused and the plain map stays) */
@@ -1010,7 +1022,10 @@ async function checkUpdate(){try{const r=await fetch("/version.json?t="+Date.now
  let done="";try{done=sessionStorage.getItem("jk_upd")||""}catch(e){}if(done===j.v)return;
  if(appBusy()){if(!updWait){updWait=true;flash(T("A new version is ready. It loads the next time you open the app."))}return}
  try{sessionStorage.setItem("jk_upd",j.v)}catch(e){}location.reload()}catch(e){}}
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate()});setTimeout(checkUpdate,3000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate()});
+{const bn=document.getElementById("buildNo");if(bn)bn.onclick=()=>{let t="";try{const m=iosProbe(),st=document.getElementById("stage").getBoundingClientRect(),vv=window.visualViewport;
+ t=` · screen ${screen.width}x${screen.height} · inner ${innerWidth}x${m.inner} · client ${m.client} · fixed ${m.fixedBottom} · map ${Math.round(st.top)}..${Math.round(st.bottom)} · vv ${vv?Math.round(vv.height):"-"} · gap ${iosGapP} · app ${navigator.standalone===true?1:0}`}catch(e){}
+ bn.textContent=BUILD+t}}setTimeout(checkUpdate,3000);
 document.querySelectorAll("link[data-font]").forEach(l=>{l.media="all"});
 const SPL0=((performance.getEntriesByType("paint")||[]).find(e=>e.name==="first-contentful-paint")||(performance.getEntriesByType("navigation")||[])[0]||{}).startTime||0;
 setTimeout(splashOff,Math.max(0,SPL0+2000-performance.now()));
