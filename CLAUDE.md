@@ -19,11 +19,17 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = the source 
 - Keep code modular and lean: page in `index.html`, look in `css/app.css`, logic in `js/app.js`, texts in `lang/`.
 - Every async call has a fallback (the app must never break). Mind phone speed and memory.
 
+## Quality and speed
+- **Can't test it myself (a real iPhone, the owner's phone or PC):** ask for a screenshot first, plus the numbers shown by tapping the version number in the menu. No blind fixes.
+- **A release breaks the live app:** put the previous version back at once (`git revert`, push). Tell the owner in plain words what happened, what was undone and what comes next. Then find the cause.
+- **Small and fast:** no new library without a clear need. `js/app.js` stays under 150 KB (now 139); past that, move rarely used parts into a file that loads on demand. After a big change check the start (page ready in under 1 second on Wi-Fi).
+- **Languages:** every new text gets all 9 languages in the same update (`lang/<code>.json`; food names also in `lang/foods.json`).
+
 ## Where things are
 | What | Where |
 |---|---|
 | website | `public/` → `index.html`, `css/app.css`, `js/app.js`, `lang/<code>.json` + `lang/foods.json`, `places/`, `sw.js`, `_headers`, icons, `version.json` |
-| tools | `tools/bump-version.py` · `tools/build_places.py` + `make-restaurants.bat` (owner runs the Desktop copy) |
+| tools | `tools/bump-version.py` · `tools/split_places.py` · `tools/build_places.py` + `make-restaurants.bat` (owner runs the Desktop copy) |
 | database | Supabase project `jsegdbtefxsforphluyc` · setup in `database/01…NN-*.sql` (all applied, in order) |
 | hosting | Cloudflare Worker `jakorchinavigation` (account subdomain `jakorchi`), Workers Builds from this repo |
 | backup | owner's Desktop `jakorchi-site\` (keep in sync after a release) · Desktop `jakorchi-tools\` |
@@ -34,7 +40,7 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = the source 
 2. `python tools/bump-version.py` (version in app code, page links `?v=` and `version.json`).
 3. Commit + push to `main` → Cloudflare publishes in about a minute → check `/version.json` on the live site.
 4. Copy changed files to the Desktop backup (device_commit_files). Tell the owner the new version number (shown in the menu).
-- New restaurant data: owner runs `make-restaurants.bat` → files land in Desktop `places\` → validate (JSON, right square) → copy to `public/places/` + `_done.json` → push.
+- New restaurant data: owner runs `make-restaurants.bat` → files land in Desktop `places\` → validate (JSON, right square) → copy to `public/places/` + `_done.json` → `python tools/split_places.py` → push.
 - Database change: new numbered file in `database/`, test on local Postgres first, then apply_migration, then get_advisors (must stay 0).
 
 ## Safety (never weaken)

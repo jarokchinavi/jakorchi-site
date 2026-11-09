@@ -5,5 +5,6 @@
 - 🇯🇵 Kyoto: bat 5 · Geofabrik kansai · x3590–3595 y1620–1625 · 36 files · 10,817 places
 - bat 1 Korea / 2 Japan / 3 China = whole country (big; China needs 8 GB memory)
 - build_places.py args: `<pbf> <Country> [x0 x1 y0 y1]` · writes into Desktop jakorchi-site\places and merges `_done.json`
+- big squares (> 300 KB, now 13) also exist as 16 small squares each: `places/14/<x>_<y>.json` + `places/_split.json`, made by `tools/split_places.py` (run it after every data change). App: zoom ≥ 15 loads only the small squares on screen (Gangnam: 0.45 MB instead of 5.5 MB), zoomed out the whole file. The Desktop backup does not hold `places/14` (it is rebuilt by the tool).
 - check new files before pushing: valid JSON · every place inside its own square · area column empty
 - 8% of places have a real English name · ~55% have a known food type

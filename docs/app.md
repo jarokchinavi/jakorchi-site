@@ -14,5 +14,7 @@
 - screen: map fills under the status bar and home bar; controls use env(safe-area-inset-*) · theme-color follows light/dark
 - iPhone home-screen app: iOS lays the page out short by the status-bar height (band at the bottom in the page background colour). `fixIosGap` measures it once → `html.iosgap`; on the map screen (`html.exv`) the page is made screen-tall and stage / sheet / menu / start screen sit inside `<body>` (absolute), because layers pinned with position:fixed are cut off at the short viewport. Tap the version number in the menu = screen measurements (for phones we cannot test).
 - menu: All Asia · Find a city (Nominatim) · Add a restaurant · Install the app · Editor mode
+- reports (`openFlag`): closed / halal / vegan-vegetarian yes-no + food type · "closed" label (`closedTag`) from 3 yes and more yes than no
+- About & privacy page (`#about`, menu → More): what is saved; `CONTACT` in js/app.js = contact email ("" hides the line) · the text names the outside services, keep it true when services change
 - saved places + lists only on the phone
 - `sw.js`: navigation + css/js/lang = network first (saved copy offline) · places = saved copy first, refresh in background · bump `V` when the caching rules change

@@ -3,7 +3,7 @@ Setup files: `database/01…NN-*.sql` (all applied, in this order). New change =
 
 ## Tables (label shows in Table Editor)
 - ⭐ reviews · price 1–4 (optional) · hide: approved = false
-- 🚩 place_flags · halal / vegan / veg + food votes
+- 🚩 place_flags · kind: halal / vegan / vegetarian / closed (yes = closed, no = still open) / food:<type> votes · one answer per phone per kind
 - 📷🚩 photo_reports · 2 = photo hidden
 - 📍 new_places · photo of outside required · shown at 3 yes (adder = 1) · 3 no hides · pending > 90 days gone · verified = team place · hide: hidden = true
 - 📍✔ new_place_votes · 🍽 menu_photos (hide: hidden = true) · 🏪 owner_info (3 reports hide) · 🏪🚩 owner_info_reports

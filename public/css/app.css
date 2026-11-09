@@ -315,3 +315,4 @@ html.iosgap.exv{height:calc(100% + var(--iosgap,0px));overflow-y:auto;overscroll
 html.iosgap.exv body{position:relative;height:100%;overflow:hidden}
 html.iosgap.exv .stage{position:absolute!important}
 html.iosgap.exv .sheet,html.iosgap.exv .drawer,html.iosgap.exv .scrim,html.iosgap.exv #rvModal,html.iosgap.exv #toast,html.iosgap.exv #splash{position:absolute}
+#about h3{margin:18px 0 4px;font-size:1.05rem}#about p{margin:0 0 8px}#about{max-width:640px}
