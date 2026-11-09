@@ -1,5 +1,9 @@
 /* Jakorchi app. Version number: change it with tools/bump-version.py */
-const BUILD="2026-11-09.5";
+const BUILD="2026-11-09.6";
+/* iPhone home-screen app bug: with the see-through status bar the page ends short by the status-bar height,
+   leaving an empty band at the bottom. Measure that band and let the map (and bottom sheets) cover it. */
+function fixIosGap(){let g=0;try{if(navigator.standalone===true){const p=innerHeight>=innerWidth,full=p?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height);g=Math.round(full-innerHeight);if(!(g>0&&g<120))g=0}}catch(e){}document.documentElement.style.setProperty("--iosgap",g+"px")}
+fixIosGap();addEventListener("resize",fixIosGap);addEventListener("orientationchange",()=>setTimeout(fixIosGap,300));
 // ===== DATA: replace the examples with your own checked places. rating: your own score 1-5 (or null) =====
 function R(id,country,city,area,name,loc,cuisine,price,rating,eng,halal,vegan,lat,lng,cat="restaurant"){return {cat,src:"example",exRating:true,id,country,city,area,name,loc,cuisine,price,rating,eng,halal,vegan,lat,lng,
  dish:"(Example) Signature dish",vibe:"(Example) Casual and busy",warn:"(Example) Check cash or card, and possible queue",order:"(Example) Point at the menu or use the Phrases page."}}
