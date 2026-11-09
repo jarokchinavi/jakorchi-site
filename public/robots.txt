@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /places/
+Sitemap: https://jakorchinavigation.jakorchi.workers.dev/sitemap.xml

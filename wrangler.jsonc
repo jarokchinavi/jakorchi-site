@@ -1,0 +1,6 @@
+{
+  // Jakorchi website: only static files, served by Cloudflare. Every push to "main" goes live by itself.
+  "name": "jakorchinavigation",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./public" }
+}
