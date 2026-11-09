@@ -14,6 +14,7 @@ reviews with prices in local money, 9 languages (en nl de fr es zh ja ko ar).
 | `public/` | the website. `index.html` (page), `css/app.css` (look), `js/app.js` (app code), `lang/*.json` (texts per language, `foods.json` = food names in every language), `places/` (restaurant files per map square), icons, `sw.js` (offline helper), `_headers` (security rules) |
 | `tools/` | `bump-version.py` (new version number everywhere), `build_places.py` + `make-restaurants.bat` (make restaurant files from OpenStreetMap on a PC) |
 | `database/` | the Supabase setup, in the order it was applied (see `database/README.md`) |
+| `docs/` | short notes on the app, database, data, checks and status |
 
 ## Changing the app
 

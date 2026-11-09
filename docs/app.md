@@ -1,0 +1,17 @@
+# App (public/)
+- vanilla JS, no build step · `index.html` (page + inline start-screen CSS only) · `css/app.css` · `js/app.js` · Leaflet from cdnjs with integrity
+- version: `const BUILD` at the top of `js/app.js` = `?v=` in index.html = `version.json` (use tools/bump-version.py) · menu shows it · app reloads itself when version.json differs (not while typing / sheet open)
+- texts: `T(key)` · English = the key itself · `lang/<code>.json` = all texts of one language (only the chosen one is downloaded by `loadLang`) · `lang/foods.json` = food names (`c:…`) + category names of every language (search in any language via `cuisAll`) · languages: en nl de fr es zh ja ko ar (ar = right-to-left, map stays left-to-right)
+- new text: add the English key in code, then the same key in all 8 `lang/<code>.json` files (+ `foods.json` if it is a `c:` food name)
+- place row, 18 cols: id, name, localName, cat, cuisine, lat, lng, halal, vegan, hours, addr, web, (empty: area removed), country, vegetarian, phone, nm, sub
+- safety: esc() remote text · PHRE photo paths · webUrl() links · strict CSP (no inline scripts)
+- names: real name · English only if OSM has it or known chain (BRANDS) · no made-up Latin
+- food type: OSM cuisine or FOODS word list (≈ guessed) · filter panel = type-to-search box (fCuisine + datalist)
+- price: reviews carry price 1–4 · `PRC` = local money per country (JP ¥ 1,500/4,000/10,000 · KR ₩ 13,000/30,000/80,000 · CN ¥ 50/150/400) · slider 1–20 (20 = any) · `prLoad` bulk-loads priced places from place_ratings
+- pins: pinScore (rating > info) · fewer when zoomed out (tier table in syncMarkers)
+- map: OpenFreeMap vector style, labels set to the app language **before** drawing (styleLang, style kept 7 days in localStorage) · plain OSM tiles only as backup after 6 s
+- start screen: logo 2 s (from first paint) · CSS fallback hides it after 4 s
+- screen: map fills under the status bar and home bar; controls use env(safe-area-inset-*) · theme-color follows light/dark
+- menu: All Asia · Find a city (Nominatim) · Add a restaurant · Install the app · Editor mode
+- saved places + lists only on the phone
+- `sw.js`: navigation + css/js/lang = network first (saved copy offline) · places = saved copy first, refresh in background · bump `V` when the caching rules change
