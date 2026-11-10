@@ -23,6 +23,7 @@ function segSync(){const s=$$("#seg");if(!s)return;const v=curView,lp=$$("#listP
  s.hidden=!(v==="explore"||v==="home")||(v==="explore"&&fp);const a=v==="home"?"home":lp?"list":"map";
  s.querySelectorAll("button").forEach(b=>b.classList.toggle("on",(b.dataset.seg||"list")===a))}
 window.segSync=segSync;
+document.querySelectorAll("section.view").forEach(v=>new MutationObserver(segSync).observe(v,{attributes:true,attributeFilter:["class"]}));
 $$("#seg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
  if(b.dataset.seg==="home"){goTab("home");return}
  if(curView!=="explore")goTab("explore");
@@ -73,9 +74,8 @@ function cityHits(q){const f=fold(q),r=raw(q);if(f.length<2&&!/[^\x00-\x7f]/.tes
   if(s<9)out.push([s,c])}
  return out.sort((a,b)=>a[0]-b[0]).slice(0,6).map(x=>x[1])}
 const cq=$$("#cityQ"),cr=$$("#cityRes");let cityList=[];
-cq.addEventListener("input",()=>{cityList=cityHits(cq.value.trim());cr.innerHTML=cityList.map(c=>`<button class="plain" type="button" data-cll="${c[2]},${c[3]}">${FLAG[c[1]]||si("pin")} ${esc(T(c[0]))} <small>${esc(c[4].split(" ")[0])}</small></button>`).join("")});
-cr.addEventListener("click",e=>{if(e.target.closest("[data-cll]"))setTimeout(()=>{cq.value="";cr.innerHTML="";cityList=[];cq.blur()},0)});
-cq.addEventListener("blur",()=>setTimeout(()=>{if(!cr.contains(document.activeElement)){cr.innerHTML="";cityList=[]}},250));
+cq.addEventListener("input",()=>{const v=cq.value.trim();$$("#cities").hidden=!!v;cityList=cityHits(v);cr.innerHTML=cityList.map(c=>`<button class="plain" type="button" data-cll="${c[2]},${c[3]}">${FLAG[c[1]]||si("pin")} ${esc(T(c[0]))} <small>${esc(c[4].split(" ")[0])}</small></button>`).join("")});
+cr.addEventListener("click",e=>{if(e.target.closest("[data-cll]"))setTimeout(()=>{cq.value="";cr.innerHTML="";cityList=[];$$("#cities").hidden=false;cq.blur()},0)});
 cq.addEventListener("keydown",e=>{if(e.key==="Enter"&&cityList.length){e.preventDefault();e.stopImmediatePropagation();cr.querySelector("[data-cll]").click()}},true);
 /* filters open: the map underneath can't be zoomed or moved by accident */
 new MutationObserver(()=>{if(!map)return;const on=$$("#fpanel").classList.contains("open");["touchZoom","dragging","scrollWheelZoom","doubleClickZoom","boxZoom","keyboard"].forEach(h=>{try{map[h][on?"disable":"enable"]()}catch(e){}})}).observe($$("#fpanel"),{attributes:true,attributeFilter:["class"]});
@@ -84,5 +84,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-gorev]");i
  const go=()=>{const box=$$("#sbody"),t=box&&box.querySelector("[data-revs]");if(!t){openRv(id);return}setState("full");
   const to=()=>{const x=box.querySelector("[data-revs]");if(x)box.scrollTop=x.getBoundingClientRect().top-box.getBoundingClientRect().top+box.scrollTop-12};/* the card may have been redrawn */setTimeout(to,380);setTimeout(to,800)};
  e.stopPropagation();if(b.closest("#sheet"))go();else{goTab("explore");showOnMap(id);setTimeout(go,420)}},true);
+/* settings groups: closed by default, tap the header to open or close */
+$$("#settings").addEventListener("click",e=>{const h=e.target.closest(".acc-h");if(!h)return;const a=h.parentNode,on=!a.classList.contains("open");a.classList.toggle("open",on);h.setAttribute("aria-expanded",on)});
 drMore();segSync();
 })();
