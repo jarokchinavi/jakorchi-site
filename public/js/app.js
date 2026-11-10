@@ -1,5 +1,5 @@
 /* Jakorchi app. Version number: change it with tools/bump-version.py */
-const BUILD="2026-11-10.8";
+const BUILD="2026-11-10.9";
 /* iPhone home-screen app: with the see-through status bar, iOS lays the page out shorter than the screen (by the
    status-bar height). Layers pinned to that short viewport (position:fixed) stop short and an empty band shows at the
    bottom; stretching them past the edge is not drawn. So: measure the band once, make the page itself as tall as the
@@ -74,7 +74,7 @@ let remote={},remoteRev={};
 const sbOn=()=>!!(SB.url&&SB.key),sbH=()=>{const h={apikey:SB.key,"Content-Type":"application/json"};if(SB.key.startsWith("eyJ"))h.Authorization="Bearer "+SB.key;return h};
 const rcount=r=>sbOn()?((remote[r.id]||{}).n||0):(reviews[r.id]||[]).length;
 const avg=r=>{if(sbOn()){const m=remote[r.id];return m&&m.n?m.sum/m.n:null}const a=reviews[r.id]||[];return a.length?a.reduce((s,x)=>s+x.stars,0)/a.length:null};
-const noRev=()=>`<span class="star" style="color:var(--mute);font-weight:600"><small>${T("No reviews yet")}</small></span>`;
+const noRev=()=>`<span class="star" style="color:var(--mute);font-weight:600"><small>${metaBad&&Date.now()-metaBad<60000?T("Reviews can't load right now."):T("No reviews yet")}</small></span>`;
 /* small cache so the free Supabase plan is used less: the summaries are kept 10 minutes in this browser, one place's reviews 5 minutes */
 const cget=(k,ms)=>{try{const o=JSON.parse(localStorage.getItem("jk_c_"+k));if(o&&Date.now()-o.t<ms)return o.v}catch(e){}return null};
 const cset=(k,v)=>{try{localStorage.setItem("jk_c_"+k,JSON.stringify({t:Date.now(),v}))}catch(e){}};
@@ -112,7 +112,9 @@ async function sbFlagPost(id,items){/* one request per answer, so a repeated ans
  const out=[];for(const [k,v] of items){try{const r=await fetch(`${SB.url}/rest/v1/place_flags`,{method:"POST",headers:{...sbH(),Prefer:"return=minimal"},body:JSON.stringify({place_id:id,kind:k,verdict:v,device:dev})});out.push(r.ok?1:r.status===409?2:0)}catch(e){out.push(0)}}return out}
 const revAt={};
 async function sbReviews(id,force){if(!sbOn())return;if(!force&&revAt[id]&&Date.now()-revAt[id]<300000)return;try{const r=await fetch(`${SB.url}/rest/v1/reviews_public?place_id=eq.${encodeURIComponent(id)}&select=stars,name,text,created_at,photos,price&order=created_at.desc&limit=20`,{headers:sbH()});if(!r.ok)return;remoteRev[id]=(await r.json()).map(x=>({stars:x.stars,name:x.name,text:x.text,date:(x.created_at||"").slice(0,10),photos:Array.isArray(x.photos)?x.photos:[],price:x.price||0}));revAt[id]=Date.now();if(sheetId===id)drawSheet()}catch(e){}}
-async function sbPost(id,rev){try{const r=await fetch(`${SB.url}/rest/v1/reviews`,{method:"POST",headers:{...sbH(),Prefer:"return=minimal"},body:JSON.stringify({place_id:id,stars:rev.stars,price:rev.price||null,name:rev.name||null,text:rev.text||null,photos:rev.photos||[],device:dev})});return r.ok}catch(e){return false}}
+const sbWhyTx=m=>/busy, try again/.test(m)?T("Many people are posting right now. Please try again in an hour."):/too many [a-z ]*today/.test(m)?T("You reached today's limit on this phone. Please try again tomorrow."):"";
+async function sbWhy(r){try{return sbWhyTx(await r.clone().text())}catch(e){return ""}}
+async function sbPost(id,rev){try{const r=await fetch(`${SB.url}/rest/v1/reviews`,{method:"POST",headers:{...sbH(),Prefer:"return=minimal"},body:JSON.stringify({place_id:id,stars:rev.stars,price:rev.price||null,name:rev.name||null,text:rev.text||null,photos:rev.photos||[],device:dev})});return r.ok||(await sbWhy(r))||false}catch(e){return false}}
 const score=r=>avg(r)??(sbOn()?0:(r.rating??0));
 /* who gets a pin first when zoomed out: visitor ratings count most, then how complete the place info is */
 /* typo-friendly search (no library): fold = lower case, no accents, Japanese spelling variants alike (ramen = raamen, shi = si);
@@ -316,7 +318,11 @@ $("#cats").onclick=e=>{const b=e.target.closest("[data-cat]");if(!b)return;cat=b
 $("#cities").onclick=e=>{const b=e.target.closest("[data-city]");if(!b||!map)return;showMap();openCity(CITIES.find(x=>x[0]===b.dataset.city))};
 function allAsia(){country="";document.querySelectorAll("#country button").forEach((x,i)=>x.classList.toggle("on",i===0));renderChips();fillOpts();rr();showMap();if(map)map.setView([36,128],4)}
 async function findCity(){const q=$("#cityQ").value.trim(),out=$("#cityRes");if(q.length<2||findCity.busy)return;findCity.busy=1;out.textContent=T("Searching…");
- try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&countrycodes=jp,kr,cn&featureType=settlement&accept-language="+encodeURIComponent(lang)+"&q="+encodeURIComponent(q));if(!r.ok)throw 0;const j=await r.json();
+ try{const ck="jk_c_city_"+lang+"_"+q.toLowerCase().slice(0,60),cc=load(ck,null);let j=cc&&Date.now()-cc.t<30*864e5?cc.h:null;
+  if(!j){try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&countrycodes=jp,kr,cn&featureType=settlement&accept-language="+encodeURIComponent(lang)+"&q="+encodeURIComponent(q));if(!r.ok)throw 0;j=await r.json()}
+   catch(e){const r=await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=8&bbox=73,18,146,54&osm_tag=place`);if(!r.ok)throw 0;const g=await r.json();
+    j=(g.features||[]).filter(f=>/^(JP|KR|CN)$/i.test(f.properties&&f.properties.countrycode||"")).map(f=>({lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0],display_name:[f.properties.name,f.properties.state,f.properties.country].filter(Boolean).join(", ")}))}
+   if(Array.isArray(j))save(ck,{t:Date.now(),h:j.slice(0,8)})}
   const hits=(Array.isArray(j)?j:[]).filter(h=>isFinite(+h.lat)&&isFinite(+h.lon));
   out.innerHTML=hits.length?hits.map(h=>`<button class="plain" data-cll="${(+h.lat).toFixed(5)},${(+h.lon).toFixed(5)}">${si("pin")} ${esc(String(h.display_name||h.name||"").split(",").slice(0,3).join(","))}</button>`).join(""):esc(T("Nothing found."))}
  catch(e){out.textContent=T("Could not search. Please try again.")}finally{setTimeout(()=>{findCity.busy=0},1000)}}
@@ -380,7 +386,7 @@ function onAct(ev){const t=ev.target.closest("button,a");if(!t)return;const g=x=
   if(!bx.querySelector("[data-oiok]").checked){m2.textContent=T("Please tick the box first.");return}
   if((ph&&!/^[+0-9 ()\-]{5,30}$/.test(ph))||(!ph&&!no)){m2.textContent=T("Please enter a valid phone number or a note.");return}
   if(t.disabled)return;t.disabled=true;m2.textContent=T("Sending…");
-  fetch(`${SB.url}/rest/v1/owner_info`,{method:"POST",headers:{...sbH(),Prefer:"return=minimal"},body:JSON.stringify({place_id:id,phone:ph||null,note:no||null,device:dev})}).then(r=>{t.disabled=false;if(r.ok){flash(T("Sent. Thank you!"));closeRv();sbExtra(id,true)}else m2.textContent=T("Could not send. Please try again.")},()=>{t.disabled=false;m2.textContent=T("Could not send. Please try again.")})}
+  fetch(`${SB.url}/rest/v1/owner_info`,{method:"POST",headers:{...sbH(),Prefer:"return=minimal"},body:JSON.stringify({place_id:id,phone:ph||null,note:no||null,device:dev})}).then(async r=>{t.disabled=false;if(r.ok){flash(T("Sent. Thank you!"));closeRv();sbExtra(id,true)}else m2.textContent=(await sbWhy(r))||T("Could not send. Please try again.")},()=>{t.disabled=false;m2.textContent=T("Could not send. Please try again.")})}
  else if(t.hasAttribute("data-lsave"))openSave(g("data-lsave"))
  else if(t.hasAttribute("data-lt")){const pid=g("data-pid");if(toggleIn(g("data-lt"),pid)){const rw=document.getElementById("lRows");if(rw)rw.innerHTML=saveRows(pid);refresh()}}
  else if(t.hasAttribute("data-lnew")){const pid=g("data-lnew"),inp=t.parentNode.querySelector("[data-lname]"),m2=t.closest(".rvbox").querySelector("[data-m]"),l=newList(inp.value,pid);
@@ -996,7 +1002,7 @@ document.addEventListener("change",async e=>{const f=e.target.closest&&e.target.
  if(!/^[A-Za-z0-9_]{1,60}$/.test(pid))return;say(T("Uploading photos…"));
  try{const b=await shrinkImg(file),path=await sbUpload(pid,b);if(!path){say(T("Photo upload failed. Please try again."));return}
   const r=await fetch(`${SB.url}/rest/v1/menu_photos`,{method:"POST",headers:{...sbH(),Prefer:"return=minimal"},body:JSON.stringify({place_id:pid,path,device:dev})});
-  if(!r.ok){say(T("Could not send. Please try again."));return}flash(T("Menu photo added. Thank you!"));sbExtra(pid,true)}catch(err){say(T("Photo upload failed. Please try again."))}});
+  if(!r.ok){say((await sbWhy(r))||T("Could not send. Please try again."));return}flash(T("Menu photo added. Thank you!"));sbExtra(pid,true)}catch(err){say(T("Photo upload failed. Please try again."))}});
 function openOi(id){const r=place(id);if(!r)return;const m=ensureModal();
  m.innerHTML=`<div class="rvbox card"><button class="rvx" data-rvclose aria-label="Close">✕</button><h3>${esc(dname(r))}</h3><p class="hint">${esc(T("Shown to everyone as “from the restaurant, not checked”. Visitors can report wrong information."))}</p>
   <label class="l">${esc(T("Phone number"))}</label><input data-oiph inputmode="tel" maxlength="30" placeholder="+82 2 1234 5678">
@@ -1038,7 +1044,7 @@ function startAdd(){if(!map||!sbOn())return;closeSheet();showMap();if(map.getZoo
    t.disabled=true;m2.textContent=T("Uploading photos…");
    try{if(bx._ph&&!bx._ph.path)bx._ph.path=await sbUpload("newplace",bx._ph.b);if(bx._ph&&!bx._ph.path){t.disabled=false;m2.textContent=T("Photo upload failed. Please try again.");return}
     m2.textContent=T("Sending…");const r=edCode?await edAdd(bx,nm,c):await fetch(`${SB.url}/rest/v1/new_places?select=id`,{method:"POST",headers:{...sbH(),Prefer:"return=representation"},body:JSON.stringify({name:nm,lat:+c.lat.toFixed(6),lng:+c.lng.toFixed(6),cat:bx.querySelector("[data-adc]").value,cuisine:bx.querySelector("[data-adf]").value,halal:bx.querySelector("[data-adh]").checked,vegan:bx.querySelector("[data-adv]").checked,vegetarian:bx.querySelector("[data-adg]").checked,photo:bx._ph?bx._ph.path:null,device:dev})});
-    t.disabled=false;if(!r.ok){let tx="";try{tx=await r.text()}catch(e){}if(/already on the map/.test(tx)){m2.textContent=T("This place is already on the map.");return}m2.textContent=edCode&&r.status===400?T("Wrong code, or too many tries. Wait an hour and try again."):T("Could not send. Please try again.");return}
+    t.disabled=false;if(!r.ok){let tx="";try{tx=await r.text()}catch(e){}if(/already on the map/.test(tx)){m2.textContent=T("This place is already on the map.");return}m2.textContent=edCode&&r.status===400?T("Wrong code, or too many tries. Wait an hour and try again."):(sbWhyTx(tx)||T("Could not send. Please try again."));return}
     const j=await r.json();if(Array.isArray(j)&&j[0]&&Number.isInteger(j[0].id)){npMine.add("np_"+j[0].id);save("jk_npmine",[...npMine].slice(-200))}
     if(bx._ph)URL.revokeObjectURL(bx._ph.u);bx._ph=null;bx.classList.remove("on");document.body.classList.remove("adding");flash(T("Sent. Thank you!")+" "+T("It shows for everyone after 2 other people confirm it."));npLoad(true)}catch(err){t.disabled=false;m2.textContent=T("Could not send. Please try again.")}})}
  const opts=FT.map(([sl,l])=>[l,cuis(l)]).sort((a,b)=>a[1].localeCompare(b[1],lang)).map(([l,lab])=>`<option value="${esc(l)}">${esc(lab)}</option>`).join("");
@@ -1054,7 +1060,7 @@ async function submitReview(t,m,id,rev){if(t.disabled)return;t.disabled=true;
  try{const paths=[];
   if(rvPh.length){m.textContent=T("Uploading photos…");for(const p of rvPh){if(!p.path)p.path=await sbUpload(id,p.b);if(!p.path){m.textContent=T("Photo upload failed. Try again or send without photos.");t.disabled=false;return}paths.push(p.path)}}
   m.textContent=T("Sending…");rev.photos=paths;const ok=await sbPost(id,rev);t.disabled=false;
-  if(ok){flash(T("Review sent."));closeRv();wantMeta([id],true);sbReviews(id,true)}else m.textContent=T("Could not send your review. Please try again.")
+  if(ok===true){flash(T("Review sent."));closeRv();wantMeta([id],true);sbReviews(id,true)}else m.textContent=ok||T("Could not send your review. Please try again.")
  }catch(e){t.disabled=false;m.textContent=T("Could not send your review. Please try again.")}}
 
 // ===== PHRASES =====

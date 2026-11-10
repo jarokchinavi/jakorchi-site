@@ -24,7 +24,8 @@ Setup files: `database/01…NN-*.sql` (all applied, in this order). New change =
 
 ## Spam limits
 - per phone / day: reports 120 · reviews 15 · photo reports 60 · new places 5 · votes 60 · menu photos 20 · owner info 5 · info reports 60
-- whole app: reviews 100/h 600/d · reports 2000/h 20000/d · photo reports 200/h · uploads 60/h 300/d 2000 total · new places 30/h 150/d · votes 600/h · menu 60/h · owner info 50/h 300/d · info reports 300/h
+- whole app (14-higher-limits.sql, for ~1000 visitors at once): reviews 1000/h 5000/d · reports 10000/h 100000/d · photo reports 1000/h · uploads 300/h 1500/d 2000 total (free storage 1 GB) · new places 150/h 750/d · votes 3000/h · menu 300/h · owner info 250/h 1500/d · info reports 1500/h
+- errors: 'busy, try again later' = whole app full · 'too many … today' = phone limit · app shows a clear text for both (`sbWhy` in js/app.js)
 
 - 12-kyoto-halal.sql (applied): 5 team places in Kyoto (GYUMON Gion / Shimogyo / Nakagyo, HALRA, WAGYUZA), halal, verified. Names + coordinates from the owner; GYUMON Shimogyo not yet confirmed on a directory.
 - 13-no-duplicate-places.sql (applied): new place refused when the same name (lower case, no spaces/punctuation) is within 15 m. The app checks the same against map places first.
