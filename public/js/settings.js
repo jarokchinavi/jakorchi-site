@@ -34,7 +34,7 @@
         row('data-soon="Sign in"', T("Sign in"), "", "gold") + row('data-soon="Create account"', T("Create account"), "", "gold");
     }
     /* Jakorchi Plus: empty on purpose for now */
-    h += '<div class="plusc"><span class="pn">Jakorchi Plus</span><span class="orn" aria-hidden="true"><i></i><b></b><i></i></span><span class="soonb">' + esc(T("Coming soon")) + '</span></div>';
+    h += '<button type="button" class="plusc" data-soon="Jakorchi Plus"><span class="pn">Jakorchi Plus</span><span class="soonb">' + esc(T("Coming soon")) + '</span></button>';
     /* appearance */
     h += head(T("Appearance")) + '<div class="sseg" role="group">' +
       [["light", "Light"], ["dark", "Dark"], ["auto", "System"]].map(function (x) { return '<button type="button" data-theme-set="' + x[0] + '" aria-pressed="' + (x[0] === th) + '">' + esc(T(x[1])) + '</button>'; }).join("") + '</div>';
@@ -45,7 +45,7 @@
     h += head(T("Storage")) + row('data-clear="cache"', T("Clear cache")) +
       row('data-clear="map"', armed ? T("Tap again to clear. Favorites and lists stay.") : T("Clear saved map data"));
     /* about */
-    h += head(T("About")) + '<div class="row"><span class="l">' + esc(T("Version")) + '</span><span class="v">' + esc(BUILD) + '</span></div>' +
+    h += head(T("About")) + '<button type="button" class="row" data-diag><span class="l">' + esc(T("Version")) + '</span><span class="v">' + esc(BUILD) + '</span></button>' +
       '<p class="note">' + esc(T("Jakorchi is a free food guide for travelers in Japan, Korea and China. No account, no ads, no tracking.")) + '</p>';
     body.innerHTML = h;
   }
@@ -69,7 +69,16 @@
   }
 
   /* ---- storage ---- */
-  function flash(t) { toast.textContent = t; toast.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { toast.hidden = true; }, 2600); }
+  function flash(t, ms) { toast.textContent = t; toast.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { toast.hidden = true; }, ms || 2600); }
+  /* Tap the version number = screen numbers (for phones we cannot test); numbers only, so no translation needed */
+  function diag() {
+    var p = document.createElement("div"); p.style.cssText = "position:fixed;visibility:hidden;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0";
+    document.body.appendChild(p); var cs = getComputedStyle(p), top = cs.paddingTop, bot = cs.paddingBottom; p.remove();
+    var m = document.querySelector('meta[name="theme-color"]');
+    var pwa = (navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches)) ? 1 : 0;
+    flash("v" + BUILD + " · win " + innerWidth + "×" + innerHeight + " · screen " + screen.width + "×" + screen.height + " · pwa " + pwa +
+      " · safe top " + top + " bottom " + bot + " · bar " + (m ? m.content : "-") + " · bg " + getComputedStyle(document.body).backgroundColor + " · " + (JKTheme.get()), 12000);
+  }
   function clearCache() {
     try { Object.keys(localStorage).filter(function (k) { return /^jk_c_/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
     flash(T("Cache cleared."));
@@ -106,6 +115,7 @@
     else if (b.dataset.clear === "cache") clearCache();
     else if (b.dataset.clear === "map") clearMap();
     else if (b.hasAttribute("data-signout")) JKAuth.signOut();
+    else if (b.hasAttribute("data-diag")) diag();
     else if (b.dataset.themeSet) setTimeout(render, 0);
   });
   document.getElementById("layer").addEventListener("click", function (e) {

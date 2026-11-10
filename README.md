@@ -5,14 +5,15 @@ reviews with prices in local money, 9 languages (en nl de fr es zh ja ko ar).
 
 - **Live:** https://jakorchinavigation.jakorchi.workers.dev
 - **Publishing:** every push to `main` goes live by itself (Cloudflare Workers Builds, Worker `jakorchinavigation`).
-- **Private repository.** Only the owner can change it. The Claude and Cloudflare apps have access to this repository only.
+- **Repository:** public right now (it holds no secrets). The owner can make it private in GitHub → Settings → Change visibility; publishing keeps working. The Claude and Cloudflare apps have access to this repository only.
+- **Front end:** being rebuilt screen by screen (front page and settings are done). The old version is kept in git as tag `old-app-final`.
 
 ## Folders
 
 | Folder | What it is |
 |---|---|
-| `public/` | the website. `index.html` (page), `css/app.css` (look), `js/app.js` (app code), `lang/*.json` (texts per language, `foods.json` = food names in every language), `places/` (restaurant files per map square), icons, `sw.js` (offline helper), `_headers` (security rules) |
-| `tools/` | `bump-version.py` (new version number everywhere), `build_places.py` + `make-restaurants.bat` (make restaurant files from OpenStreetMap on a PC) |
+| `public/` | the website. `index.html` (page), `css/` (look), `js/` (app code, small files), `lang/*.json` (texts per language, `foods.json` = food names in every language), `places/` (restaurant files per map square), icons, `logo.svg`, `sw.js` (offline helper), `_headers` (security rules) |
+| `tools/` | `bump-version.py` (new version number everywhere), `build_places.py` + `make-restaurants.bat` (make restaurant files from OpenStreetMap on a PC), `split_places.py`, `clean_names.py` |
 | `database/` | the Supabase setup, in the order it was applied (see `database/README.md`) |
 | `docs/` | short notes on the app, database, data, checks and status |
 
@@ -24,6 +25,6 @@ reviews with prices in local money, 9 languages (en nl de fr es zh ja ko ar).
 
 ## Safety
 
-- Strict Content-Security-Policy: only our own files, Leaflet (cdnjs) and MapLibre (unpkg) may run, all with integrity checks; no inline scripts.
-- The Supabase key in `js/app.js` is the public (publishable) key. The database rules decide what visitors can do: add only, never change or delete.
+- Strict Content-Security-Policy: no inline scripts; only our own files may run (cdnjs and unpkg are allowed in `public/_headers` for the map libraries that come back later, always with integrity checks).
+- Only the public (publishable) Supabase key is ever used in the app. The database rules decide what visitors can do: add only, never change or delete.
 - Data: map and places © OpenStreetMap contributors (ODbL). No Google / Yelp / Tripadvisor / Naver / Dianping data.

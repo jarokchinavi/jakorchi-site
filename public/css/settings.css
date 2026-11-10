@@ -32,18 +32,14 @@ html[dir="rtl"] .chev{transform:rotate(-45deg)}
 .me small{display:block;color:var(--mu);font-size:13px;word-break:break-word}
 
 /* Jakorchi Plus: a membership card (navy, gold double border, gold name) */
-.plusc{--pcb:#0A1226;position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:24px;padding:24px 18px 20px;
-  border:1px solid #D4B062;border-radius:14px;background:var(--pcb);color:#F3EBDB;text-align:center}
-.plusc::before{content:"";position:absolute;inset:5px;border:.5px solid rgba(212,176,98,.55);border-radius:10px;pointer-events:none}
+.plusc{--pcb:#0A1226;width:100%;text-align:start;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;margin-top:22px;padding:0 16px;
+  border:1px solid rgba(212,176,98,.75);border-radius:8px;background:var(--pcb);color:#F3EBDB}
 :root[data-theme="dark"] .plusc{--pcb:#111C44}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .plusc{--pcb:#111C44}}
-.pn{font:500 24px/1.1 "Fraunces",Georgia,serif;letter-spacing:.04em;color:#D4B062}
-.orn{display:flex;align-items:center;gap:8px}
-.orn i{display:block;width:34px;height:1px;background:#D4B062;opacity:.7}
-.orn b{display:block;width:6px;height:6px;background:#D4B062;transform:rotate(45deg)}
-.soonb{font-size:12px;font-weight:500;letter-spacing:.08em;color:rgba(243,235,219,.78)}
+.pn{font:500 17px/1.2 "Fraunces",Georgia,serif;letter-spacing:.03em;color:#D4B062}
+.soonb{font-size:12px;font-weight:500;letter-spacing:.04em;color:rgba(243,235,219,.72);white-space:nowrap}
 .note{margin-top:8px;font-size:13px;color:var(--mu)}
 
-.toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:20;max-width:88vw;
-  padding:10px 16px;border-radius:999px;background:var(--btn);color:var(--on);font-size:14px;text-align:center}
+.toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:20;width:max-content;max-width:88vw;
+  padding:10px 16px;border-radius:16px;background:var(--btn);color:var(--on);font-size:14px;text-align:center;word-break:break-word}
 .toast[hidden]{display:none}

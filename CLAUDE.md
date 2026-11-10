@@ -12,6 +12,8 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = the source 
 - If vital information is missing: say what is missing in 1–2 simple sentences and stop.
 - End of a task: what changed (short) · honest findings · what the owner must do next (often nothing).
 - Update `docs/` only when something lasting changed or the owner asks. Don't mention the notes in every reply.
+- Process for every new screen: show the design first (2–3 options as PNG/JPG files via `SendUserFile`, light + dark) → owner picks → build in small files → test → show screenshots → release only after the owner's OK. Design: navy / cream / gold, see `docs/app.md`; no words the owner did not ask for.
+- The owner keeps the Supabase test rows (reviews, new places, votes, owner info). Never clear them without a new yes.
 
 ## Work efficiently
 - Start from this file and the one `docs/` file the task needs. Don't scan everything, don't re-read old chats.
@@ -20,9 +22,9 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = the source 
 - Every async call has a fallback (the app must never break). Mind phone speed and memory.
 
 ## Quality and speed
-- **Can't test it myself (a real iPhone, the owner's phone or PC):** ask for a screenshot first, plus the numbers shown by tapping the version number in the menu. No blind fixes.
+- **Can't test it myself (a real iPhone, the owner's phone or PC):** ask for a screenshot first, plus the numbers shown by tapping the version number in Settings (About → Version). No blind fixes.
 - **A release breaks the live app:** put the previous version back at once (`git revert`, push). Tell the owner in plain words what happened, what was undone and what comes next. Then find the cause.
-- **Small and fast:** no new library without a clear need. keep every `js/` file small (the old `js/app.js` was 142 KB); rarely used parts go into a file that loads on demand. After a big change check the start (page ready in under 1 second on Wi-Fi).
+- **Small and fast:** no new library without a clear need. Keep every `js/` file small (the old `js/app.js` was 142 KB); rarely used parts go into a file that loads on demand. After a big change check the start (page ready in under 1 second on Wi-Fi).
 - **Languages:** every new text gets all 9 languages in the same update (`lang/<code>.json`; food names also in `lang/foods.json`).
 
 ## Where things are
@@ -39,13 +41,14 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = the source 
 1. Edit in `public/` → `node --check` on the changed js files (if node is installed) → quick browser check for what changed (see `docs/checks.md`).
 2. `python tools/bump-version.py` (version in app code, page links `?v=` and `version.json`).
 3. Commit + push to `main` → Cloudflare publishes in about a minute → check `/version.json` on the live site.
-4. Copy changed files to the Desktop backup (device_commit_files). Tell the owner the new version number (shown in the menu).
+4. Copy changed files to the Desktop backup (robocopy `public\` → `Desktop\jakorchi-site`). Tell the owner the new version number (Settings → Version).
+- Push: `git push origin main` (GitHub sign-in is cached; if it asks again, run it in the Terminal panel so the owner can sign in; never type passwords). Commit author = Claude, with the Co-Authored-By line.
 - New restaurant data: owner runs `make-restaurants.bat` → files land in Desktop `places\` → validate (JSON, right square) → copy to `public/places/` + `_done.json` → `python tools/split_places.py` → push.
 - Database change: new numbered file in `database/`, test on local Postgres first, then apply_migration, then get_advisors (must stay 0).
 
 ## Safety (never weaken)
-- CSP `script-src 'self'` + cdnjs (Leaflet) + unpkg (MapLibre), all with integrity hashes. **No inline scripts or `on…=` attributes**; set handlers in `js/app.js`.
-- All remote text through `esc()`; photo paths checked (PHRE); links through `webUrl()`.
+- CSP `script-src 'self'`; `_headers` also allows cdnjs (Leaflet) and unpkg (MapLibre) for the map screen later, always with integrity hashes. **No inline scripts or `on…=` attributes**; set handlers in the `js/` files.
+- All remote text through `esc()` (`JK.ui.esc`); photo paths and links are checked again when the map and review screens come back (old `PHRE` / `webUrl()` are in tag `old-app-final`).
 - Only the publishable Supabase key in the app. Visitors may only add rows (with spam limits), never change or delete. Never commit secrets (the editor code is set by the owner in the SQL Editor only).
 - Quick safety scan of any outside file or package before using it; skip and tell the owner if it looks wrong.
-- Repo stays private. The Claude and Cloudflare GitHub apps have access to this repo only.
+- The repo is PUBLIC right now (checked 2026-11-10; it holds no secrets). The owner decides about making it private (GitHub → Settings → Change visibility; Cloudflare keeps working). The Claude and Cloudflare GitHub apps have access to this repo only.

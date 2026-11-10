@@ -3,7 +3,7 @@
 ## Done
 - ✅ GitHub = source · automatic publishing via Cloudflare Workers Builds · version number + self-update
 - ✅ New front page (navy/cream/gold, light + dark, 9 languages, signed-in hides Sign in / Create account) – see `docs/app.md`
-- ✅ Old front end removed from the working tree, kept in git tag `old-app-final` · database, `places/` (160 files, 122,058 places), `lang/`, tools untouched · DB advisor 0
+- ✅ Old front end removed from the working tree, kept in git tag `old-app-final` · database, `places/` (160 files + 208 split files in `places/14`, about 122,000 places), `lang/`, tools untouched · DB advisor 0
 - ✅ Supabase test rows (reviews, new places, votes, owner info) are kept on purpose
 
 ## Next (owner picks the order)
@@ -12,6 +12,7 @@
 - Map and List buttons show "Coming soon" until then
 
 ## Owner to do
+0. Decide: make the GitHub repo private (it is public now; no secrets inside) · iPhone: the top of the page fades a little → send a screenshot + the numbers from tapping Settings → Version
 1. Check the new tagline / "Create account" wording in the 8 languages (nl, de, fr, es, zh, ja, ko, ar)
 2. iPhone: screenshot of the front page (top and bottom) after the release
 3. Turn on 2-step login (2FA) for GitHub, Cloudflare and Supabase
