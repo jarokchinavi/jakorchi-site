@@ -12,7 +12,7 @@
 - Map and List buttons show "Coming soon" until then
 
 ## Owner to do
-0. Decide: make the GitHub repo private (it is public now; no secrets inside) · iPhone: the top of the page fades a little → send a screenshot + the numbers from tapping Settings → Version
+0. GitHub repo stays public (owner's choice, nothing private inside) · iPhone: the top of the page fades a little → send a screenshot + the numbers from tapping Settings → Version
 1. Check the new tagline / "Create account" wording in the 8 languages (nl, de, fr, es, zh, ja, ko, ar)
 2. iPhone: screenshot of the front page (top and bottom) after the release
 3. Turn on 2-step login (2FA) for GitHub, Cloudflare and Supabase

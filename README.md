@@ -5,7 +5,7 @@ reviews with prices in local money, 9 languages (en nl de fr es zh ja ko ar).
 
 - **Live:** https://jakorchinavigation.jakorchi.workers.dev
 - **Publishing:** every push to `main` goes live by itself (Cloudflare Workers Builds, Worker `jakorchinavigation`).
-- **Repository:** public right now (it holds no secrets). The owner can make it private in GitHub → Settings → Change visibility; publishing keeps working. The Claude and Cloudflare apps have access to this repository only.
+- **Repository:** public on purpose (it holds no secrets and must never hold any). The owner can make it private in GitHub → Settings → Change visibility; publishing keeps working. The Claude and Cloudflare apps have access to this repository only.
 - **Front end:** being rebuilt screen by screen (front page and settings are done). The old version is kept in git as tag `old-app-final`.
 
 ## Folders
