@@ -1,37 +1,19 @@
-# App (public/)
-- vanilla JS, no build step · `index.html` (page + inline start-screen CSS only) · `css/app.css` · `js/app.js` · Leaflet from cdnjs with integrity
-- version: `const BUILD` at the top of `js/app.js` = `?v=` in index.html = `version.json` (use tools/bump-version.py) · menu shows it · app reloads itself when version.json differs (not while typing / sheet open)
-- texts: `T(key)` · English = the key itself · `lang/<code>.json` = all texts of one language (only the chosen one is downloaded by `loadLang`) · `lang/foods.json` = food names (`c:…`) + category names of every language (search in any language via `cuisAll`) · languages: en nl de fr es zh ja ko ar (ar = right-to-left, map stays left-to-right)
-- new text: add the English key in code, then the same key in all 8 `lang/<code>.json` files (+ `foods.json` if it is a `c:` food name)
-- place row, 18 cols: id, name, localName, cat, cuisine, lat, lng, halal, vegan, hours, addr, web, (empty: area removed), country, vegetarian, phone, nm, sub
-- safety: esc() remote text · PHRE photo paths · webUrl() links · strict CSP (no inline scripts)
-- names: real name · English only if OSM has it or known chain (BRANDS) · no made-up Latin
-- food type: OSM cuisine or FOODS word list (≈ guessed) · filter panel = type-to-search box (fCuisine + datalist)
-- price: reviews carry price 1–4 · `PRC` = local money per country (JP ¥ 1,500/4,000/10,000 · KR ₩ 13,000/30,000/80,000 · CN ¥ 50/150/400) · slider 1–20 (20 = any) · `prLoad` bulk-loads priced places from place_ratings
-- pins: pinScore (rating > info) · fewer when zoomed out (tier table in syncMarkers)
-- map: OpenFreeMap vector style, labels set to the app language **before** drawing (styleLang, style kept 7 days in localStorage) · plain OSM tiles only as backup after 6 s
-- start screen: logo 2 s (from first paint) · CSS fallback hides it after 4 s
-- screen: map fills under the status bar and home bar; controls use env(safe-area-inset-*) · theme-color follows light/dark
-- iPhone home-screen app: iOS lays the page out short by the status-bar height (band at the bottom in the page background colour). `fixIosGap` measures it once → `html.iosgap`; on the map screen (`html.exv`) the page is made screen-tall and stage / sheet / menu / start screen sit inside `<body>` (absolute), because layers pinned with position:fixed are cut off at the short viewport. Tap the version number in the menu = screen measurements (for phones we cannot test).
-- menu: All Asia · Find a city (Nominatim) · Add a restaurant · Install the app · Editor mode
-- reports (`openFlag`): closed / halal / vegan-vegetarian yes-no + food type · "closed" label (`closedTag`) from 3 yes and more yes than no
-- About & privacy page (`#about`, menu → More): what is saved; `CONTACT` in js/app.js = contact email ("" hides the line) · the text names the outside services, keep it true when services change
-- saved places + lists only on the phone
-- `sw.js`: navigation + css/js/lang = network first (saved copy offline) · places = saved copy first, refresh in background · bump `V` when the caching rules change
+# App (public/) – front-end rebuild, front page only
+The map app (search, filters, list, reviews, prices, pins) is being rebuilt screen by screen. The old version is in `old/` and its notes in `docs/old-app.md` (behaviour to keep: zoom to 21, number bubbles, pin limits per zoom, typo-friendly search, filters, list, back button, local-money prices). Delete `old/` only when the owner says so. Database, `places/`, `lang/`, tools and the safety rules are unchanged.
 
-## Map pins, search, touch (2026-11-10)
-- Zoom 13–14: crowded places become numbered bubbles (`syncCl` in js/app.js, `.cl` in css); tap = zoom in 2 steps. Zoom 15+: single pins as before. Pins are redrawn at most every 200 ms (`syncSoon`).
-- Search (`fold`, `near`, `fuzzyHit`): normal match first; with fewer than 3 hits it also accepts small typos and Japanese spelling variants (ramen/raamen). No library.
-- Text selection and the long-press menu are off everywhere except typing fields (end of css/app.css).
-- (2026-11-10.2) Typing: the "keep map at top" scroll guard pauses while a text field is focused; `--kb` (keyboard height) + panel scroll keeps the field above the keyboard. Food field has tap-able examples (`#fEx`, `drawFex`). Visitor/team places always get their own pin. Zoom guide `#zHint` below zoom 13. Font: Figtree (Google Fonts), lighter weights. Solid band behind the iPhone status bar (`body.ex::before`) against the iOS 26 top blur.
-- Accounts: `#account` page is only the look (nothing sent). Editor mode is hidden from the menu; open the app with `#editor` at the end of the address (it stays in the menu once the code is on).
-- (2026-11-10.3) Bubbles = design B (`clIcon`, `.clb`): white pill, navy cap with bowl, green dot = has halal, light green = has vegan; max 45 on a phone (70 on PC), wider grouping. Zoom guide is a glass pill under the chips (hides "Search this area"). Max zoom 21 (raster backup stretches from 19). In explore the page background is navy so the iOS 26 status-bar band is navy, not grey.
-- (2026-11-10.4) Files: `js/icons.js` (own icons `IC`/`si()`, flags, map pins `pinSvg` + food icons `CU`) loads before app.js; `js/more.js` (start screen `#home`, Start·Map·List switch `#seg`, phone back button via history + MutationObservers, menu extras: directions walk/transit/car `trMode`, clear map data, Jakorchi Plus "coming soon") loads after. Phrases load from `lang/phrases.json` when opened.
-- List shows only places on screen, nearest first (to you, else map middle); typed search or "Top rated" sorts by rating. Search updates while typing (350 ms pause). Status pill under the chips only while loading or on a problem. Start screen shows once on the first visit.
-- Colours: light #f5f3ee / dark #12161c pairs in `:root`. No system emoji in the app (use `si("name")`).
-- (2026-11-10.5) Start screen = one solid colour (ivory light / deep navy dark, vars `--hb…` in css), no city list, Jakorchi Plus preview (3 placeholder benefits, owner to confirm). Sign in / Log in / Sign up = "coming soon" popup (`soon()` in more.js); the account page is gone. Settings page `#settings` (appearance auto/light/dark saved as `jk_theme`, language, map letters, distance, directions, clear map data, Plus, version); the menu only links to it. Behind the iPhone clock the page colour is the map's land colour (#f8f4f0 / dark #292624), no bar. City search: local list of ~60 cities with local names and old spellings (`CT` in more.js), typo-tolerant; Enter on anything else asks OpenStreetMap. Map squares always load nearest to the middle first.
-- Back button: one guard history step while any layer is open (more.js); never call history.back() directly elsewhere.
-- (2026-11-10.6) Every cold start opens the start screen (not for shared links / #editor). Start screen has theme switch (Light/Dark/System) + settings gear. Settings: Profile (coming soon, no fields), "Clear cache" = only `jk_c_*` lookups, "Clear saved map data" = only `/places/` files in the phone cache + saved map style; app files, favorites, lists and servers are never touched. Inputs are 16px (iPhone no longer zooms the page). Filters open = map gestures off. Tap stars on a card = open full + scroll to reviews. Card open = bubbles hidden. Gold "coming soon" only for Plus.
-- (2026-11-10.7) No orange anywhere: buttons use `--pri`/`--prit` (navy + cream in light, cream + navy in dark), same as the start screen. Ratings gold (`--sg`, `.star`, `[data-st]`). Settings = 6 groups (`.acc`), all closed at start, tap header to open. City search: typing hides the fixed city buttons and shows only matches; leaving the field keeps text and list.
-- (2026-11-10.8) Load check (1000 visitors): app keeps working when Supabase / OSM services are slow or down, and asks less often then. Card says "Reviews can't load right now." when the database can't be reached (`noRev`). Posting limits give a clear message (`sbWhy`). City search: answers kept 30 days (`jk_c_city_*`), Photon as backup when Nominatim is busy.
-- (2026-11-10.9) Start screen: no 'Open the map' button (the bottom switch Map button is the way in), tighter spacing. Bubbles: grouping cell 140 px at zoom ≤13, 112 px at 14; at most 24 bubbles on a phone (40 on PC). Single pins: zoom 15 max ~60, 16 ~95.
+## Files
+- `index.html` (page + SEO, no inline scripts) · `css/base.css` (colours light/dark, fonts) · `css/home.css` (front page, popup layer)
+- `js/theme.js` (runs first: saved theme `jk_theme`, theme-color, "wait" flag for non-English) · `js/auth.js` (runs first: signed in → class `in` on `<html>` hides Sign in / Create account) · `js/app.js` (`const BUILD`, fonts, self-reload on new version, service worker) · `js/i18n.js` (`T`, `JK.i18n.set`) · `js/home.js` (theme buttons, popups, settings = language)
+- `sw.js` (network first for app files, saved copy offline; bump `V` when caching rules change) · `logo.svg` (old logo, from icon.svg) · `version.json`
+- version: `const BUILD` in js/app.js = `?v=` in index.html = version.json (`python tools/bump-version.py`)
+
+## Design (chosen by the owner)
+- Navy / cream / gold. Light: bg #F6F1E6, ink #0A1226. Dark: bg #070D1F, ink #F3EBDB. No black, no orange, no pattern, no extra marketing words.
+- Fonts (Google Fonts): Fraunces (name, tagline, popup titles), Inter Tight (buttons, small text), Lora only for the letter J of the name (Fraunces' J looked odd). zh/ja/ko/ar use the phone's own font for the tagline; the name stays Fraunces.
+- Front page order: Light · Dark · System + Settings · old logo · Jakorchi · 日本 · 대한민국 · 中国 (own languages, never translated, always left-to-right) · tagline · Sign in / Create account · Start · Map · List.
+- Signed in = Sign in and Create account are gone. Accounts are not live yet; `JKAuth.signIn(user)` / `JKAuth.signOut()` (key `jk_user`) or a Supabase session (`sb-…-auth-token`) turns it on.
+- Sign in / Create account / Map / List show a "Coming soon" popup for now. Back button closes a popup (one history step).
+- Short phones (≤680 px high) get tighter spacing so nothing scrolls.
+
+## Texts
+- English = the key itself; every new text gets all 8 other `lang/<code>.json`. Added: "Create account", "Discover authentic dining across Japan, South Korea and China" (owner should check the translations).

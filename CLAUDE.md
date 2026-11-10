@@ -16,27 +16,27 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = the source 
 ## Work efficiently
 - Start from this file and the one `docs/` file the task needs. Don't scan everything, don't re-read old chats.
 - The current code is the truth; drop replaced features and old notes.
-- Keep code modular and lean: page in `index.html`, look in `css/app.css`, logic in `js/app.js`, texts in `lang/`.
+- Keep code modular and lean: page in `index.html`, look in `css/` (`base.css`, `home.css`, more per screen later), logic in small `js/` files (see `docs/app.md`), texts in `lang/`. The front end is being rebuilt screen by screen; the old version is in `old/` (delete only when the owner says so).
 - Every async call has a fallback (the app must never break). Mind phone speed and memory.
 
 ## Quality and speed
 - **Can't test it myself (a real iPhone, the owner's phone or PC):** ask for a screenshot first, plus the numbers shown by tapping the version number in the menu. No blind fixes.
 - **A release breaks the live app:** put the previous version back at once (`git revert`, push). Tell the owner in plain words what happened, what was undone and what comes next. Then find the cause.
-- **Small and fast:** no new library without a clear need. `js/app.js` stays under 150 KB (now 142; icons in `js/icons.js`, start screen / switch / back button / extra settings in `js/more.js`, phrases in `lang/phrases.json`); past that, move rarely used parts into a file that loads on demand. After a big change check the start (page ready in under 1 second on Wi-Fi).
+- **Small and fast:** no new library without a clear need. keep every `js/` file small (the old `js/app.js` was 142 KB); rarely used parts go into a file that loads on demand. After a big change check the start (page ready in under 1 second on Wi-Fi).
 - **Languages:** every new text gets all 9 languages in the same update (`lang/<code>.json`; food names also in `lang/foods.json`).
 
 ## Where things are
 | What | Where |
 |---|---|
-| website | `public/` → `index.html`, `css/app.css`, `js/app.js`, `lang/<code>.json` + `lang/foods.json`, `places/`, `sw.js`, `_headers`, icons, `version.json` |
+| website | `public/` → `index.html`, `css/`, `js/` (`const BUILD` is in `js/app.js`), `lang/<code>.json` + `lang/foods.json`, `places/`, `sw.js`, `_headers`, icons, `logo.svg`, `version.json` · old front end in `old/` |
 | tools | `tools/bump-version.py` · `tools/split_places.py` · `tools/clean_names.py` · `tools/build_places.py` + `make-restaurants.bat` (owner runs the Desktop copy) |
 | database | Supabase project `jsegdbtefxsforphluyc` · setup in `database/01…NN-*.sql` (all applied, in order) |
 | hosting | Cloudflare Worker `jakorchinavigation` (account subdomain `jakorchi`), Workers Builds from this repo |
 | backup | owner's Desktop `jakorchi-site\` (keep in sync after a release) · Desktop `jakorchi-tools\` |
-| notes | `docs/app.md` · `docs/database.md` · `docs/data.md` · `docs/checks.md` · `docs/status.md` |
+| notes | `docs/app.md` (new) · `docs/old-app.md` (old behaviour to keep) · `docs/database.md` · `docs/data.md` · `docs/checks.md` · `docs/status.md` |
 
 ## Release (every change)
-1. Edit in `public/` → `node --check public/js/app.js` → quick Playwright check for what changed (see `docs/checks.md`).
+1. Edit in `public/` → `node --check` on the changed js files (if node is installed) → quick browser check for what changed (see `docs/checks.md`).
 2. `python tools/bump-version.py` (version in app code, page links `?v=` and `version.json`).
 3. Commit + push to `main` → Cloudflare publishes in about a minute → check `/version.json` on the live site.
 4. Copy changed files to the Desktop backup (device_commit_files). Tell the owner the new version number (shown in the menu).

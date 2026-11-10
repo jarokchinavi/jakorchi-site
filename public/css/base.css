@@ -1,0 +1,27 @@
+/* Jakorchi base: colours (light + dark), fonts, reset. */
+:root{
+  --bg:#F6F1E6; --ink:#0A1226; --mu:#5E667C; --ln:rgba(10,18,38,.2);
+  --gold:#8F6A17; --btn:#0A1226; --on:#F6F1E6; --veil:rgba(10,18,38,.45);
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"Inter Tight",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#070D1F; --ink:#F3EBDB; --mu:#A3ACC6; --ln:rgba(243,235,219,.2);
+    --gold:#D4B062; --btn:#F3EBDB; --on:#070D1F; --veil:rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#070D1F; --ink:#F3EBDB; --mu:#A3ACC6; --ln:rgba(243,235,219,.2);
+  --gold:#D4B062; --btn:#F3EBDB; --on:#070D1F; --veil:rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);font:400 16px/1.4 var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+/* languages that Fraunces does not cover use the phone's own readable font (the name Jakorchi stays Fraunces) */
+html[lang="zh"],html[lang="ja"],html[lang="ko"],html[lang="ar"]{--serif:var(--sans)}

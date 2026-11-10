@@ -1,5 +1,5 @@
 // Jakorchi offline helper. Only our own files are kept; Supabase, maps and other sites are never touched.
-const V = 'jk-v4', SHELL = ['/', '/manifest.webmanifest', '/icon-192.png'];
+const V = 'jk-v5', SHELL = ['/', '/manifest.webmanifest', '/icon-192.png', '/logo.svg'];
 const FRESH = ['/css/', '/js/', '/lang/']; // app files: newest from the internet first, saved copy only when offline
 self.addEventListener('install', e => e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())));
