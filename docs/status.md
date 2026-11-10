@@ -1,12 +1,13 @@
-# Status (2026-11-09 · version 2026-11-09.5)
+# Status (2026-11-10 · version 2026-11-10.10)
 
 ## Done
 - ✅ GitHub = source · automatic publishing via Cloudflare Workers Builds · version number + self-update
-- ✅ app split into page / css / js / lang files · strict CSP without inline scripts
-- ✅ 9 languages incl. Arabic (right-to-left) · logo 3 · 2 s start screen · full-screen phone layout
-- ✅ food search box · price slider in local money · review price → place price
-- ✅ Seoul · Tokyo · Kyoto restaurant data
-- ✅ DB advisor 0 · test data removed
+- ✅ page / css / js (`app.js` + `icons.js` + `more.js`) / lang files · strict CSP without inline scripts · 9 languages incl. Arabic
+- ✅ start screen on every launch (theme switch, settings gear, Log in / Sign up = "coming soon", Plus preview) · Start · Map · List switch at the bottom
+- ✅ Settings page in 6 closed groups (profile, preferences, language & region, storage, Plus, about)
+- ✅ map: label-pill bubbles (max 24 on a phone), own food-icon pins with price tag, zoom guide pill, zoom to 21, list = places on screen, nearest first
+- ✅ search: live, typo-friendly · city search with ~60 cities + spelling mistakes · phone back button · no orange, gold ratings
+- ✅ data: Seoul · Tokyo area · Kyoto/Osaka area · 5 Kyoto halal team places · duplicate check (same name within 15 m) · DB advisor 0
 
 ## Owner to do
 1. Send the contact email for the About & privacy page (then set `CONTACT` in js/app.js)
