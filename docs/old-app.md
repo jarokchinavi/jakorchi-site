@@ -1,4 +1,25 @@
-# App (public/)
+# OLD app: behaviour and fixes to keep (the design and the places of buttons change, the rules below stay)
+Read this before building the map, list, card, filters, search or review screens. The real code is in tag `old-app-final` (`git show old-app-final:public/js/app.js`).
+
+## Behaviour numbers that stay
+- zoom up to 21 (the plain-map backup stretches from zoom 19) · bubbles at zoom ≤14 (cell 140 px at ≤13, 112 px at 14; max 24 on a phone, 40 on PC; tap = zoom in 2) · single pins from zoom 15 (zoom 15 max ~60, 16 ~95) · pins redrawn at most every 200 ms · visitor/team places always get their own pin · card open = bubbles hidden · zoom guide below zoom 13
+- search: normal match first, typo / spelling-variant matching only with fewer than 3 hits (`fold`, `near`, `fuzzyHit`) · live while typing (350 ms pause) · list = places on screen, nearest first (typed search or "Top rated" sorts by rating) · city search: ~60 local cities + OpenStreetMap on Enter, Photon as backup, answers kept 30 days
+- prices: local money per country (JP ¥ 1,500/4,000/10,000 · KR ₩ 13,000/30,000/80,000 · CN ¥ 50/150/400), slider 1–20 (20 = any) · "closed" label from 3 yes and more yes than no
+- map labels: language set before drawing (`styleLang`), style kept 7 days, plain OSM tiles only as backup after 6 s · map language setting `jk_maplet` = auto | latin | code
+
+## Hard-won fixes (bugs we already solved)
+1. iPhone home-screen app is laid out short by the status-bar height → measured once (`fixIosGap`, `html.iosgap`); layers with `position:fixed` get cut off, so stage/sheet/menu live inside `<body>` as `absolute` on the map screen.
+2. iOS 26 blurs the strip under the clock (also seen again on the new front page): keep controls out of it; page background = the map colour so the band matches; `theme-color` follows light/dark.
+3. Typing: the "keep map at top" scroll guard pauses while a field is focused; `--kb` (keyboard height) keeps the field above the keyboard; inputs are 16 px so the iPhone does not zoom.
+4. Text selection and the long-press menu are off everywhere except typing fields.
+5. Back button: one guard history step while any layer is open; the phone back button closes the layer.
+6. Filters open = map gestures off. Tap stars on a card = open full card + scroll to reviews.
+7. Slow or broken services (Supabase, OpenStreetMap) must never break the app: fallbacks everywhere, ask less often when slow, "Reviews can't load right now" (`noRev`), clear posting-limit messages (`sbWhy`).
+8. Clear cache = only `jk_c_*`; clear saved map data = only `/places/` files + saved map style. Favorites, lists, settings, app files are never touched.
+9. No system emoji (own icons) · no orange · gold only for ratings and Plus · service worker: app files network first, places saved copy first.
+10. The browser test pane pauses map drawing while hidden: map labels cannot be judged there.
+
+# (old notes in full)
 - vanilla JS, no build step · `index.html` (page + inline start-screen CSS only) · `css/app.css` · `js/app.js` · Leaflet from cdnjs with integrity
 - version: `const BUILD` at the top of `js/app.js` = `?v=` in index.html = `version.json` (use tools/bump-version.py) · menu shows it · app reloads itself when version.json differs (not while typing / sheet open)
 - texts: `T(key)` · English = the key itself · `lang/<code>.json` = all texts of one language (only the chosen one is downloaded by `loadLang`) · `lang/foods.json` = food names (`c:…`) + category names of every language (search in any language via `cuisAll`) · languages: en nl de fr es zh ja ko ar (ar = right-to-left, map stays left-to-right)

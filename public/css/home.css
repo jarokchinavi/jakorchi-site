@@ -31,6 +31,12 @@ html.in .auth{display:none}
 .auth{margin-bottom:28px}
 html.in .hero{padding-top:clamp(40px,14vh,120px)}
 
+/* Opened from the phone's home screen, iOS 26 blurs everything in the first strip under the clock (seen on the owner's iPhone, 2026-11-10).
+   Cannot be switched off from a web page, so the top bar starts below that strip. Normal browsers are not affected. */
+@media (display-mode: standalone){
+  .home{padding-top:calc(env(safe-area-inset-top, 0px) + 48px)}
+}
+
 /* short phones (iPhone SE and similar): everything must fit without scrolling */
 @media (max-height:680px){
   .hero{padding-top:6px}.logo{width:84px}h1{margin-top:14px}.tagline{margin-top:14px}

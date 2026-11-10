@@ -20,6 +20,7 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = the source 
 - The current code is the truth; drop replaced features and old notes.
 - Keep code modular and lean: page in `index.html`, look in `css/` (`base.css`, `home.css`, more per screen later), logic in small `js/` files (see `docs/app.md`), texts in `lang/`. The front end is being rebuilt screen by screen. The old version is NOT in the working tree any more: it lives only in git (tag `old-app-final`; read a file with `git show old-app-final:public/js/app.js`). Don't read it unless porting a feature.
 - Every async call has a fallback (the app must never break). Mind phone speed and memory.
+- Before building the map, list, card, filters, search or review screens: read `docs/old-app.md` (behaviour numbers + hard-won fixes) and the matching old code in tag `old-app-final`. Design and button places are new; the rules and the fixes stay.
 
 ## Quality and speed
 - **Can't test it myself (a real iPhone, the owner's phone or PC):** ask for a screenshot first, plus the numbers shown by tapping the version number in Settings (About → Version). No blind fixes.
