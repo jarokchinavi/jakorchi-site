@@ -9,7 +9,7 @@ Read this before building the map, list, card, filters, search or review screens
 
 ## Hard-won fixes (bugs we already solved)
 1. iPhone home-screen app is laid out short by the status-bar height → measured once (`fixIosGap`, `html.iosgap`); layers with `position:fixed` get cut off, so stage/sheet/menu live inside `<body>` as `absolute` on the map screen.
-2. iOS 26 blurs the strip under the clock (also seen again on the new front page): keep controls out of it; page background = the map colour so the band matches; `theme-color` follows light/dark.
+2. iOS 26 blurs the strip under the clock (seen on the old app and on the new front page, home-screen app only). No web way to switch it off was found (2026-11-10: the WebKit change is for native apps that embed a web view). Moving the top bar 48 px lower removed it, but the owner did not want that and it was undone. Page background = the map colour so the band matches; `theme-color` follows light/dark. Options left: accept the soft blur, a smaller shift, or the solid-bar status-bar style (needs the icon to be re-added to the Home Screen).
 3. Typing: the "keep map at top" scroll guard pauses while a field is focused; `--kb` (keyboard height) keeps the field above the keyboard; inputs are 16 px so the iPhone does not zoom.
 4. Text selection and the long-press menu are off everywhere except typing fields.
 5. Back button: one guard history step while any layer is open; the phone back button closes the layer.
