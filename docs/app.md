@@ -18,3 +18,8 @@
 - About & privacy page (`#about`, menu → More): what is saved; `CONTACT` in js/app.js = contact email ("" hides the line) · the text names the outside services, keep it true when services change
 - saved places + lists only on the phone
 - `sw.js`: navigation + css/js/lang = network first (saved copy offline) · places = saved copy first, refresh in background · bump `V` when the caching rules change
+
+## Map pins, search, touch (2026-11-10)
+- Zoom 13–14: crowded places become numbered bubbles (`syncCl` in js/app.js, `.cl` in css); tap = zoom in 2 steps. Zoom 15+: single pins as before. Pins are redrawn at most every 200 ms (`syncSoon`).
+- Search (`fold`, `near`, `fuzzyHit`): normal match first; with fewer than 3 hits it also accepts small typos and Japanese spelling variants (ramen/raamen). No library.
+- Text selection and the long-press menu are off everywhere except typing fields (end of css/app.css).

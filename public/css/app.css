@@ -221,7 +221,7 @@ body.ex{padding:0}
 .stage{bottom:env(safe-area-inset-bottom,0px)}
 .sheet{bottom:env(safe-area-inset-bottom,0px)}
 .brand{gap:9px}.mbtn{flex:none}
-.scrim{position:fixed;inset:0;z-index:3500;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;transition:opacity .25s,visibility 0s .25s}
+.scrim{position:fixed;inset:0;z-index:3500;background:rgba(0,0,0,.34);opacity:0;visibility:hidden;transition:opacity .25s,visibility 0s .25s}
 .scrim.on{opacity:1;visibility:visible;transition:opacity .25s}
 .drawer{position:fixed;top:0;bottom:0;left:0;z-index:3600;width:min(86vw,320px);background:var(--card);color:var(--ink);box-shadow:6px 0 30px rgba(0,0,0,.35);transform:translateX(-104%);visibility:hidden;transition:transform .28s cubic-bezier(.22,1,.36,1),visibility 0s .28s;display:flex;flex-direction:column;overflow:hidden}
 .drawer.on{transform:none;visibility:visible;transition:transform .28s cubic-bezier(.22,1,.36,1)}
@@ -316,3 +316,11 @@ html.iosgap.exv body{position:relative;height:100%;overflow:hidden}
 html.iosgap.exv .stage{position:absolute!important}
 html.iosgap.exv .sheet,html.iosgap.exv .drawer,html.iosgap.exv .scrim,html.iosgap.exv #rvModal,html.iosgap.exv #toast,html.iosgap.exv #splash{position:absolute}
 #about h3{margin:18px 0 4px;font-size:1.05rem}#about p{margin:0 0 8px}#about{max-width:640px}
+
+/* numbered bubbles (crowded places, zoomed out) */
+.cl{width:100%;height:100%;display:grid;place-items:center;cursor:pointer}
+.cl b{display:grid;place-items:center;border-radius:50%;background:var(--accent);color:#fff;font:700 .85rem/1 system-ui,sans-serif;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45)}
+.cl .c1{width:34px;height:34px}.cl .c2{width:40px;height:40px}.cl .c3{width:44px;height:44px;font-size:.8rem}
+/* no text selection or long-press menu on the app itself; typing fields still allow it */
+*{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}

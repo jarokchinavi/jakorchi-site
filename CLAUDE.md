@@ -29,7 +29,7 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = the source 
 | What | Where |
 |---|---|
 | website | `public/` → `index.html`, `css/app.css`, `js/app.js`, `lang/<code>.json` + `lang/foods.json`, `places/`, `sw.js`, `_headers`, icons, `version.json` |
-| tools | `tools/bump-version.py` · `tools/split_places.py` · `tools/build_places.py` + `make-restaurants.bat` (owner runs the Desktop copy) |
+| tools | `tools/bump-version.py` · `tools/split_places.py` · `tools/clean_names.py` · `tools/build_places.py` + `make-restaurants.bat` (owner runs the Desktop copy) |
 | database | Supabase project `jsegdbtefxsforphluyc` · setup in `database/01…NN-*.sql` (all applied, in order) |
 | hosting | Cloudflare Worker `jakorchinavigation` (account subdomain `jakorchi`), Workers Builds from this repo |
 | backup | owner's Desktop `jakorchi-site\` (keep in sync after a release) · Desktop `jakorchi-tools\` |

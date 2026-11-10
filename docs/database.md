@@ -25,3 +25,5 @@ Setup files: `database/01…NN-*.sql` (all applied, in this order). New change =
 ## Spam limits
 - per phone / day: reports 120 · reviews 15 · photo reports 60 · new places 5 · votes 60 · menu photos 20 · owner info 5 · info reports 60
 - whole app: reviews 100/h 600/d · reports 2000/h 20000/d · photo reports 200/h · uploads 60/h 300/d 2000 total · new places 30/h 150/d · votes 600/h · menu 60/h · owner info 50/h 300/d · info reports 300/h
+
+- 12-kyoto-halal.sql (applied): 5 team places in Kyoto (GYUMON Gion / Shimogyo / Nakagyo, HALRA, WAGYUZA), halal, verified. Names + coordinates from the owner; GYUMON Shimogyo not yet confirmed on a directory.

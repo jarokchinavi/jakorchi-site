@@ -1,5 +1,5 @@
 /* Jakorchi app. Version number: change it with tools/bump-version.py */
-const BUILD="2026-11-09.8";
+const BUILD="2026-11-10.1";
 /* iPhone home-screen app: with the see-through status bar, iOS lays the page out shorter than the screen (by the
    status-bar height). Layers pinned to that short viewport (position:fixed) stop short and an empty band shows at the
    bottom; stretching them past the edge is not drawn. So: measure the band once, make the page itself as tall as the
@@ -111,6 +111,13 @@ async function sbReviews(id,force){if(!sbOn())return;if(!force&&revAt[id]&&Date.
 async function sbPost(id,rev){try{const r=await fetch(`${SB.url}/rest/v1/reviews`,{method:"POST",headers:{...sbH(),Prefer:"return=minimal"},body:JSON.stringify({place_id:id,stars:rev.stars,price:rev.price||null,name:rev.name||null,text:rev.text||null,photos:rev.photos||[],device:dev})});return r.ok}catch(e){return false}}
 const score=r=>avg(r)??(sbOn()?0:(r.rating??0));
 /* who gets a pin first when zoomed out: visitor ratings count most, then how complete the place info is */
+/* typo-friendly search (no library): fold = lower case, no accents, Japanese spelling variants alike (ramen = raamen, shi = si);
+   near = at most m letters wrong (a change, an extra, a missing or two swapped); every typed word must match a word of the place */
+const fold=s=>String(s||"").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/ou|oo/g,"o").replace(/uu/g,"u").replace(/shi/g,"si").replace(/chi/g,"ti").replace(/tsu/g,"tu").replace(/ji/g,"zi").replace(/fu/g,"hu").replace(/[^\p{L}\p{N}]+/gu," ").trim();
+function near(a,b,m){const x=a.length,y=b.length;if(Math.abs(x-y)>m)return false;let p=[],q=[],o=[];for(let j=0;j<=y;j++)q[j]=j;
+ for(let i=1;i<=x;i++){o=p;p=q;q=[i];let lo=i;for(let j=1;j<=y;j++){let v=Math.min(p[j]+1,q[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])v=Math.min(v,o[j-2]+1);q[j]=v;if(v<lo)lo=v}if(lo>m)return false}return q[y]<=m}
+function fuzzyHit(r,qf){if(r._fl!==lang){r._fl=lang;r._fw=fold([r.name,dname(r),romOf(r),r.cuisine,cuis(r.cuisine),r.dish].join(" ")).split(" ")}
+ return qf.every(t=>{const m=t.length<4?0:t.length<6?1:2;return r._fw.some(w=>w.startsWith(t)||(m&&(near(w,t,m)||(w.length>t.length&&near(w.slice(0,t.length),t,m)))))})}
 const pinScore=r=>{const a=avg(r)??(sbOn()?null:r.rating);let s=a!=null?100+a*10+Math.min(rcount(r)||0,10):0;if(!r.cu0)s+=3;if(r.loc||r.src!=="osm")s+=2;if(r.hours)s+=1;if(r.web)s+=1;if(r.phone)s+=1;return s};
 function flash(msg){let e=document.getElementById("toast");if(!e){e=document.createElement("div");e.id="toast";e.setAttribute("role","status");document.body.appendChild(e)}e.textContent=msg;e.classList.add("on");clearTimeout(flash.t);flash.t=setTimeout(()=>e.classList.remove("on"),2600)}
 function shareText(t,el){if(navigator.share)navigator.share({text:t}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>el.textContent=T("Copied. Paste it into a message."),()=>el.textContent=T("Copy failed."));else el.textContent=T("Sharing is not supported here.")}
@@ -246,14 +253,15 @@ function fillOpts(){const base=all().filter(r=>(!country||r.country===country)&&
  $("#fFoodList").innerHTML=labels.map(v=>`<option value="${esc(v)}"></option>`).join("");prUi()}
 function render(fit=true){
  const q=$("#q").value.trim().toLowerCase(),c=$("#fCuisine").value.trim().toLowerCase(),p=+$("#fPrice").value||20,pAny=p>=20,cm=c?CATS.slice(1).filter(x=>T(x[1]).toLowerCase().includes(c)).map(x=>x[0]):[],ch=new Map(),hitC=k=>{if(!k)return false;let v=ch.get(k);if(v===undefined){v=(k+" "+cuis(k)+" "+cuisAll(k)).toLowerCase().includes(c);ch.set(k,v)}return v},sort=$("#fSort").value;
- const res=all().filter(r=>(!country||r.country===country)&&(!cat||r.cat===cat)&&(!c||hitC(r.cuisine)||cm.includes(r.cat)||(r.dish&&String(r.dish).toLowerCase().includes(c)))&&(pAny||prOk(r,p))&&(!F.eng||r.eng===true)&&(!F.halal||hasD(r,"halal"))&&(!F.veg||hasD(r,"vegetarian"))&&(!F.jp||JPRE.test(r.cuisine||""))&&(!F.kr||KRRE.test(r.cuisine||""))&&(!F.cn||CNRE.test(r.cuisine||""))&&(!F.fav||favs.includes(r.id))&&(!listF||listF.has(r.id))&&(!q||[r.name,dname(r),r.loc,romOf(r),r.city,r.cuisine,cuis(r.cuisine),cuisAll(r.cuisine),r.dish,r.addr,r.nm?Object.values(r.nm).join(" "):""].join(" ").toLowerCase().includes(q)));
+let fz=false;const qf=q?fold(q).split(" ").filter(Boolean):[],run=()=>all().filter(r=>(!country||r.country===country)&&(!cat||r.cat===cat)&&(!c||hitC(r.cuisine)||cm.includes(r.cat)||(r.dish&&String(r.dish).toLowerCase().includes(c)))&&(pAny||prOk(r,p))&&(!F.eng||r.eng===true)&&(!F.halal||hasD(r,"halal"))&&(!F.veg||hasD(r,"vegetarian"))&&(!F.jp||JPRE.test(r.cuisine||""))&&(!F.kr||KRRE.test(r.cuisine||""))&&(!F.cn||CNRE.test(r.cuisine||""))&&(!F.fav||favs.includes(r.id))&&(!listF||listF.has(r.id))&&(!q||(fz?fuzzyHit(r,qf):[r.name,dname(r),r.loc,romOf(r),r.city,r.cuisine,cuis(r.cuisine),cuisAll(r.cuisine),r.dish,r.addr,r.nm?Object.values(r.nm).join(" "):""].join(" ").toLowerCase().includes(q))));
+ let res=run();if(q&&qf.length&&res.length<3){fz=true;const r2=run();if(r2.length>res.length)res=r2}/* few hits: also accept small typing mistakes */
  if(sort==="dist"&&me)res.sort((x,y)=>km(me,x)-km(me,y));else{const c0=map?map.getCenter():null,dd=r=>c0?(r.lat-c0.lat)**2+(r.lng-c0.lng)**2:0;{const sc=new Map();for(const r of res)sc.set(r,[pinScore(r),dd(r)]);res.sort((x,y)=>{const a=sc.get(x),b=sc.get(y);return b[0]-a[0]||(x.src==="osm")-(y.src==="osm")||a[1]-b[1]||x.name.localeCompare(y.name)})}}
  cur=res;
  $("#list").innerHTML=(res.length?res.slice(0,shown).map(r=>card(r)).join("")+(res.length>shown?`<button class="btn more2" data-more>Show 30 more (${res.length-shown} left)</button>`:""):'<p class="empty">'+T("No places match. Try another filter, search, or zoom the map to load more places.")+'</p>');
  $("#count").textContent=res.length+" "+(res.length===1?T("place"):T("places"));$("#listBtn").textContent="☰ "+T("List")+" · "+res.length;$("#whereTxt").textContent=T(country||"All Asia");
  const nf=[country,cat,c,!pAny].filter(Boolean).length+Object.values(F).reduce((x,y)=>x+y,0)+(listF?1:0);$("#fCount").textContent=nf||"";allOn();$("#fCount").style.display=nf?"grid":"none";
  if(map){syncMarkers();if(fit&&res.length){const pts=(res.length>2000?res.slice(0,2000):res).map(r=>[r.lat,r.lng]);map.fitBounds(L.latLngBounds(pts),{paddingTopLeft:[40,150],paddingBottomRight:[40,90],maxZoom:13})}}wantMeta(res.slice(0,Math.max(shown,40)).map(r=>r.id));applySel()}
-function syncMarkers(){if(!map)return;svBuild();const res=cur,z=map.getZoom(),many=res.length>60,dot=false;let vis;
+function syncMarkers(){if(!map)return;svBuild();const res=cur,z=map.getZoom(),many=res.length>60,dot=false;let vis,cls=[];
  /* few results (a search or filter): show them all. Otherwise: small dots from zoom 13, full pins from zoom 14 (at most 90), up to 150 pins from zoom 15.
     Places you saved always get their own pin (from zoom 8). */
  if(!many)vis=res;
@@ -261,19 +269,34 @@ function syncMarkers(){if(!map)return;svBuild();const res=cur,z=map.getZoom(),ma
   for(const r of res){if(!bd.contains([r.lat,r.lng]))continue;if(z>=8&&SV.has(r.id))sv.push(r);else if(r.nw&&r.nws!=="ok"){if(z>=16||npMine.has(r.id))sv.push(r)}else if(z>=13)cand.push(r);if(sv.length+cand.length>=80000)break}
   /* spread them over the screen: one place per small square (the best rated, else the one closest to the middle), so a busy street does not become one clump */
   /* zoomed out = big squares = few pins (only the best); all pins only at the closest zoom (19) */
-  const tier=z<14?[100,25]:z<15?[88,40]:z<16?[76,60]:z<17?[64,90]:z<18?[52,130]:z<19?[40,200]:[1,350],cs=tier[0],cap=Math.round(tier[1]*1.7),cell=new Map(),d2=r=>(r.lat-c.lat)**2+(r.lng-c.lng)**2,W=256*Math.pow(2,z),
+  const CL=z<15,/* zoomed out: close places become one numbered bubble (tap = zoom in) */
+   tier=CL?[64,0]:z<16?[76,60]:z<17?[64,90]:z<18?[52,130]:z<19?[40,200]:[1,350],cs=tier[0],cap=Math.round(tier[1]*1.7),cell=new Map(),d2=r=>(r.lat-c.lat)**2+(r.lng-c.lng)**2,W=256*Math.pow(2,z),
    key=r=>{const sn=Math.sin(r.lat*Math.PI/180),x=(r.lng+180)/360*W,y=(.5-Math.log((1+sn)/(1-sn))/(4*Math.PI))*W;return Math.floor(x/cs)+","+Math.floor(y/cs)},
    sc=r=>pinScore(r)+(markers[r.id]?.5:0);
+  if(CL){const g=new Map();for(const r of cand){const k=key(r),o=g.get(k);if(o){o.n++;o.la+=r.lat;o.ln+=r.lng}else g.set(k,{n:1,la:r.lat,ln:r.lng,r})}
+   let ar=[...g.entries()];if(ar.length>90)ar=ar.map(e=>[(e[1].la/e[1].n-c.lat)**2+(e[1].ln/e[1].n-c.lng)**2,e]).sort((a,b)=>a[0]-b[0]).slice(0,90).map(x=>x[1]);
+   vis=sv.slice();for(const [k,o] of ar){if(o.n===1)vis.push(o.r);else cls.push([k,o.la/o.n,o.ln/o.n,o.n])}}
+  else{
   sv.forEach(r=>cell.set(key(r),null));
   for(const r of cand){const k=key(r),o=cell.get(k);if(o===null)continue;if(!o){cell.set(k,r);continue}const a=sc(r),b=sc(o);if(a>b||(a===b&&r.id<o.id))cell.set(k,r)}
   let pick=[...cell.values()].filter(Boolean);if(pick.length>cap)pick=pick.map(r=>[-sc(r),d2(r),r]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]).slice(0,cap).map(x=>x[2]);
-  vis=sv.concat(pick)}
+  vis=sv.concat(pick)}}
+ syncCl(cls,z);
  const ids=new Set(vis.map(r=>r.id));Object.keys(markers).forEach(id=>{if(!ids.has(id)&&id!==sheetId){const mk=markers[id],el=mk._icon&&mk._icon.firstElementChild;delete markers[id];if(el&&!RM){el.classList.add("out");setTimeout(()=>map.removeLayer(mk),170)}else map.removeLayer(mk)}});
  const fresh=vis.filter(r=>!markers[r.id]).sort((a,b)=>pinScore(b)-pinScore(a)),dl=new Map(fresh.map((r,i)=>[r.id,Math.min(i*14,320)]));
  vis.forEach(r=>{const d=dot&&!SV.has(r.id),m=markers[r.id];
   if(!m){markers[r.id]=pin(r,d,dl.get(r.id)||0);markers[r.id].addTo(map)}
   else{const sg=pinSig(r,d);if(m._sig!==sg){m._sig=sg;m.setIcon(pinIcon(r,d));m._base=SV.has(r.id)?400:0;m.setZIndexOffset(m._base);const t=m.getTooltip();if(t)t.options.offset=L.point(0,d?-9:-30)}}});
  wantMeta(vis.map(r=>r.id));applySel()}
+/* numbered bubbles for crowded places when zoomed out */
+const clMk={},clIcon=n=>L.divIcon({className:"",html:`<div class="cl"><b class="c${n<10?1:n<100?2:3}">${n>=1000?(n/1000).toFixed(1).replace(".0","")+"k":n}</b></div>`,iconSize:[44,44],iconAnchor:[22,22]});
+function syncCl(list,z){const keep=new Set();
+ for(const [k,la,ln,n] of list){const id=z+":"+k,m=clMk[id];keep.add(id);
+  if(!m){const mk=L.marker([la,ln],{icon:clIcon(n),title:String(n),zIndexOffset:-100});mk._n=n;mk.on("click",()=>map.setView(mk.getLatLng(),Math.min(z+2,17)));clMk[id]=mk.addTo(map)}
+  else if(m._n!==n){m._n=n;m.setIcon(clIcon(n));m.setLatLng([la,ln])}}
+ for(const id of Object.keys(clMk))if(!keep.has(id)){map.removeLayer(clMk[id]);delete clMk[id]}}
+/* redraw pins at most every 200 ms while the map is moving or zooming */
+let syT=0,syAt=0;function syncSoon(){clearTimeout(syT);const w=syAt+200-Date.now();if(w<=0){syAt=Date.now();syncMarkers()}else syT=setTimeout(()=>{syAt=Date.now();syncMarkers()},w)}
 const rr=()=>{shown=30;render()};
 function locate(){const n=$("#mapNote");n.style.display="block";n.textContent=T("Finding your location…");
  const fail=()=>{n.textContent=T("Location is off. Allow location access in your browser to see where you are.");if($("#fSort").value==="dist"){$("#fSort").value="rating";render()}};
@@ -590,7 +613,7 @@ $("#findBtn").onclick=async()=>{if(!map)return;const btn=$("#findBtn");if(btn.cl
   await new Promise(r=>{const t=setInterval(()=>{if(!tBusy&&!tq.length){clearInterval(t);r()}},200);setTimeout(()=>{clearInterval(t);r()},30000)});
   syncMarkers();flash(osmOut.textContent||T("Search this area"))
  }finally{liveOK=false;btn.classList.remove("busy");btn.textContent=T("Search this area")}};
-if(map)map.on("moveend",()=>{syncMarkers();autoLoad();npSoon()});
+if(map)map.on("moveend",()=>{syncSoon();autoLoad();npSoon()});
 // ===== Live places everywhere: loads only the map tiles you look at (zoom 14+), each tile once =====
 const OVP=["https://overpass-api.de/api/interpreter","https://overpass.private.coffee/api/interpreter","https://overpass.kumi.systems/api/interpreter"],tsig=()=>{try{return AbortSignal.timeout(10000)}catch(e){return undefined}},TZ=14,tileDone=new Set();
 let tq=[],tBusy=false,tPause=0,tTimer=null,tFails=0;
@@ -907,6 +930,7 @@ function sgDraw(){const b=$("#sugg");if(!b)return;if(!sgItems.length){b.hidden=t
 function sgLocal(q){const ql=q.toLowerCase(),out=[],c=map?map.getCenter():{lat:36,lng:128},ar=new Map(),hits=[];
  for(const r of osm){
   const n=dname(r);if((n&&n.toLowerCase().includes(ql))||(r.loc&&r.loc.includes(q)))hits.push([(r.lat-c.lat)**2+(r.lng-c.lng)**2,r])}
+ if(hits.length<3){const qf=fold(q).split(" ").filter(Boolean);if(qf.length)for(const r of osm){if(hits.length>=60)break;if(!hits.some(h=>h[1]===r)&&fuzzyHit(r,qf))hits.push([(r.lat-c.lat)**2+(r.lng-c.lng)**2,r])}}
  [...new Set(FOODS.map(f=>f[1]))].filter(l=>cuisAll(l).toLowerCase().includes(ql)).slice(0,2).forEach(l=>out.push({k:"q",ic:"🍴",t:cuis(l),s:T("Food type"),v:cuis(l)}));
  hits.sort((a,b)=>a[0]-b[0]).slice(0,5).forEach(([d,r])=>out.push({k:"r",ic:"🍽",t:dname(r),s:[r.cu0?"":cuis(r.cuisine),T(r.city||"")].filter(Boolean).join(" · "),v:r.id}));
  return out}
