@@ -1,5 +1,5 @@
 /* Jakorchi app. Version number: change it with tools/bump-version.py */
-const BUILD="2026-11-10.1";
+const BUILD="2026-11-10.2";
 /* iPhone home-screen app: with the see-through status bar, iOS lays the page out shorter than the screen (by the
    status-bar height). Layers pinned to that short viewport (position:fixed) stop short and an empty band shows at the
    bottom; stretching them past the edge is not drawn. So: measure the band once, make the page itself as tall as the
@@ -14,7 +14,13 @@ function fixIosGap(){const de=document.documentElement;let g=0;
  de.style.setProperty("--iosgap",g+"px");de.classList.toggle("iosgap",g>0);
  try{if(map)setTimeout(()=>map.invalidateSize(),60)}catch(e){}}
 /* the map screen must never be scrolled away in this mode (a focus jump could do it) */
-addEventListener("scroll",()=>{const c=document.documentElement.classList;if(c.contains("iosgap")&&c.contains("exv")&&(scrollY||scrollX))scrollTo(0,0)},{passive:true});
+/* but while typing, let the phone move the field above the keyboard (fighting it made typing jump) */
+const typing=()=>{const a=document.activeElement;return!!a&&(a.tagName==="INPUT"&&!/^(range|checkbox|radio|button)$/.test(a.type)||a.tagName==="TEXTAREA")};
+addEventListener("scroll",()=>{const c=document.documentElement.classList;if(c.contains("iosgap")&&c.contains("exv")&&(scrollY||scrollX)&&!typing())scrollTo(0,0)},{passive:true});
+addEventListener("focusout",()=>setTimeout(()=>{if(!typing()&&(scrollY||scrollX)&&document.documentElement.classList.contains("exv"))scrollTo(0,0)},120));
+(()=>{const vv=window.visualViewport;if(!vv)return;let t=0;const fit=()=>{const kb=Math.max(0,Math.round(innerHeight-vv.height-vv.offsetTop));document.documentElement.style.setProperty("--kb",(kb>80?kb:0)+"px");
+  const a=document.activeElement,pn=a&&a.closest&&a.closest(".panel");if(kb>80&&pn&&typing()){clearTimeout(t);t=setTimeout(()=>{const r=a.getBoundingClientRect(),lim=vv.height+vv.offsetTop-90;if(r.bottom>lim||r.top<vv.offsetTop+60)pn.scrollTop+=r.top-Math.max(vv.offsetTop+80,(vv.height+vv.offsetTop)/3)},60)}};
+ try{vv.addEventListener("resize",fit);vv.addEventListener("scroll",fit)}catch(e){}})();
 fixIosGap();addEventListener("load",fixIosGap);setTimeout(fixIosGap,1200);addEventListener("orientationchange",()=>setTimeout(fixIosGap,350));
 // ===== DATA: replace the examples with your own checked places. rating: your own score 1-5 (or null) =====
 function R(id,country,city,area,name,loc,cuisine,price,rating,eng,halal,vegan,lat,lng,cat="restaurant"){return {cat,src:"example",exRating:true,id,country,city,area,name,loc,cuisine,price,rating,eng,halal,vegan,lat,lng,
@@ -116,8 +122,10 @@ const score=r=>avg(r)??(sbOn()?0:(r.rating??0));
 const fold=s=>String(s||"").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/ou|oo/g,"o").replace(/uu/g,"u").replace(/shi/g,"si").replace(/chi/g,"ti").replace(/tsu/g,"tu").replace(/ji/g,"zi").replace(/fu/g,"hu").replace(/[^\p{L}\p{N}]+/gu," ").trim();
 function near(a,b,m){const x=a.length,y=b.length;if(Math.abs(x-y)>m)return false;let p=[],q=[],o=[];for(let j=0;j<=y;j++)q[j]=j;
  for(let i=1;i<=x;i++){o=p;p=q;q=[i];let lo=i;for(let j=1;j<=y;j++){let v=Math.min(p[j]+1,q[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])v=Math.min(v,o[j-2]+1);q[j]=v;if(v<lo)lo=v}if(lo>m)return false}return q[y]<=m}
-function fuzzyHit(r,qf){if(r._fl!==lang){r._fl=lang;r._fw=fold([r.name,dname(r),romOf(r),r.cuisine,cuis(r.cuisine),r.dish].join(" ")).split(" ")}
- return qf.every(t=>{const m=t.length<4?0:t.length<6?1:2;return r._fw.some(w=>w.startsWith(t)||(m&&(near(w,t,m)||(w.length>t.length&&near(w.slice(0,t.length),t,m)))))})}
+const raw=s=>String(s||"").toLowerCase().replace(/[^\p{L}\p{N}]+/gu," ").trim();
+const wHit=(ws,t)=>{const m=t.length<4?0:t.length<6?1:2;return ws.some(w=>w.startsWith(t)||(m&&(near(w,t,m)||(w.length>t.length&&near(w.slice(0,t.length),t,m)))))};
+function fuzzyHit(r,qf,qr){if(r._fl!==lang){r._fl=lang;const j=[r.name,dname(r),romOf(r),r.cuisine,cuis(r.cuisine),r.dish].join(" ");r._fw=fold(j).split(" ");r._rw=raw(j).split(" ")}
+ qr=qr||qf;return qf.every((t,i)=>wHit(r._fw,t)||(qr[i]&&wHit(r._rw,qr[i])))}
 const pinScore=r=>{const a=avg(r)??(sbOn()?null:r.rating);let s=a!=null?100+a*10+Math.min(rcount(r)||0,10):0;if(!r.cu0)s+=3;if(r.loc||r.src!=="osm")s+=2;if(r.hours)s+=1;if(r.web)s+=1;if(r.phone)s+=1;return s};
 function flash(msg){let e=document.getElementById("toast");if(!e){e=document.createElement("div");e.id="toast";e.setAttribute("role","status");document.body.appendChild(e)}e.textContent=msg;e.classList.add("on");clearTimeout(flash.t);flash.t=setTimeout(()=>e.classList.remove("on"),2600)}
 function shareText(t,el){if(navigator.share)navigator.share({text:t}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>el.textContent=T("Copied. Paste it into a message."),()=>el.textContent=T("Copy failed."));else el.textContent=T("Sharing is not supported here.")}
@@ -250,10 +258,16 @@ function allFilters(){cat="";QF.forEach(k=>F[k]=0);document.querySelectorAll(QF.
 function fillOpts(){const base=all().filter(r=>(!country||r.country===country)&&(!cat||r.cat===cat)),m={};
  base.forEach(r=>{if(r.cuisine&&!/pork/i.test(r.cuisine))m[r.cuisine]=(m[r.cuisine]||0)+1});
  const labels=[...new Set(Object.keys(m).sort((a,b)=>m[b]-m[a]).slice(0,80).map(cuis).concat(CATS.slice(1).map(c=>T(c[1]))))].sort((a,b)=>a.localeCompare(b));
- $("#fFoodList").innerHTML=labels.map(v=>`<option value="${esc(v)}"></option>`).join("");prUi()}
+ {const cl=new Set(CATS.map(c=>T(c[1])));fexTop=[...new Set(Object.keys(m).sort((a,b)=>m[b]-m[a]).map(cuis))].filter(x=>!cl.has(x)).slice(0,40)}fexAll=labels;drawFex();prUi()}
+/* food examples under the food field: popular ones, or the ones that match what you type (small typos are fine) */
+let fexTop=[],fexAll=[];
+function drawFex(){const b=$("#fEx");if(!b)return;const v=$("#fCuisine").value.trim(),vl=v.toLowerCase(),fv=fold(v);let l;
+ if(!v)l=fexTop.slice(0,8);else{l=fexAll.filter(x=>x.toLowerCase().includes(vl));if(l.length<4&&fv.length>2){const m=fv.length<6?1:2;const rv=raw(v);fexAll.forEach(x=>{if(!l.includes(x)&&(fold(x).split(" ").some(w=>near(w.slice(0,fv.length),fv,m))||raw(x).split(" ").some(w=>near(w.slice(0,rv.length),rv,m))))l.push(x)})}l=l.filter(x=>x.toLowerCase()!==vl).slice(0,8)}
+ b.innerHTML=l.map(x=>`<button type="button" data-fex="${esc(x)}">${esc(x)}</button>`).join("")}
+$("#fEx").addEventListener("click",e=>{const t=e.target.closest("[data-fex]");if(!t)return;$("#fCuisine").value=t.dataset.fex;$("#fCuisine").blur();drawFex();rr()});
 function render(fit=true){
  const q=$("#q").value.trim().toLowerCase(),c=$("#fCuisine").value.trim().toLowerCase(),p=+$("#fPrice").value||20,pAny=p>=20,cm=c?CATS.slice(1).filter(x=>T(x[1]).toLowerCase().includes(c)).map(x=>x[0]):[],ch=new Map(),hitC=k=>{if(!k)return false;let v=ch.get(k);if(v===undefined){v=(k+" "+cuis(k)+" "+cuisAll(k)).toLowerCase().includes(c);ch.set(k,v)}return v},sort=$("#fSort").value;
-let fz=false;const qf=q?fold(q).split(" ").filter(Boolean):[],run=()=>all().filter(r=>(!country||r.country===country)&&(!cat||r.cat===cat)&&(!c||hitC(r.cuisine)||cm.includes(r.cat)||(r.dish&&String(r.dish).toLowerCase().includes(c)))&&(pAny||prOk(r,p))&&(!F.eng||r.eng===true)&&(!F.halal||hasD(r,"halal"))&&(!F.veg||hasD(r,"vegetarian"))&&(!F.jp||JPRE.test(r.cuisine||""))&&(!F.kr||KRRE.test(r.cuisine||""))&&(!F.cn||CNRE.test(r.cuisine||""))&&(!F.fav||favs.includes(r.id))&&(!listF||listF.has(r.id))&&(!q||(fz?fuzzyHit(r,qf):[r.name,dname(r),r.loc,romOf(r),r.city,r.cuisine,cuis(r.cuisine),cuisAll(r.cuisine),r.dish,r.addr,r.nm?Object.values(r.nm).join(" "):""].join(" ").toLowerCase().includes(q))));
+let fz=false;const qf=q?fold(q).split(" ").filter(Boolean):[],qr=q?raw(q).split(" ").filter(Boolean):[],run=()=>all().filter(r=>(!country||r.country===country)&&(!cat||r.cat===cat)&&(!c||hitC(r.cuisine)||cm.includes(r.cat)||(r.dish&&String(r.dish).toLowerCase().includes(c)))&&(pAny||prOk(r,p))&&(!F.eng||r.eng===true)&&(!F.halal||hasD(r,"halal"))&&(!F.veg||hasD(r,"vegetarian"))&&(!F.jp||JPRE.test(r.cuisine||""))&&(!F.kr||KRRE.test(r.cuisine||""))&&(!F.cn||CNRE.test(r.cuisine||""))&&(!F.fav||favs.includes(r.id))&&(!listF||listF.has(r.id))&&(!q||(fz?fuzzyHit(r,qf,qf.length===qr.length?qr:null):[r.name,dname(r),r.loc,romOf(r),r.city,r.cuisine,cuis(r.cuisine),cuisAll(r.cuisine),r.dish,r.addr,r.nm?Object.values(r.nm).join(" "):""].join(" ").toLowerCase().includes(q))));
  let res=run();if(q&&qf.length&&res.length<3){fz=true;const r2=run();if(r2.length>res.length)res=r2}/* few hits: also accept small typing mistakes */
  if(sort==="dist"&&me)res.sort((x,y)=>km(me,x)-km(me,y));else{const c0=map?map.getCenter():null,dd=r=>c0?(r.lat-c0.lat)**2+(r.lng-c0.lng)**2:0;{const sc=new Map();for(const r of res)sc.set(r,[pinScore(r),dd(r)]);res.sort((x,y)=>{const a=sc.get(x),b=sc.get(y);return b[0]-a[0]||(x.src==="osm")-(y.src==="osm")||a[1]-b[1]||x.name.localeCompare(y.name)})}}
  cur=res;
@@ -266,7 +280,7 @@ function syncMarkers(){if(!map)return;svBuild();const res=cur,z=map.getZoom(),ma
     Places you saved always get their own pin (from zoom 8). */
  if(!many)vis=res;
  else{/* also prepare pins just outside the screen, so they slide in instead of popping up */const bd=map.getBounds().pad(.15),c=map.getCenter(),sv=[],cand=[];
-  for(const r of res){if(!bd.contains([r.lat,r.lng]))continue;if(z>=8&&SV.has(r.id))sv.push(r);else if(r.nw&&r.nws!=="ok"){if(z>=16||npMine.has(r.id))sv.push(r)}else if(z>=13)cand.push(r);if(sv.length+cand.length>=80000)break}
+  for(const r of res){if(!bd.contains([r.lat,r.lng]))continue;if(z>=8&&SV.has(r.id))sv.push(r);else if(r.nw){/* places added by visitors or the team always get their own pin (they never lose a crowded spot) */if(r.nws==="ok"||r.verified||z>=16||npMine.has(r.id))sv.push(r)}else if(z>=13)cand.push(r);if(sv.length+cand.length>=80000)break}
   /* spread them over the screen: one place per small square (the best rated, else the one closest to the middle), so a busy street does not become one clump */
   /* zoomed out = big squares = few pins (only the best); all pins only at the closest zoom (19) */
   const CL=z<15,/* zoomed out: close places become one numbered bubble (tap = zoom in) */
@@ -308,7 +322,7 @@ function locate(){const n=$("#mapNote");n.style.display="block";n.textContent=T(
   render(false);if(map&&near<60){map.setView([me.lat,me.lng],15)}},fail,{timeout:10000,enableHighAccuracy:true})}
 $("#locBtn").onclick=locate;
 $("#fSort").onchange=()=>{if($("#fSort").value==="dist"&&!me)locate();rr()};
-let fcT=null;$("#fCuisine").oninput=()=>{clearTimeout(fcT);fcT=setTimeout(rr,250)};$("#fPrice").oninput=()=>{prUi();if(+$("#fPrice").value<20)prLoad();clearTimeout(fcT);fcT=setTimeout(rr,150)};$("#q").oninput=()=>{rr();sgUpdate()};
+let fcT=null;$("#fCuisine").oninput=()=>{drawFex();clearTimeout(fcT);fcT=setTimeout(rr,250)};$("#fPrice").oninput=()=>{prUi();if(+$("#fPrice").value<20)prLoad();clearTimeout(fcT);fcT=setTimeout(rr,150)};$("#q").oninput=()=>{rr();sgUpdate()};
 $("#q").addEventListener("focus",()=>{if($("#q").value.trim().length>=2)sgUpdate()});$("#q").addEventListener("blur",()=>setTimeout(sgHide,200));
 $("#sugg").addEventListener("mousedown",e=>e.preventDefault());$("#sugg").addEventListener("click",e=>{const b=e.target.closest("[data-sg]");if(b)sgPick(+b.dataset.sg)});
 
@@ -462,7 +476,7 @@ const showMap=()=>{$("#listPanel").classList.remove("open");$("#fpanel").classLi
 const showFilters=()=>{closeSheet();prUi();$("#listPanel").classList.remove("open");$("#fpanel").classList.add("open")};
 $("#listBtn").onclick=showList;$("#mapBtn").onclick=showMap;$("#filtBtn").onclick=showFilters;$("#whereBtn").onclick=showFilters;$("#fDone").onclick=showMap;
 $("#q").addEventListener("keydown",e=>{if(e.key==="Enter"){if(sgItems.length){e.preventDefault();sgPick(0);return}e.target.blur();showList()}else if(e.key==="Escape")sgHide()});
-function resetAll(){listChipHide();country="";cat="";Object.keys(F).forEach(k=>F[k]=0);$("#q").value="";$("#fCuisine").value="";$("#fPrice").value=20;prUi();
+function resetAll(){listChipHide();country="";cat="";Object.keys(F).forEach(k=>F[k]=0);$("#q").value="";$("#fCuisine").value="";drawFex();$("#fPrice").value=20;prUi();
  document.querySelectorAll("[data-f]").forEach(b=>{b.classList.remove("on");b.setAttribute("aria-pressed","false")});document.querySelectorAll("#country button").forEach((b,i)=>b.classList.toggle("on",i===0));renderChips();fillOpts();rr()}
 $("#fReset").onclick=resetAll;
 function nudge(id,anim=true){const m=markers[id];if(!m||!map)return;setTimeout(()=>{const sz=map.getSize(),pt=map.latLngToContainerPoint(m.getLatLng()),ty=(150+sz.y-H.peek-20)/2;map.panBy([0,pt.y-ty],{animate:anim})},80)}
@@ -613,7 +627,15 @@ $("#findBtn").onclick=async()=>{if(!map)return;const btn=$("#findBtn");if(btn.cl
   await new Promise(r=>{const t=setInterval(()=>{if(!tBusy&&!tq.length){clearInterval(t);r()}},200);setTimeout(()=>{clearInterval(t);r()},30000)});
   syncMarkers();flash(osmOut.textContent||T("Search this area"))
  }finally{liveOK=false;btn.classList.remove("busy");btn.textContent=T("Search this area")}};
-if(map)map.on("moveend",()=>{syncSoon();autoLoad();npSoon()});
+if(map)map.on("moveend",()=>{syncSoon();autoLoad();npSoon();zHint()});
+/* how far to zoom before restaurants show (pins start at zoom 13) */
+const ZNEED=13;
+function zHint(){const h=$("#zHint");if(!h||!map)return;const z=Math.round(map.getZoom()),c=map.getCenter(),inAsia=c.lat>18&&c.lat<54&&c.lng>73&&c.lng<146,few=cur.length&&cur.length<=60;
+ if(z>=ZNEED||!inAsia||few||curView!=="explore"){h.hidden=true;return}
+ const n=ZNEED-z;$("#zHintT").textContent=n===1?T("Zoom in 1 more step to see restaurants"):T("Zoom in {0} more steps to see restaurants",n);
+ $("#zHintBar").style.width=Math.max(6,Math.round(z/ZNEED*100))+"%";const b=$("#zHintBtn");b.textContent=z<9?T("Find a city"):T("Zoom in");b.dataset.city=z<9?"1":"";h.hidden=false}
+$("#zHintBtn").onclick=e=>{if(e.currentTarget.dataset.city){showFilters();setTimeout(()=>$("#cityQ").focus(),250)}else map.setView(map.getCenter(),ZNEED)};
+setTimeout(zHint,2500);
 // ===== Live places everywhere: loads only the map tiles you look at (zoom 14+), each tile once =====
 const OVP=["https://overpass-api.de/api/interpreter","https://overpass.private.coffee/api/interpreter","https://overpass.kumi.systems/api/interpreter"],tsig=()=>{try{return AbortSignal.timeout(10000)}catch(e){return undefined}},TZ=14,tileDone=new Set();
 let tq=[],tBusy=false,tPause=0,tTimer=null,tFails=0;
@@ -843,7 +865,8 @@ let curView="explore",curList="fav",lShown=30,listF=null;
 const drawer=$("#drawer"),scrim=$("#scrim");
 function renderDrawer(){const cv=curView,ico=p=>`<svg class="i" viewBox="0 0 24 24">${p}</svg>`;
  const it=(a,ic,lab,extra,on)=>`<button class="dr-i${on?" on":""}" ${a}><span class="dr-ic">${ic}</span><span class="dr-l">${lab}</span>${extra||""}</button>`;
- $("#drNav").innerHTML=it('data-v="explore"',ico('<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'),esc(T("Explore")),"",cv==="explore")
+ $("#drNav").innerHTML=it('data-v="account"',ico('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'),esc(T("Sign in")),"",cv==="account")
+  +it('data-v="explore"',ico('<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'),esc(T("Explore")),"",cv==="explore")
   +it('data-dasia="1"',"🌏",esc(T("All Asia")),"",false)
   +it('data-dcity="1"',ico('<circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/>'),esc(T("Find a city")),"",false)
   +`<div class="dr-s">${esc(T("My places"))}</div>`
@@ -852,7 +875,7 @@ function renderDrawer(){const cv=curView,ico=p=>`<svg class="i" viewBox="0 0 24 
   +`<div class="dr-s">${esc(T("More"))}</div>`
   +it('data-dadd="1"',ico('<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><path d="M12 7v6M9 10h6"/>'),esc(T("Add a restaurant")),"",false)
   +(isStandalone()?"":it('data-dinst="1"',ico('<path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/>'),esc(T("Install the app")),"",false))
-  +it('data-ded="1"',ico('<path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>'),esc(T("Editor mode")),edCode?"<em>✓</em>":"",false)
+  +(edCode?it('data-ded="1"',ico('<path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>'),esc(T("Editor mode")),"<em>✓</em>",false):"")
   +it('data-v="tip"',ico('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),esc(T("Add a tip")),"",cv==="tip")
   +it('data-v="phrases"',ico('<path d="M4 5h16v11H9l-5 4z"/>'),esc(T("Useful phrases")),"",cv==="phrases")
   +it('data-v="about"',ico('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>'),esc(T("About & privacy")),"",cv==="about");
@@ -930,7 +953,7 @@ function sgDraw(){const b=$("#sugg");if(!b)return;if(!sgItems.length){b.hidden=t
 function sgLocal(q){const ql=q.toLowerCase(),out=[],c=map?map.getCenter():{lat:36,lng:128},ar=new Map(),hits=[];
  for(const r of osm){
   const n=dname(r);if((n&&n.toLowerCase().includes(ql))||(r.loc&&r.loc.includes(q)))hits.push([(r.lat-c.lat)**2+(r.lng-c.lng)**2,r])}
- if(hits.length<3){const qf=fold(q).split(" ").filter(Boolean);if(qf.length)for(const r of osm){if(hits.length>=60)break;if(!hits.some(h=>h[1]===r)&&fuzzyHit(r,qf))hits.push([(r.lat-c.lat)**2+(r.lng-c.lng)**2,r])}}
+ if(hits.length<3){const qf=fold(q).split(" ").filter(Boolean),qr=raw(q).split(" ").filter(Boolean);if(qf.length)for(const r of osm){if(hits.length>=60)break;if(!hits.some(h=>h[1]===r)&&fuzzyHit(r,qf,qf.length===qr.length?qr:null))hits.push([(r.lat-c.lat)**2+(r.lng-c.lng)**2,r])}}
  [...new Set(FOODS.map(f=>f[1]))].filter(l=>cuisAll(l).toLowerCase().includes(ql)).slice(0,2).forEach(l=>out.push({k:"q",ic:"🍴",t:cuis(l),s:T("Food type"),v:cuis(l)}));
  hits.sort((a,b)=>a[0]-b[0]).slice(0,5).forEach(([d,r])=>out.push({k:"r",ic:"🍽",t:dname(r),s:[r.cu0?"":cuis(r.cuisine),T(r.city||"")].filter(Boolean).join(" · "),v:r.id}));
  return out}
@@ -1074,3 +1097,11 @@ setTimeout(splashOff,Math.max(0,SPL0+2000-performance.now()));
 applyLang();loadVector();loadGL();syncDark();
 Promise.all([loadLang(lang),loadFoods()]).then(()=>{applyLang();applyMapLang();showPh("ko");showTips();renderChips();fillOpts();render();setTimeout(()=>hintZoom(true),1500)});
 try{navigator.permissions.query({name:"geolocation"}).then(p=>{if(p.state==="granted")locate()})}catch(e){}
+
+/* sign in / sign up page: only the look for now, nothing is sent or saved */
+document.querySelector(".actabs").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const up=b.dataset.act==="up";
+ document.querySelectorAll(".actabs button").forEach(x=>x.classList.toggle("on",x===b));$("#acUp").hidden=!up;$("#acPw").autocomplete=up?"new-password":"current-password";
+ const g=$("#acGo");g.dataset.i=up?"Create account":"Log in";g.textContent=T(g.dataset.i);$("#acMsg").textContent=""});
+$("#acForm").addEventListener("submit",e=>{e.preventDefault();$("#acPw").value="";$("#acMsg").textContent=T("Accounts are coming soon. Nothing is sent or saved yet.")});
+/* editor mode is hidden from visitors: open the app with #editor at the end of the address */
+if(location.hash==="#editor"){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}setTimeout(()=>{try{openEd()}catch(e){}},1500)}

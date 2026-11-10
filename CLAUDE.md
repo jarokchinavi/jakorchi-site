@@ -22,7 +22,7 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = the source 
 ## Quality and speed
 - **Can't test it myself (a real iPhone, the owner's phone or PC):** ask for a screenshot first, plus the numbers shown by tapping the version number in the menu. No blind fixes.
 - **A release breaks the live app:** put the previous version back at once (`git revert`, push). Tell the owner in plain words what happened, what was undone and what comes next. Then find the cause.
-- **Small and fast:** no new library without a clear need. `js/app.js` stays under 150 KB (now 139); past that, move rarely used parts into a file that loads on demand. After a big change check the start (page ready in under 1 second on Wi-Fi).
+- **Small and fast:** no new library without a clear need. `js/app.js` stays under 150 KB (now 146); past that, move rarely used parts into a file that loads on demand. After a big change check the start (page ready in under 1 second on Wi-Fi).
 - **Languages:** every new text gets all 9 languages in the same update (`lang/<code>.json`; food names also in `lang/foods.json`).
 
 ## Where things are

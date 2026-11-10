@@ -23,3 +23,5 @@
 - Zoom 13–14: crowded places become numbered bubbles (`syncCl` in js/app.js, `.cl` in css); tap = zoom in 2 steps. Zoom 15+: single pins as before. Pins are redrawn at most every 200 ms (`syncSoon`).
 - Search (`fold`, `near`, `fuzzyHit`): normal match first; with fewer than 3 hits it also accepts small typos and Japanese spelling variants (ramen/raamen). No library.
 - Text selection and the long-press menu are off everywhere except typing fields (end of css/app.css).
+- (2026-11-10.2) Typing: the "keep map at top" scroll guard pauses while a text field is focused; `--kb` (keyboard height) + panel scroll keeps the field above the keyboard. Food field has tap-able examples (`#fEx`, `drawFex`). Visitor/team places always get their own pin. Zoom guide `#zHint` below zoom 13. Font: Figtree (Google Fonts), lighter weights. Solid band behind the iPhone status bar (`body.ex::before`) against the iOS 26 top blur.
+- Accounts: `#account` page is only the look (nothing sent). Editor mode is hidden from the menu; open the app with `#editor` at the end of the address (it stays in the menu once the code is on).
