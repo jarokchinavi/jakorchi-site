@@ -1,5 +1,5 @@
 /* Jakorchi app. Version number: change it with tools/bump-version.py */
-const BUILD="2026-11-10.4";
+const BUILD="2026-11-10.5";
 /* iPhone home-screen app: with the see-through status bar, iOS lays the page out shorter than the screen (by the
    status-bar height). Layers pinned to that short viewport (position:fixed) stop short and an empty band shows at the
    bottom; stretching them past the edge is not drawn. So: measure the band once, make the page itself as tall as the
@@ -128,7 +128,6 @@ const pinScore=r=>{const a=avg(r)??(sbOn()?null:r.rating);let s=a!=null?100+a*10
 function flash(msg){let e=document.getElementById("toast");if(!e){e=document.createElement("div");e.id="toast";e.setAttribute("role","status");document.body.appendChild(e)}e.textContent=msg;e.classList.add("on");clearTimeout(flash.t);flash.t=setTimeout(()=>e.classList.remove("on"),2600)}
 function shareText(t,el){if(navigator.share)navigator.share({text:t}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>el.textContent=T("Copied. Paste it into a message."),()=>el.textContent=T("Copy failed."));else el.textContent=T("Sharing is not supported here.")}
 
-$("#themeBtn").onclick=()=>{const r=document.documentElement;r.setAttribute("data-theme",getComputedStyle(r).getPropertyValue("--bg").trim()==="#0e141b"?"light":"dark");if(vlayer)loadVector();setTimeout(syncDark,0)};
 function goTab(v){if(v!=="explore")closeSheet();document.body.classList.toggle("ex",v==="explore");document.documentElement.classList.toggle("exv",v==="explore");document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id===v));curView=v;if(v==="explore"&&map)setTimeout(()=>map.invalidateSize(),50);if(v==="lists")drawLists();if(v==="about")drawAbout();closeDrawer(false);scrollTo(0,0)}
 
 // ===== MAP =====
@@ -649,7 +648,7 @@ function loadView(){if(!map)return;doneP.then(()=>{
  const st=!!POI_BASE,Z=st?12:TZ;if(map.getZoom()<(st?13:14)){hintZoom();return}const b=map.getBounds(),c=b.getCenter();if(c.lat<18||c.lat>54||c.lng<73||c.lng>146)return;
  const x0=tx(b.getWest(),Z),x1=tx(b.getEast(),Z),y0=ty(b.getNorth(),Z),y1=ty(b.getSouth(),Z),cap=st?(innerWidth>700?9:6):16;let ts=[];
  for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)ts.push([x,y]);
- if(ts.length>cap){const cx=tx(c.lng,Z),cy=ty(c.lat,Z);ts.sort((p,q)=>((p[0]-cx)**2+(p[1]-cy)**2)-((q[0]-cx)**2+(q[1]-cy)**2));ts=ts.slice(0,cap)}
+ {const cx=tx(c.lng,Z),cy=ty(c.lat,Z);ts.sort((p,q)=>((p[0]-cx)**2+(p[1]-cy)**2)-((q[0]-cx)**2+(q[1]-cy)**2));ts=ts.slice(0,cap)}/* nearest to the middle first, never more than cap */
  const add=k=>{if(!tileDone.has(k)&&!tq.includes(k))tq.push(k)},d=SPLIT_Z-12,n=2**d;
  ts.forEach(([x,y])=>{
   if(st&&map.getZoom()>=SPLIT_FROM&&splitSet.has(x+"_"+y)&&!tileDone.has("p"+x+"_"+y)){/* only the small squares on screen */
@@ -715,7 +714,7 @@ function applyMapLang(){try{if(!glLayer)return;const m=glLayer.getMaplibreMap();
  (m.getStyle().layers||[]).forEach(l=>{if(l.type==="symbol"&&l.layout&&isNameField(l.layout["text-field"])){try{m.setLayoutProperty(l.id,"text-field",e)}catch(x){}}})}catch(e){}}
 function syncDark(){document.getElementById("map").classList.toggle("mapdark",isDark());barColor()}
 /* phone status bar takes the colour of the app (navy only while the start screen shows) */
-function barColor(){const t=document.querySelector('meta[name="theme-color"]');if(t)t.content=document.getElementById("splash")?"#1c2340":isDark()?"#0e141b":"#eef1f5"}
+function barColor(){const t=document.querySelector('meta[name="theme-color"]');if(t)t.content=document.getElementById("splash")?"#1c2340":isDark()?"#292624":"#f8f4f0"}
 function splashOff(){const e=document.getElementById("splash");if(!e)return;e.classList.add("out");setTimeout(()=>{e.remove();document.documentElement.classList.remove("spl");barColor()},260)}
 function loadGL(){if(BASEMAP.url||!map||glLayer||loadGL.t)return;loadGL.t=1;const stP=styleGet();
  const css=document.createElement("link");css.rel="stylesheet";css.href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css";css.integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V";css.crossOrigin="anonymous";document.head.appendChild(css);
@@ -852,7 +851,7 @@ let curView="explore",curList="fav",lShown=30,listF=null;
 const drawer=$("#drawer"),scrim=$("#scrim");
 function renderDrawer(){const cv=curView,ico=p=>`<svg class="i" viewBox="0 0 24 24">${p}</svg>`;
  const it=(a,ic,lab,extra,on)=>`<button class="dr-i${on?" on":""}" ${a}><span class="dr-ic">${ic}</span><span class="dr-l">${lab}</span>${extra||""}</button>`;
- $("#drNav").innerHTML=it('data-v="account"',ico('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'),esc(T("Sign in")),"",cv==="account")
+ $("#drNav").innerHTML=it('data-dsoon="1"',ico('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'),esc(T("Sign in")),"",false)
   +it('data-v="explore"',ico('<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'),esc(T("Explore")),"",cv==="explore")
   +it('data-dasia="1"',si("globe"),esc(T("All Asia")),"",false)
   +it('data-dcity="1"',ico('<circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/>'),esc(T("Find a city")),"",false)
@@ -865,6 +864,7 @@ function renderDrawer(){const cv=curView,ico=p=>`<svg class="i" viewBox="0 0 24 
   +(edCode?it('data-ded="1"',ico('<path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>'),esc(T("Editor mode")),"<em>✓</em>",false):"")
   +it('data-v="tip"',ico('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),esc(T("Add a tip")),"",cv==="tip")
   +it('data-v="phrases"',ico('<path d="M4 5h16v11H9l-5 4z"/>'),esc(T("Useful phrases")),"",cv==="phrases")
+  +it('data-v="settings"',ico(IC.gear),esc(T("Settings")),"",cv==="settings")
   +it('data-v="about"',ico('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>'),esc(T("About & privacy")),"",cv==="about");
  $("#drLang").innerHTML=LANGS.map(x=>`<button data-dlang="${x[0]}" class="${x[0]===lang?"on":""}">${x[1]}</button>`).join("");
  $("#drMap").innerHTML=[["auto",T("Same as app")],["latin","Latin (A–Z)"],["ar","العربية"]].map(x=>`<button data-dml="${x[0]}" class="${x[0]===mapLet?"on":""}">${esc(x[1])}</button>`).join("");
@@ -876,7 +876,7 @@ function closeDrawer(back){if(!drawer.classList.contains("on"))return;drawer.cla
  if(back!==false&&drLast&&drLast.focus)drLast.focus()}
 $("#menuBtn").onclick=()=>drawer.classList.contains("on")?closeDrawer():openDrawer();$("#sbMenu").onclick=()=>$("#menuBtn").click();
 scrim.onclick=()=>closeDrawer();
-drawer.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+const drClick=e=>{const b=e.target.closest("button");if(!b)return;
  if(b.id==="drX"){closeDrawer();return}
  if(b.dataset.v){goTab(b.dataset.v)}
  else if(b.dataset.dl){curList=b.dataset.dl;lShown=30;goTab("lists")}
@@ -888,7 +888,8 @@ drawer.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)ret
  else if(b.hasAttribute("data-dcity")){goTab("explore");showFilters();setTimeout(()=>$("#cityQ").focus(),250)}
  else if(b.dataset.dlang){setLang(b.dataset.dlang);renderDrawer()}
  else if(b.dataset.dunit){units=b.dataset.dunit==="mi"?"mi":"km";save("jk_units",units);renderDrawer();render(false);if(sheetId)drawSheet()}
- else if(b.dataset.dml){mapLet=b.dataset.dml;save("jk_maplet",mapLet);applyLang();applyMapLang();renderDrawer()}});
+ else if(b.dataset.dml){mapLet=b.dataset.dml;save("jk_maplet",mapLet);applyLang();applyMapLang();renderDrawer()}};
+drawer.addEventListener("click",drClick);$("#settings").addEventListener("click",drClick);
 (()=>{let x0=null,y0=0;drawer.addEventListener("touchstart",e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});
  drawer.addEventListener("touchend",e=>{if(x0==null)return;const t=e.changedTouches[0];if(t.clientX-x0<-60&&Math.abs(t.clientY-y0)<50)closeDrawer();x0=null},{passive:true})})();
 addEventListener("keydown",e=>{
@@ -1088,10 +1089,5 @@ applyLang();loadVector();loadGL();syncDark();
 Promise.all([loadLang(lang),loadFoods()]).then(()=>{applyLang();applyMapLang();showTips();renderChips();fillOpts();render();setTimeout(()=>hintZoom(true),1500)});
 try{navigator.permissions.query({name:"geolocation"}).then(p=>{if(p.state==="granted")locate()})}catch(e){}
 
-/* sign in / sign up page: only the look for now, nothing is sent or saved */
-document.querySelector(".actabs").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const up=b.dataset.act==="up";
- document.querySelectorAll(".actabs button").forEach(x=>x.classList.toggle("on",x===b));$("#acUp").hidden=!up;$("#acPw").autocomplete=up?"new-password":"current-password";
- const g=$("#acGo");g.dataset.i=up?"Create account":"Log in";g.textContent=T(g.dataset.i);$("#acMsg").textContent=""});
-$("#acForm").addEventListener("submit",e=>{e.preventDefault();$("#acPw").value="";$("#acMsg").textContent=T("Coming soon: account sync is still being built.")});
 /* editor mode is hidden from visitors: open the app with #editor at the end of the address */
 if(location.hash==="#editor"){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}setTimeout(()=>{try{openEd()}catch(e){}},1500)}

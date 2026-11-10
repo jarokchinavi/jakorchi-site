@@ -3,10 +3,13 @@
 const $$=s=>document.querySelector(s);
 
 /* ---- phone back button: every open layer gets a history step; Back closes the top one instead of leaving the app ---- */
-const LS=[];let skip=0,inPop=false;
-function open(id,close){if(LS.some(l=>l.id===id))return;LS.push({id,close});try{history.pushState({jk:id},"")}catch(e){}}
-function shut(id){const i=LS.findIndex(l=>l.id===id);if(i<0)return;LS.splice(i,1);if(inPop)return;skip++;try{history.back()}catch(e){skip--}}
-addEventListener("popstate",()=>{if(skip>0){skip--;return}const l=LS.pop();if(!l)return;inPop=true;try{l.close()}catch(e){}inPop=false});
+/* one extra history step while anything is open; Back closes the top layer, the app itself never closes by accident */
+const LS=[];let skip=0,inPop=false,guard=false;
+const push=()=>{if(LS.length&&!guard){guard=true;try{history.pushState({jk:1},"")}catch(e){guard=false}}};
+function open(id,close){if(LS.some(l=>l.id===id))return;LS.push({id,close});push()}
+function shut(id){const i=LS.findIndex(l=>l.id===id);if(i<0)return;LS.splice(i,1);if(inPop)return;
+ setTimeout(()=>{if(!LS.length&&guard){guard=false;skip++;try{history.back()}catch(e){skip--}}},0)}
+addEventListener("popstate",()=>{if(skip>0){skip--;return}guard=false;const l=LS.pop();if(l){inPop=true;try{l.close()}catch(e){}inPop=false}push()});
 const watch=(el,cls,id,close)=>{if(!el)return;new MutationObserver(()=>{el.classList.contains(cls)?open(id,close):shut(id);segSync()}).observe(el,{attributes:true,attributeFilter:["class"]})};
 watch($$("#drawer"),"on","drawer",()=>closeDrawer());
 watch($$("#listPanel"),"open","list",()=>showMap());
@@ -27,24 +30,47 @@ $$("#seg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b
  if(map)setTimeout(()=>map.invalidateSize(),60);segSync()});
 
 /* ---- start screen ---- */
-function drawCities(){const c=$$("#hmCities");if(!c)return;c.innerHTML=CITIES.filter(x=>["Tokyo","Kyoto","Osaka","Seoul","Busan","Shanghai"].includes(x[0])).map(x=>`<button type="button" data-hcity="${x[0]}">${FLAG[x[1]]||""}<span>${esc(T(x[0]))}</span></button>`).join("")}
 $$("#home").addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;
  if(t.hasAttribute("data-hgo")){goTab("explore");showMap();if(map)setTimeout(()=>map.invalidateSize(),60)}
- else if(t.hasAttribute("data-hauth")){const s=$$("#hmSoon");s.hidden=false;s.classList.remove("pop");void s.offsetWidth;s.classList.add("pop")}
- else if(t.dataset.hcity){const c=CITIES.find(x=>x[0]===t.dataset.hcity);goTab("explore");showMap();if(map&&c)setTimeout(()=>{map.invalidateSize();openCity(c)},80)}});
-new MutationObserver(()=>{const on=$$("#home").classList.contains("on");document.body.classList.toggle("hmv",on);if(on)drawCities()}).observe($$("#home"),{attributes:true,attributeFilter:["class"]});
+ else if(t.hasAttribute("data-hauth"))soon()});
+new MutationObserver(()=>{const on=$$("#home").classList.contains("on");document.body.classList.toggle("hmv",on);document.documentElement.classList.toggle("hmv",on)}).observe($$("#home"),{attributes:true,attributeFilter:["class"]});
+/* sign in / sign up: no empty page, a small "coming soon" popup instead (nothing is sent) */
+function soon(){const m=ensureModal();m.innerHTML=`<div class="rvbox card"><button class="rvx" data-rvclose aria-label="Close">✕</button><div class="soonm">${si("user")}<h3>${esc(T("Sign in"))}</h3><span class="soon">${esc(T("Coming soon"))}</span><p>${esc(T("Account sync is still being built."))}</p><button class="btn fill" type="button" data-rvclose>${esc(T("Got it"))}</button></div></div>`;m.classList.add("on")}
+window.soon=soon;
 /* shown once, on the first visit (not when someone opens a shared link) */
 try{if(!localStorage.getItem("jk_home")&&!location.search&&!location.hash){localStorage.setItem("jk_home","1");setTimeout(()=>goTab("home"),0)}}catch(e){}
 
-/* ---- extra settings in the menu ---- */
-window.drMore=()=>{const t=$$("#drTr");if(t)t.innerHTML=[["walk",T("Walk")],["transit",T("Transit")],["car",T("Car")]].map(x=>`<button type="button" data-dtr="${x[0]}" class="${x[0]===trMode?"on":""}">${esc(x[1])}</button>`).join("")};
-$$("#drawer").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
- if(b.dataset.dtr){trMode=b.dataset.dtr;save("jk_tr",trMode);drMore();if(sheetId)drawSheet()}
+/* ---- settings page (and the menu's Sign in item) ---- */
+const TH=()=>{const t=load("jk_theme","auto");return/^(auto|light|dark)$/.test(t)?t:"auto"};
+function applyTheme(t){const r=document.documentElement;if(t==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",t);try{if(vlayer)loadVector()}catch(e){}setTimeout(syncDark,0)}
+if(TH()!=="auto")applyTheme(TH());try{matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>{if(TH()==="auto")applyTheme("auto")})}catch(e){}
+window.drMore=()=>{const t=$$("#drTr");if(t)t.innerHTML=[["walk",T("Walk")],["transit",T("Transit")],["car",T("Car")]].map(x=>`<button type="button" data-dtr="${x[0]}" class="${x[0]===trMode?"on":""}">${esc(x[1])}</button>`).join("");
+ const s=$$("#stTheme");if(s)s.innerHTML=[["auto",T("Auto")],["light",T("Light")],["dark",T("Dark")]].map(x=>`<button type="button" data-sth="${x[0]}" class="${x[0]===TH()?"on":""}">${esc(x[1])}</button>`).join("")};
+new MutationObserver(()=>{if($$("#settings").classList.contains("on"))renderDrawer()}).observe($$("#settings"),{attributes:true,attributeFilter:["class"]});
+const more=e=>{const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.dsoon){closeDrawer(false);soon()}
+ else if(b.dataset.sth){save("jk_theme",b.dataset.sth);applyTheme(b.dataset.sth);drMore()}
+ else if(b.dataset.dtr){trMode=b.dataset.dtr;save("jk_tr",trMode);drMore();if(sheetId)drawSheet()}
  else if(b.id==="cacheBtn"){const l=b.querySelector(".dr-l");
   if(!b.dataset.arm){b.dataset.arm="1";l.textContent=T("Tap again to clear. Favorites and lists stay.");setTimeout(()=>{delete b.dataset.arm;l.textContent=T("Clear saved map data")},4000);return}
   l.textContent=T("Cleared. Reloading…");
   (async()=>{try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}catch(e){}
    try{Object.keys(localStorage).filter(k=>/^jk_(c_|style)/.test(k)).forEach(k=>localStorage.removeItem(k))}catch(e){}
-   setTimeout(()=>location.reload(),600)})()}});
+   setTimeout(()=>location.reload(),600)})()}};
+$$("#drawer").addEventListener("click",more);$$("#settings").addEventListener("click",more);
+
+/* ---- city search: suggestions while typing, small spelling mistakes are fine; Enter on an unknown place asks OpenStreetMap ---- */
+const CT=[["Tokyo","Japan",35.6812,139.7671,"東京 tokio"],["Osaka","Japan",34.6937,135.5023,"大阪"],["Kyoto","Japan",35.0116,135.7681,"京都 kioto"],["Yokohama","Japan",35.4437,139.638,"横浜"],["Nagoya","Japan",35.1709,136.8815,"名古屋"],["Sapporo","Japan",43.0618,141.3545,"札幌"],["Fukuoka","Japan",33.5902,130.4017,"福岡 hakata"],["Kobe","Japan",34.6901,135.1955,"神戸"],["Hiroshima","Japan",34.3853,132.4553,"広島"],["Nara","Japan",34.6851,135.8048,"奈良"],["Sendai","Japan",38.2682,140.8694,"仙台"],["Kanazawa","Japan",36.5613,136.6562,"金沢"],["Naha","Japan",26.2124,127.6809,"那覇 okinawa"],["Hakone","Japan",35.2324,139.1069,"箱根"],["Nikko","Japan",36.7199,139.6982,"日光"],["Kamakura","Japan",35.3192,139.5467,"鎌倉"],["Takayama","Japan",36.1461,137.2522,"高山"],["Nagasaki","Japan",32.7503,129.8779,"長崎"],["Kumamoto","Japan",32.8032,130.7079,"熊本"],["Kagoshima","Japan",31.5966,130.5571,"鹿児島"],["Okayama","Japan",34.6551,133.9195,"岡山"],["Hakodate","Japan",41.7687,140.7288,"函館"],["Niigata","Japan",37.9161,139.0364,"新潟"],["Matsuyama","Japan",33.8392,132.7657,"松山"],
+ ["Seoul","Korea",37.5665,126.978,"서울 soul"],["Busan","Korea",35.1796,129.0756,"부산 pusan"],["Incheon","Korea",37.4563,126.7052,"인천"],["Daegu","Korea",35.8714,128.6014,"대구 taegu"],["Daejeon","Korea",36.3504,127.3845,"대전 taejon"],["Gwangju","Korea",35.1595,126.8526,"광주 kwangju"],["Ulsan","Korea",35.5384,129.3114,"울산"],["Suwon","Korea",37.2636,127.0286,"수원"],["Jeju","Korea",33.4996,126.5312,"제주 cheju"],["Gyeongju","Korea",35.8562,129.2247,"경주 kyongju"],["Jeonju","Korea",35.8242,127.148,"전주 chonju"],["Sokcho","Korea",38.207,128.5918,"속초"],["Gangneung","Korea",37.7519,128.8761,"강릉 kangnung"],
+ ["Beijing","China",39.9042,116.4074,"北京 peking"],["Shanghai","China",31.2304,121.4737,"上海"],["Chengdu","China",30.5728,104.0668,"成都"],["Guangzhou","China",23.1291,113.2644,"广州 canton"],["Shenzhen","China",22.5431,114.0579,"深圳"],["Xi'an","China",34.3416,108.9398,"西安 xian"],["Hangzhou","China",30.2741,120.1551,"杭州"],["Chongqing","China",29.563,106.5516,"重庆 chungking"],["Nanjing","China",32.0603,118.7969,"南京 nanking"],["Wuhan","China",30.5928,114.3055,"武汉"],["Suzhou","China",31.299,120.5853,"苏州"],["Kunming","China",25.0389,102.7183,"昆明"],["Guilin","China",25.2342,110.1799,"桂林"],["Qingdao","China",36.0671,120.3826,"青岛 tsingtao"],["Tianjin","China",39.3434,117.3616,"天津"],["Harbin","China",45.8038,126.535,"哈尔滨"],["Xiamen","China",24.4798,118.0894,"厦门 amoy"],["Hong Kong","China",22.3193,114.1694,"香港 hongkong"],["Macau","China",22.1987,113.5439,"澳门 macao"],["Lhasa","China",29.652,91.1721,"拉萨"],["Zhangjiajie","China",29.1171,110.4792,"张家界"]];
+function cityHits(q){const f=fold(q),r=raw(q);if(f.length<2&&!/[^\x00-\x7f]/.test(q))return[];const out=[];
+ for(const c of CT){const names=[c[0],T(c[0])].concat(c[4].split(" ")),ws=names.map(n=>fold(n)),rs=names.map(n=>raw(n));let s=9;
+  if(ws.some(w=>w.startsWith(f))||rs.some(w=>w.startsWith(r)))s=0;else if(ws.some(w=>w.includes(f))||rs.some(w=>w.includes(r)))s=1;
+  else{const m=f.length<5?1:2;if(ws.some(w=>near(w.slice(0,f.length),f,m)||near(w,f,m)))s=2}
+  if(s<9)out.push([s,c])}
+ return out.sort((a,b)=>a[0]-b[0]).slice(0,6).map(x=>x[1])}
+const cq=$$("#cityQ"),cr=$$("#cityRes");let cityList=[];
+cq.addEventListener("input",()=>{cityList=cityHits(cq.value.trim());cr.innerHTML=cityList.map(c=>`<button class="plain" type="button" data-cll="${c[2]},${c[3]}">${FLAG[c[1]]||si("pin")} ${esc(T(c[0]))} <small>${esc(c[4].split(" ")[0])}</small></button>`).join("")});
+cq.addEventListener("keydown",e=>{if(e.key==="Enter"&&cityList.length){e.preventDefault();e.stopImmediatePropagation();cr.querySelector("[data-cll]").click()}},true);
 drMore();segSync();
 })();
