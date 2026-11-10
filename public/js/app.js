@@ -1,5 +1,5 @@
 /* Jakorchi app. Version number: change it with tools/bump-version.py */
-const BUILD="2026-11-10.5";
+const BUILD="2026-11-10.6";
 /* iPhone home-screen app: with the see-through status bar, iOS lays the page out shorter than the screen (by the
    status-bar height). Layers pinned to that short viewport (position:fixed) stop short and an empty band shows at the
    bottom; stretching them past the edge is not drawn. So: measure the band once, make the page itself as tall as the
@@ -199,7 +199,7 @@ const starsStr=n=>"★".repeat(n)+"☆".repeat(5-n);
 
 const dtag=(ic,txt,src,o)=>`<span class="tag">${ic}${txt}${src==="name"?" ("+T("from the name")+")":o?" (OpenStreetMap)":""}</span>`;
 function card(r,p=""){const l=links(r),f=favs.includes(r.id),a=avg(r),rv=(reviews[r.id]||[]).concat(remoteRev[r.id]||[]),o=r.src==="osm";
- const sc=a!=null?`<span class="star">★ ${a.toFixed(1)} <small>${rcount(r)} ${rcount(r)==1?T("review"):T("reviews")}</small></span>`:(r.rating&&!sbOn()?`<span class="star">★ ${r.rating.toFixed(1)} <small>${T("example")}</small></span>`:(sbOn()?noRev():""));
+ const sc=a!=null?`<button type="button" class="star stj" data-gorev="${r.id}">★ ${a.toFixed(1)} <small>${rcount(r)} ${rcount(r)==1?T("review"):T("reviews")}</small></button>`:(r.rating&&!sbOn()?`<span class="star">★ ${r.rating.toFixed(1)} <small>${T("example")}</small></span>`:(sbOn()?noRev():""));
  const wu=webUrl(r.web),site=wu?`<a href="${esc(wu)}" target="_blank" rel="noopener noreferrer">${esc(wu.replace(/^https?:\/\/(www\.)?/,"").slice(0,40))}</a>`:"";
  const adr=r.addr?`${esc(r.addr)} <button class="rbtn cp" data-copy="${esc(r.addr)}" aria-label="${esc(T("Copy"))}">${si("copy")} ${T("Copy")}</button>`:`<span class="mut">${T("No address in OpenStreetMap yet")}</span> <button class="rbtn cp" data-addr="${r.id}">${si("pin")} ${T("Find nearest address")}</button><div class="adout"></div>`;
  const tel=r.phone&&/^[+0-9 ()\-.]{5,30}$/.test(r.phone)?`<a href="tel:${esc(r.phone.replace(/[^+0-9]/g,""))}">${esc(r.phone)}</a>`:"";
@@ -215,7 +215,7 @@ function card(r,p=""){const l=links(r),f=favs.includes(r.id),a=avg(r),rv=(review
  const act=`<div class="btns" style="margin-top:10px"><button class="btn rvcta" data-rev="${r.id}">★ ${T("Write a review")}</button><button class="btn fill" data-nav="${r.id}">${ARR}${T("Navigate")}</button>${l.rev.map(x=>`<a class="btn" target="_blank" rel="noopener noreferrer" href="${x.h}">${x.t}</a>`).join("")}</div>`;
  const navrow=`<div class="nav">${l.nav.map(x=>`<a class="btn" ${x.id?`data-naver="${r.id}"`:'target="_blank" rel="noopener noreferrer"'} href="${x.h}">${x.t}</a>`).join("")}</div>`;
  const rest=`<div class="btns">${p?"":`<button class="rbtn" data-show="${r.id}">${si("pin")} ${T("Show on map")}</button>`}${o?`<button class="rbtn" data-tipfor="${r.id}">+ ${T("Add a tip")}</button>`:""}${o&&sbOn()?`<button class="rbtn" data-flag="${r.id}">${si("flag")} ${T("Report closed, diet or food type")}</button>`:""}</div>
- ${rv.length?`<div class="revs">${rv.map(x=>`<div><b style="color:#f0a500">${starsStr(x.stars)}</b>${x.price?` <small class="rvp" title="${esc(T("Price per person"))}">${prSym(x.price,r.country)}</small>`:""} ${esc(x.name||T("Traveler"))} <small>${esc(x.date)}</small><br>${esc(x.text)}${phs(x.photos)}</div>`).join("")}</div>`:""}`;
+ ${rv.length?`<div class="revs" data-revs>${rv.map(x=>`<div><b style="color:#f0a500">${starsStr(x.stars)}</b>${x.price?` <small class="rvp" title="${esc(T("Price per person"))}">${prSym(x.price,r.country)}</small>`:""} ${esc(x.name||T("Traveler"))} <small>${esc(x.date)}</small><br>${esc(x.text)}${phs(x.photos)}</div>`).join("")}</div>`:""}`;
  if(p){ex=ex.replace('class="ex','style="margin:14px -16px 0" class="ex');return `<article class="card"><div class="cb" style="padding-top:2px">${head}${act}<i data-pe></i>${ex}${navrow}${info}${o&&sbOn()?xsec(r):""}${warn}${rest}</div></article>`}
  return `<article class="card" id="c_${r.id}">${ex}<div class="cb">${head}${info}${warn}${act}${navrow}${rest}</div></article>`}
 

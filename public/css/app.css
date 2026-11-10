@@ -421,3 +421,21 @@ html.hmv,html.hmv body{background:var(--hb)}
 body.hmv .bar{display:none}body.hmv{padding-top:0}
 body.hmv>footer,body.hmv .foot{display:none}
 body.hmv main>p.note,body.hmv>p.note,body.hmv p.note{display:none}
+
+/* 16px fields: iPhone no longer zooms the page in when you tap a field */
+input,textarea,select{font-size:16px}
+.panel{touch-action:pan-y}
+/* restaurant card open: no bubbles behind it, only that place */
+.clb{transition:opacity .2s}body.sheet-on .clb{opacity:0;pointer-events:none}
+/* stars = button to the reviews */
+.stj{border:0;background:none;font:inherit;cursor:pointer;padding:2px 4px;margin:-2px -4px;border-radius:8px}.stj:active{background:var(--line)}
+/* neutral "coming soon" (gold is only for Plus) */
+.soon.n{background:var(--line);color:var(--ink)}
+/* start screen top row: theme + settings */
+.hm-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:-6px}
+.hm-th{display:flex;gap:2px;padding:3px;border-radius:99px;border:1px solid var(--hl);background:var(--hs)}
+.hm-th button{display:flex;align-items:center;gap:5px;border:0;background:none;color:var(--hm);font:inherit;font-size:.76rem;font-weight:600;padding:6px 10px;border-radius:99px}
+.hm-th button.on{background:var(--hc);color:var(--hct)}.hm-th .ic{width:15px;height:15px}
+.hm-gear{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--hl);background:var(--hs);color:var(--ht)}.hm-gear .ic{width:20px;height:20px}
+.hm{justify-content:flex-start}.hm-top{margin-top:8vh}
+.st-k{color:var(--mute);font-size:.9rem}.st-v{font-size:.9rem;font-weight:500}
