@@ -1,5 +1,5 @@
 /* Jakorchi app. Version number: change it with tools/bump-version.py */
-const BUILD="2026-11-10.2";
+const BUILD="2026-11-10.3";
 /* iPhone home-screen app: with the see-through status bar, iOS lays the page out shorter than the screen (by the
    status-bar height). Layers pinned to that short viewport (position:fixed) stop short and an empty band shows at the
    bottom; stretching them past the edge is not drawn. So: measure the band once, make the page itself as tall as the
@@ -166,8 +166,8 @@ const pinIcon=(r,dot,dl)=>{const k=pinKind(r);return dot?L.divIcon({className:""
 const pin=(r,dot,dl)=>{const base=SV.has(r.id)?400:0;
  const m=L.marker([r.lat,r.lng],{icon:pinIcon(r,dot,dl),title:r.name,zIndexOffset:base});m._sig=pinSig(r,dot);m._base=base;
  m.bindTooltip(esc(dname(r))+(r.cu0?"":`<br><small>${r.cg?"≈ ":""}${esc(cuis(r.cuisine))}</small>`),{direction:"top",offset:[0,dot?-9:-30]});m.on("click",()=>{openSheet(r.id);nudge(r.id)});return m};
-try{map=L.map("map",{worldCopyJump:true,zoomControl:false,zoomSnap:.5,zoomDelta:1,wheelPxPerZoomLevel:100,wheelDebounceTime:20,inertiaDeceleration:2600,minZoom:3,maxZoom:19,bounceAtZoomLimits:false}).setView([36,128],4);L.control.zoom({position:"bottomright"}).addTo(map);
- const tl=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'});
+try{map=L.map("map",{worldCopyJump:true,zoomControl:false,zoomSnap:.5,zoomDelta:1,wheelPxPerZoomLevel:100,wheelDebounceTime:20,inertiaDeceleration:2600,minZoom:3,maxZoom:21,bounceAtZoomLimits:false}).setView([36,128],4);L.control.zoom({position:"bottomright"}).addTo(map);
+ const tl=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:21,maxNativeZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'});
  rasterLayer=tl;setTimeout(rasterOn,6000);tl.on("tileerror",()=>{const n=$("#mapNote");n.style.display="block";n.textContent="The map background could not load here. Pins and your location still work."});
  setTimeout(()=>map.invalidateSize(),300);addEventListener("load",()=>map.invalidateSize());map.on("click",()=>closeSheet());
 }catch(e){$("#map").innerHTML='<p class="empty">The map could not load. The list still works.</p>'}
@@ -284,12 +284,12 @@ function syncMarkers(){if(!map)return;svBuild();const res=cur,z=map.getZoom(),ma
   /* spread them over the screen: one place per small square (the best rated, else the one closest to the middle), so a busy street does not become one clump */
   /* zoomed out = big squares = few pins (only the best); all pins only at the closest zoom (19) */
   const CL=z<15,/* zoomed out: close places become one numbered bubble (tap = zoom in) */
-   tier=CL?[64,0]:z<16?[76,60]:z<17?[64,90]:z<18?[52,130]:z<19?[40,200]:[1,350],cs=tier[0],cap=Math.round(tier[1]*1.7),cell=new Map(),d2=r=>(r.lat-c.lat)**2+(r.lng-c.lng)**2,W=256*Math.pow(2,z),
+   tier=CL?[92,0]:z<16?[76,60]:z<17?[64,90]:z<18?[52,130]:z<19?[40,200]:[1,350],cs=tier[0],cap=Math.round(tier[1]*1.35),cell=new Map(),d2=r=>(r.lat-c.lat)**2+(r.lng-c.lng)**2,W=256*Math.pow(2,z),
    key=r=>{const sn=Math.sin(r.lat*Math.PI/180),x=(r.lng+180)/360*W,y=(.5-Math.log((1+sn)/(1-sn))/(4*Math.PI))*W;return Math.floor(x/cs)+","+Math.floor(y/cs)},
    sc=r=>pinScore(r)+(markers[r.id]?.5:0);
-  if(CL){const g=new Map();for(const r of cand){const k=key(r),o=g.get(k);if(o){o.n++;o.la+=r.lat;o.ln+=r.lng}else g.set(k,{n:1,la:r.lat,ln:r.lng,r})}
-   let ar=[...g.entries()];if(ar.length>90)ar=ar.map(e=>[(e[1].la/e[1].n-c.lat)**2+(e[1].ln/e[1].n-c.lng)**2,e]).sort((a,b)=>a[0]-b[0]).slice(0,90).map(x=>x[1]);
-   vis=sv.slice();for(const [k,o] of ar){if(o.n===1)vis.push(o.r);else cls.push([k,o.la/o.n,o.ln/o.n,o.n])}}
+  if(CL){const g=new Map();for(const r of cand){const k=key(r),o=g.get(k),f=pinFlags(r);if(o){o.n++;o.la+=r.lat;o.ln+=r.lng;if(f.hl)o.h=1;if(f.vg)o.v=1}else g.set(k,{n:1,la:r.lat,ln:r.lng,r,h:f.hl?1:0,v:f.vg?1:0})}
+   let ar=[...g.entries()];const CMAX=innerWidth>700?70:45;/* screen cap: nearest to the middle first */if(ar.length>CMAX)ar=ar.map(e=>[(e[1].la/e[1].n-c.lat)**2+(e[1].ln/e[1].n-c.lng)**2,e]).sort((a,b)=>a[0]-b[0]).slice(0,CMAX).map(x=>x[1]);
+   vis=sv.slice();for(const [k,o] of ar){if(o.n===1)vis.push(o.r);else cls.push([k,o.la/o.n,o.ln/o.n,o.n,o.h,o.v])}}
   else{
   sv.forEach(r=>cell.set(key(r),null));
   for(const r of cand){const k=key(r),o=cell.get(k);if(o===null)continue;if(!o){cell.set(k,r);continue}const a=sc(r),b=sc(o);if(a>b||(a===b&&r.id<o.id))cell.set(k,r)}
@@ -303,11 +303,12 @@ function syncMarkers(){if(!map)return;svBuild();const res=cur,z=map.getZoom(),ma
   else{const sg=pinSig(r,d);if(m._sig!==sg){m._sig=sg;m.setIcon(pinIcon(r,d));m._base=SV.has(r.id)?400:0;m.setZIndexOffset(m._base);const t=m.getTooltip();if(t)t.options.offset=L.point(0,d?-9:-30)}}});
  wantMeta(vis.map(r=>r.id));applySel()}
 /* numbered bubbles for crowded places when zoomed out */
-const clMk={},clIcon=n=>L.divIcon({className:"",html:`<div class="cl"><b class="c${n<10?1:n<100?2:3}">${n>=1000?(n/1000).toFixed(1).replace(".0","")+"k":n}</b></div>`,iconSize:[44,44],iconAnchor:[22,22]});
+const BOWL='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5h18a9 9 0 0 1-18 0z" fill="currentColor"/><path d="M8.5 3.5c-1 1.4 1 2.4 0 4.2M12 3.5c-1 1.4 1 2.4 0 4.2M15.5 3.5c-1 1.4 1 2.4 0 4.2" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
+ clIcon=(n,h,v)=>L.divIcon({className:"",html:`<div class="clb${n>=100?" big":""}"><span class="clc">${BOWL}</span><b>${n>=1000?(n/1000).toFixed(1).replace(".0","")+"k":n}</b>${h||v?`<span class="dt">${h?'<i class="dh"></i>':""}${v?'<i class="dv"></i>':""}</span>`:""}</div>`,iconSize:[0,0],iconAnchor:[0,0]}),clMk={};
 function syncCl(list,z){const keep=new Set();
- for(const [k,la,ln,n] of list){const id=z+":"+k,m=clMk[id];keep.add(id);
-  if(!m){const mk=L.marker([la,ln],{icon:clIcon(n),title:String(n),zIndexOffset:-100});mk._n=n;mk.on("click",()=>map.setView(mk.getLatLng(),Math.min(z+2,17)));clMk[id]=mk.addTo(map)}
-  else if(m._n!==n){m._n=n;m.setIcon(clIcon(n));m.setLatLng([la,ln])}}
+ for(const [k,la,ln,n,h,v] of list){const id=z+":"+k,m=clMk[id],sg=n+"|"+h+"|"+v;keep.add(id);
+  if(!m){const mk=L.marker([la,ln],{icon:clIcon(n,h,v),title:String(n),zIndexOffset:-100});mk._n=sg;mk.on("click",()=>map.setView(mk.getLatLng(),Math.min(z+2,17)));clMk[id]=mk.addTo(map)}
+  else if(m._n!==sg){m._n=sg;m.setIcon(clIcon(n,h,v));m.setLatLng([la,ln])}}
  for(const id of Object.keys(clMk))if(!keep.has(id)){map.removeLayer(clMk[id]);delete clMk[id]}}
 /* redraw pins at most every 200 ms while the map is moving or zooming */
 let syT=0,syAt=0;function syncSoon(){clearTimeout(syT);const w=syAt+200-Date.now();if(w<=0){syAt=Date.now();syncMarkers()}else syT=setTimeout(()=>{syAt=Date.now();syncMarkers()},w)}
@@ -631,9 +632,10 @@ if(map)map.on("moveend",()=>{syncSoon();autoLoad();npSoon();zHint()});
 /* how far to zoom before restaurants show (pins start at zoom 13) */
 const ZNEED=13;
 function zHint(){const h=$("#zHint");if(!h||!map)return;const z=Math.round(map.getZoom()),c=map.getCenter(),inAsia=c.lat>18&&c.lat<54&&c.lng>73&&c.lng<146,few=cur.length&&cur.length<=60;
- if(z>=ZNEED||!inAsia||few||curView!=="explore"){h.hidden=true;return}
+ const show=!(z>=ZNEED||!inAsia||few||curView!=="explore");h.hidden=!show;document.querySelector(".ftop").classList.toggle("zh",show);if(!show)return;
  const n=ZNEED-z;$("#zHintT").textContent=n===1?T("Zoom in 1 more step to see restaurants"):T("Zoom in {0} more steps to see restaurants",n);
- $("#zHintBar").style.width=Math.max(6,Math.round(z/ZNEED*100))+"%";const b=$("#zHintBtn");b.textContent=z<9?T("Find a city"):T("Zoom in");b.dataset.city=z<9?"1":"";h.hidden=false}
+ $("#zHintBar").style.width=Math.max(6,Math.round(z/ZNEED*100))+"%";const b=$("#zHintBtn");b.textContent=z<9?T("Find a city"):T("Zoom in");b.dataset.city=z<9?"1":""}
+if(map)map.on("zoomend",zHint);
 $("#zHintBtn").onclick=e=>{if(e.currentTarget.dataset.city){showFilters();setTimeout(()=>$("#cityQ").focus(),250)}else map.setView(map.getCenter(),ZNEED)};
 setTimeout(zHint,2500);
 // ===== Live places everywhere: loads only the map tiles you look at (zoom 14+), each tile once =====
@@ -657,7 +659,7 @@ async function loadPoi(x,y,small){await doneP;let r;try{r=await fetch(`${POI_BAS
 const fromPoi=a=>{let nc=CITIES[0],d=1e9;CITIES.forEach(c=>{const x=km({lat:a[5],lng:a[6]},{lat:c[2],lng:c[3]});if(x<d){d=x;nc=c}});
  return enrich(Object.assign({id:a[0],src:"osm",name:a[1],loc:a[2],cat:a[3],cuisine:a[4],lat:a[5],lng:a[6],hours:a[9],addr:a[10],web:a[11],phone:a[15]||"",nm:a[16]||undefined,sub:a[17]||"",country:a[13]||nc[1],city:d<120?nc[0]:"",price:0,rating:null,eng:null},OSMF(a[7],a[8],a[14])))};
 function autoLoad(){if(!map)return;clearTimeout(tTimer);tTimer=setTimeout(loadView,500)}
-function hintZoom(f){if(!map)return;const c=map.getCenter();if(c.lat<18||c.lat>54||c.lng<73||c.lng>146)return;if(f||!hintZoom.t||Date.now()-hintZoom.t>20000){hintZoom.t=Date.now();osmOut.textContent=T("Zoom in closer to see restaurants.")}}
+function hintZoom(f){if(!map)return;const c=map.getCenter();if(c.lat<18||c.lat>54||c.lng<73||c.lng>146)return;if(f||!hintZoom.t||Date.now()-hintZoom.t>20000){hintZoom.t=Date.now();$("#osmMsg").textContent=T("Zoom in closer to see restaurants.")}}/* the map shows the zoom pill instead of a toast */
 function loadView(){if(!map)return;doneP.then(()=>{
  const st=!!POI_BASE,Z=st?12:TZ;if(map.getZoom()<(st?13:14)){hintZoom();return}const b=map.getBounds(),c=b.getCenter();if(c.lat<18||c.lat>54||c.lng<73||c.lng>146)return;
  const x0=tx(b.getWest(),Z),x1=tx(b.getEast(),Z),y0=ty(b.getNorth(),Z),y1=ty(b.getSouth(),Z),cap=st?(innerWidth>700?9:6):16;let ts=[];

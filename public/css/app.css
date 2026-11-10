@@ -317,10 +317,6 @@ html.iosgap.exv .stage{position:absolute!important}
 html.iosgap.exv .sheet,html.iosgap.exv .drawer,html.iosgap.exv .scrim,html.iosgap.exv #rvModal,html.iosgap.exv #toast,html.iosgap.exv #splash{position:absolute}
 #about h3{margin:18px 0 4px;font-size:1.05rem}#about p{margin:0 0 8px}#about{max-width:640px}
 
-/* numbered bubbles (crowded places, zoomed out) */
-.cl{width:100%;height:100%;display:grid;place-items:center;cursor:pointer}
-.cl b{display:grid;place-items:center;border-radius:50%;background:var(--accent);color:#fff;font:600 .85rem/1 system-ui,sans-serif;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45)}
-.cl .c1{width:34px;height:34px}.cl .c2{width:40px;height:40px}.cl .c3{width:44px;height:44px;font-size:.8rem}
 /* no text selection or long-press menu on the app itself; typing fields still allow it */
 *{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
@@ -335,14 +331,37 @@ body.ex .ftop{padding-top:calc(14px + env(safe-area-inset-top,0px))}
 .fex{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .fex button{text-transform:capitalize;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:6px 12px;font:inherit;font-size:.84rem;font-weight:500}
 .fex button.on{background:var(--accent);border-color:var(--accent);color:var(--on)}
-/* how far to zoom */
-.zhint{position:absolute;left:50%;transform:translateX(-50%);bottom:76px;z-index:1050;display:flex;align-items:center;gap:10px;width:min(92vw,380px);background:var(--card);color:var(--ink);border-radius:16px;padding:10px 10px 10px 14px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+/* how far to zoom: glass pill under the filter chips */
+.zhint{display:flex;align-items:center;gap:9px;width:max-content;max-width:calc(100% - 16px);margin:10px auto 0;padding:5px 5px 5px 12px;border-radius:99px;background:rgba(255,255,255,.74);-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5);border:1px solid rgba(255,255,255,.7);box-shadow:0 4px 18px rgba(18,26,40,.16);color:var(--ink);font-size:.8rem;font-weight:500;line-height:1.25;animation:zhIn .25s ease-out}
 .zhint[hidden]{display:none}
-.zh-x{flex:1;min-width:0;font-size:.84rem;line-height:1.3}
-.zh-bar{display:block;height:4px;border-radius:4px;background:var(--line);margin-top:6px;overflow:hidden}.zh-bar i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .3s}
-.zhint button{flex:none;border:0;border-radius:12px;background:var(--accent);color:var(--on);font:inherit;font-size:.84rem;font-weight:600;padding:9px 12px}
+:root[data-theme=dark] .zhint{background:rgba(23,31,41,.74);border-color:rgba(255,255,255,.08)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .zhint{background:rgba(23,31,41,.74);border-color:rgba(255,255,255,.08)}}
+.zh-i{flex:none;width:18px;height:18px;fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linecap:round}
+.zh-x{min-width:0}
+.zh-bar{display:block;height:3px;border-radius:3px;background:rgba(120,130,150,.25);margin-top:4px;overflow:hidden}.zh-bar i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .35s}
+.zhint button{flex:none;border:0;border-radius:99px;background:var(--accent);color:var(--on);font:inherit;font-size:.78rem;font-weight:600;padding:8px 12px;min-height:32px}
+.zhint button:active{transform:scale(.95)}
+@keyframes zhIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.ftop.zh .findrow{display:none}
 /* sign in page */
 .actabs{display:flex;gap:6px;margin-top:14px;background:var(--line);padding:4px;border-radius:14px;max-width:360px}
 .actabs button{flex:1;border:0;background:none;border-radius:10px;padding:9px;font:inherit;font-weight:500;color:var(--mute)}
 .actabs button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.15)}
 #account .form{max-width:360px}
+
+/* iOS 26 paints the band behind the clock with the page colour: make it the app's navy instead of grey */
+html.exv,html.exv body{background:#1c2340}
+body.ex::before{height:max(6px,env(safe-area-inset-top,0px))}
+/* numbered bubbles, design B: label pill with a navy cap, halal / vegan dots */
+.clb{position:absolute;left:0;top:0;transform:translate(-50%,-50%);display:flex;align-items:center;height:24px;border-radius:99px;background:#fff;border:1px solid rgba(28,35,64,.14);box-shadow:0 1px 2px rgba(18,26,40,.18),0 3px 10px rgba(18,26,40,.14);overflow:hidden;white-space:nowrap;cursor:pointer;animation:clIn .22s ease-out;transition:transform .12s}
+.clb:active{transform:translate(-50%,-50%) scale(.93)}
+.clc{display:grid;place-items:center;align-self:stretch;width:24px;background:#1c2340;color:#e3c27a;box-shadow:inset -1px 0 0 #c9a45c}
+.clc svg{width:14px;height:14px}
+.clb b{padding:0 8px 0 7px;font:600 .76rem/1 "Figtree",system-ui,sans-serif;color:#1c2340;letter-spacing:.01em}
+.clb .dt{display:flex;gap:3px;margin:0 8px 0 -3px}.clb .dt i{width:6px;height:6px;border-radius:50%}
+.clb .dh{background:#1d9e75}.clb .dv{background:#97c459}
+.clb.big{height:27px}.clb.big .clc{width:27px}.clb.big b{font-size:.82rem}
+@keyframes clIn{from{opacity:0;transform:translate(-50%,-50%) scale(.8)}to{opacity:1;transform:translate(-50%,-50%)}}
+@media (prefers-reduced-motion:reduce){.clb{animation:none}}
+/* single pins a little smaller so busy streets stay readable */
+.pn svg{transform:scale(.88);transform-origin:50% 100%}
