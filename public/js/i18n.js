@@ -20,6 +20,7 @@
     document.querySelectorAll("[data-i]").forEach(function (el) { el.textContent = T(el.getAttribute("data-i")); });
     document.querySelectorAll("[data-ia]").forEach(function (el) { el.setAttribute("aria-label", T(el.getAttribute("data-ia"))); });
     h.classList.remove("wait");
+    document.dispatchEvent(new Event("jk:lang"));
   }
   function set(l) {
     if (!known(l)) l = "en";

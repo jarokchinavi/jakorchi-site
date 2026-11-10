@@ -1,0 +1,49 @@
+/* Settings page. */
+.page[hidden]{display:none}
+.page{min-height:100vh;min-height:100dvh;position:relative}
+.page .rod{height:6px;background:var(--gl)}
+.page .col{max-width:440px;margin:0 auto;padding:0 20px max(28px,env(safe-area-inset-bottom))}
+.page .rod{margin-top:env(safe-area-inset-top)}
+.back{display:grid;place-items:center;width:44px;height:44px;margin:8px 0 0 -12px;color:var(--ink)}
+.back svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+html[dir="rtl"] .back svg{transform:scaleX(-1)}
+.tt{display:flex;align-items:center;gap:12px;margin-top:4px}
+.page h1{font:500 30px/1.1 "Fraunces",Georgia,serif}
+.dbl{margin-top:14px;height:3px;border-top:1.5px solid var(--gl);border-bottom:.5px solid var(--gl)}
+
+.page h2{display:flex;align-items:center;gap:8px;margin:26px 0 4px;font:500 13px/1 var(--sans);color:var(--mu);letter-spacing:.02em}
+.page h2::before{content:"";width:7px;height:7px;background:var(--gl);transform:rotate(45deg)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;min-height:52px;border-bottom:1px solid var(--ln);text-align:start;font-size:15px}
+.row .v{color:var(--mu);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.row.gold .l{color:var(--gold);font-weight:500}
+.row.out .l{color:var(--red)}
+.chev{width:7px;height:7px;border-top:1.5px solid var(--mu);border-inline-end:1.5px solid var(--mu);transform:rotate(45deg)}
+html[dir="rtl"] .chev{transform:rotate(-45deg)}
+.badge{display:inline-block;padding:2px 10px;border:1px solid var(--gold);color:var(--gold);border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap}
+
+.sseg{display:flex;padding:3px;margin:6px 0;border:1px solid var(--ln);border-radius:999px}
+.sseg button{flex:1;min-height:42px;border-radius:999px;color:var(--mu);font-size:14px}
+.sseg button[aria-pressed="true"]{background:var(--btn);color:var(--on);font-weight:500}
+
+.me{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--ln)}
+.av{display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:10px;background:var(--btn);color:var(--on);
+  font:500 22px/1 "Fraunces",Georgia,serif;outline:1.5px solid var(--gl);outline-offset:2px;margin:3px}
+.me b{display:block;font-weight:500;word-break:break-word}
+.me small{display:block;color:var(--mu);font-size:13px;word-break:break-word}
+
+/* Jakorchi Plus: a membership card (navy, gold double border, gold name) */
+.plusc{--pcb:#0A1226;position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:24px;padding:24px 18px 20px;
+  border:1px solid #D4B062;border-radius:14px;background:var(--pcb);color:#F3EBDB;text-align:center}
+.plusc::before{content:"";position:absolute;inset:5px;border:.5px solid rgba(212,176,98,.55);border-radius:10px;pointer-events:none}
+:root[data-theme="dark"] .plusc{--pcb:#111C44}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .plusc{--pcb:#111C44}}
+.pn{font:500 24px/1.1 "Fraunces",Georgia,serif;letter-spacing:.04em;color:#D4B062}
+.orn{display:flex;align-items:center;gap:8px}
+.orn i{display:block;width:34px;height:1px;background:#D4B062;opacity:.7}
+.orn b{display:block;width:6px;height:6px;background:#D4B062;transform:rotate(45deg)}
+.soonb{font-size:12px;font-weight:500;letter-spacing:.08em;color:rgba(243,235,219,.78)}
+.note{margin-top:8px;font-size:13px;color:var(--mu)}
+
+.toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:20;max-width:88vw;
+  padding:10px 16px;border-radius:999px;background:var(--btn);color:var(--on);font-size:14px;text-align:center}
+.toast[hidden]{display:none}

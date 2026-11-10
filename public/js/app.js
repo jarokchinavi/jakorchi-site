@@ -1,5 +1,5 @@
 /* Jakorchi start: version number, fonts, and the self-reload when a new version is live. */
-const BUILD="2026-11-10.12";
+const BUILD="2026-11-10.13";
 window.JK = { build: BUILD, layerOpen: function () { return false; } };
 
 /* Google Fonts stylesheet loads without blocking the first paint */

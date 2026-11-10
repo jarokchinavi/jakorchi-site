@@ -3,11 +3,12 @@
 ## Done
 - ✅ GitHub = source · automatic publishing via Cloudflare Workers Builds · version number + self-update
 - ✅ New front page (navy/cream/gold, light + dark, 9 languages, signed-in hides Sign in / Create account) – see `docs/app.md`
-- ✅ Old front end kept in `old/` (ask the owner before deleting) · database, `places/`, `lang/`, tools untouched · DB advisor 0
+- ✅ Old front end removed from the working tree, kept in git tag `old-app-final` · database, `places/` (160 files, 122,058 places), `lang/`, tools untouched · DB advisor 0
 - ✅ Supabase test rows (reviews, new places, votes, owner info) are kept on purpose
 
 ## Next (owner picks the order)
-- Map screen · list · place card · filters · search · settings page · accounts (then call `JKAuth.signIn`)
+- Settings page built (version 2026-11-10.13, tested locally, not yet released) · Change email / password / Sign out are placeholders until accounts exist
+- Map screen · list · place card · filters · search · accounts (then call `JKAuth.signIn`) · later in settings: delete account, contact/feedback, privacy page, units, directions
 - Map and List buttons show "Coming soon" until then
 
 ## Owner to do

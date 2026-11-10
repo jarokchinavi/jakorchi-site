@@ -1,4 +1,4 @@
-/* Front page behaviour: theme buttons, "coming soon" popups, settings (language). */
+/* Front page behaviour: theme buttons, "coming soon" popups, the shared popup layer (JK.ui). The settings page is in settings.js. */
 (function () {
   var $ = function (s) { return document.querySelector(s); };
   var T = function (k) { return JK.i18n.T(k); };
@@ -22,24 +22,20 @@
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
   layer.addEventListener("click", function (e) { if (e.target === layer) close(); });
   JK.layerOpen = function () { return !layer.hidden; };
+  JK.ui = {
+    show: show, close: close, esc: esc,
+    isOpen: function () { return !layer.hidden; },
+    refresh: function () { if (current) { box.innerHTML = current(); var f = box.querySelector('[aria-pressed="true"]'); if (f) f.focus(); } }
+  };
 
   function soon(name) {
-    var account = name === "Sign in" || name === "Create account";
+    var account = /^(Sign in|Create account|Change email|Change password)$/.test(name);
     show("", function () {
       return '<h2>' + esc(T(name)) + '</h2><span class="badge">' + esc(T("Coming soon")) + '</span>' +
         (account ? '<p>' + esc(T("Account sync is still being built.")) + '</p>' : '') +
         '<button type="button" class="btn" data-close>' + esc(T("Got it")) + '</button>';
     });
   }
-  function settings() {
-    show("", function () {
-      var cur = JK.i18n.get();
-      return '<h2>' + esc(T("Settings")) + '</h2><p>' + esc(T("Language")) + '</p><div class="langs">' +
-        JK.i18n.LANGS.map(function (l) { return '<button type="button" data-lang="' + l[0] + '" aria-pressed="' + (l[0] === cur) + '" lang="' + l[0] + '">' + esc(l[1]) + '</button>'; }).join("") +
-        '</div><button type="button" class="btn" data-close>' + esc(T("Close")) + '</button><p class="ver">' + esc(BUILD) + '</p>';
-    });
-  }
-
   /* ---- theme buttons ---- */
   function markTheme() {
     var t = JKTheme.get();
@@ -51,9 +47,8 @@
     var b = e.target.closest("button"); if (!b) return;
     if (b.hasAttribute("data-close")) close();
     else if (b.dataset.soon) soon(b.dataset.soon);
-    else if (b.id === "openSettings") settings();
+    else if (b.id === "openSettings") JK.settings.open();
     else if (b.dataset.themeSet) { JKTheme.set(b.dataset.themeSet); markTheme(); }
-    else if (b.dataset.lang) JK.i18n.set(b.dataset.lang).then(function () { if (current) box.innerHTML = current(); var f = box.querySelector('[aria-pressed="true"]'); if (f) f.focus(); });
   });
 
   markTheme();

@@ -16,7 +16,7 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = the source 
 ## Work efficiently
 - Start from this file and the one `docs/` file the task needs. Don't scan everything, don't re-read old chats.
 - The current code is the truth; drop replaced features and old notes.
-- Keep code modular and lean: page in `index.html`, look in `css/` (`base.css`, `home.css`, more per screen later), logic in small `js/` files (see `docs/app.md`), texts in `lang/`. The front end is being rebuilt screen by screen; the old version is in `old/` (delete only when the owner says so).
+- Keep code modular and lean: page in `index.html`, look in `css/` (`base.css`, `home.css`, more per screen later), logic in small `js/` files (see `docs/app.md`), texts in `lang/`. The front end is being rebuilt screen by screen. The old version is NOT in the working tree any more: it lives only in git (tag `old-app-final`; read a file with `git show old-app-final:public/js/app.js`). Don't read it unless porting a feature.
 - Every async call has a fallback (the app must never break). Mind phone speed and memory.
 
 ## Quality and speed
@@ -28,7 +28,7 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = the source 
 ## Where things are
 | What | Where |
 |---|---|
-| website | `public/` → `index.html`, `css/`, `js/` (`const BUILD` is in `js/app.js`), `lang/<code>.json` + `lang/foods.json`, `places/`, `sw.js`, `_headers`, icons, `logo.svg`, `version.json` · old front end in `old/` |
+| website | `public/` → `index.html`, `css/`, `js/` (`const BUILD` is in `js/app.js`), `lang/<code>.json` + `lang/foods.json`, `places/`, `sw.js`, `_headers`, icons, `logo.svg`, `version.json` · old front end only in git tag `old-app-final` |
 | tools | `tools/bump-version.py` · `tools/split_places.py` · `tools/clean_names.py` · `tools/build_places.py` + `make-restaurants.bat` (owner runs the Desktop copy) |
 | database | Supabase project `jsegdbtefxsforphluyc` · setup in `database/01…NN-*.sql` (all applied, in order) |
 | hosting | Cloudflare Worker `jakorchinavigation` (account subdomain `jakorchi`), Workers Builds from this repo |

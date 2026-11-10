@@ -1,6 +1,7 @@
 /* Front page + popup layer. */
 .home{min-height:100vh;min-height:100dvh;max-width:440px;margin:0 auto;display:flex;flex-direction:column;
   padding:max(16px,env(safe-area-inset-top)) 20px max(18px,env(safe-area-inset-bottom))}
+.home[hidden]{display:none}
 .top{display:flex;justify-content:space-between;align-items:center;min-height:44px;font-size:13px}
 .themes{display:flex;align-items:center;gap:2px;color:var(--mu)}
 .themes button{color:var(--mu);padding:12px 6px;min-height:44px}
@@ -11,8 +12,8 @@
 
 .hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:clamp(20px,7vh,64px)}
 .logo{width:clamp(92px,28vw,112px);height:auto;border-radius:24%}
-h1{font:500 clamp(46px,14vw,58px)/1.05 "Fraunces",Georgia,"Times New Roman",serif;letter-spacing:-.01em;margin-top:22px}
-h1 .j{font-family:"Lora",Georgia,"Times New Roman",serif}
+.hero h1{font:500 clamp(46px,14vw,58px)/1.05 "Fraunces",Georgia,"Times New Roman",serif;letter-spacing:-.01em;margin-top:22px}
+.hero h1 .j{font-family:"Lora",Georgia,"Times New Roman",serif}
 .countries{direction:ltr;display:flex;gap:16px;align-items:center;justify-content:center;margin-top:10px;font-size:16px;color:var(--ink)}
 .countries i{font-style:normal;color:var(--gold)}
 .countries [lang="ja"]{font-family:"Yu Gothic","Hiragino Sans","Noto Sans JP",sans-serif}
@@ -47,6 +48,7 @@ html.wait .home{visibility:hidden;animation:jkshow 0s 1.2s forwards}
 .box p{color:var(--mu);margin-top:10px}
 .box .badge{display:inline-block;margin-top:10px;padding:3px 10px;border:1px solid var(--gold);color:var(--gold);border-radius:999px;font-size:12px;font-weight:500}
 .box .btn{margin:20px auto 0;display:block}
+.box .pick{margin-top:4px;font-size:15px}
 .langs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
 .langs button{min-height:46px;border:1px solid var(--ln);border-radius:8px;font-size:15px}
 .langs button[aria-pressed="true"]{background:var(--btn);color:var(--on);border-color:var(--btn)}

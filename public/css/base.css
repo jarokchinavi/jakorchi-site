@@ -1,6 +1,7 @@
 /* Jakorchi base: colours (light + dark), fonts, reset. */
 :root{
   --bg:#F6F1E6; --ink:#0A1226; --mu:#5E667C; --ln:rgba(10,18,38,.2);
+  --gl:#B38A2E; --red:#B8322F;
   --gold:#8F6A17; --btn:#0A1226; --on:#F6F1E6; --veil:rgba(10,18,38,.45);
   --serif:"Fraunces",Georgia,"Times New Roman",serif;
   --sans:"Inter Tight",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -10,12 +11,14 @@
   :root:not([data-theme="light"]){
     --bg:#070D1F; --ink:#F3EBDB; --mu:#A3ACC6; --ln:rgba(243,235,219,.2);
     --gold:#D4B062; --btn:#F3EBDB; --on:#070D1F; --veil:rgba(0,0,0,.6);
+    --gl:#D4B062; --red:#E0544F;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --bg:#070D1F; --ink:#F3EBDB; --mu:#A3ACC6; --ln:rgba(243,235,219,.2);
   --gold:#D4B062; --btn:#F3EBDB; --on:#070D1F; --veil:rgba(0,0,0,.6);
+  --gl:#D4B062; --red:#E0544F;
   color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
