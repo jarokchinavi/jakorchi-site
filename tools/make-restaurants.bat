@@ -44,10 +44,20 @@ if "%C%"=="5" set F=kansai.osm.pbf
 if "%C%"=="5" set N=Japan
 if "%C%"=="5" set R=3590 3595 1620 1625
 if "%N%"=="" goto badchoice
-if exist "%F%" goto build
+if not exist "%F%" goto download
+rem A file younger than 7 days is used again: no new download.
+forfiles /m "%F%" /d -7 >nul 2>&1 && goto refresh
+echo Using the %N% file from the last 7 days (no new download).
+goto build
+:refresh
+echo The %N% file is older than 7 days, getting a fresh copy...
+:download
 echo Downloading %N%, this can take several minutes...
-curl.exe -L --fail -o "%F%" "%URL%"
+curl.exe -L --fail -o "%F%.part" "%URL%"
 if errorlevel 1 goto dlfail
+move /y "%F%.part" "%F%" >nul
+rem Write the date and SHA-256 fingerprint of every download to downloads-log.txt
+for /f "skip=1 delims=" %%h in ('certutil -hashfile "%F%" SHA256 ^| findstr /v ":"') do (echo %date% %time% %F% %%h>>downloads-log.txt& goto build)
 :build
 echo Building restaurant files for %N% ...
 %PY% build_places.py "%F%" %N% %R%

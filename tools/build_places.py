@@ -44,7 +44,7 @@ def osm_addr(t):
 def diet_of(t):
     """geeft (halal, vegan, vegetarisch, cuisine): 0 = niet vermeld, 1 = ja/only, 2 = beperkt"""
     cs = [x.strip() for x in (t.get("cuisine") or "").split(";") if x.strip()]
-    h = dv(t.get("diet:halal")) or (1 if "halal" in cs or "muslim" in cs else 0)
+    h = dv(t.get("diet:halal")) or dv(t.get("halal")) or dv(t.get("diet:muslim")) or (1 if "halal" in cs or "muslim" in cs else 0)
     v = dv(t.get("diet:vegan")) or (1 if "vegan" in cs else 0)
     g = dv(t.get("diet:vegetarian")) or (1 if "vegetarian" in cs else 0)
     c = next((x for x in cs if x not in ("halal", "muslim", "vegan", "vegetarian")), cs[0] if cs else "")

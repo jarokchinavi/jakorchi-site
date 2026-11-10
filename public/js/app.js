@@ -1,5 +1,5 @@
 /* Jakorchi app. Version number: change it with tools/bump-version.py */
-const BUILD="2026-11-10.7";
+const BUILD="2026-11-10.8";
 /* iPhone home-screen app: with the see-through status bar, iOS lays the page out shorter than the screen (by the
    status-bar height). Layers pinned to that short viewport (position:fixed) stop short and an empty band shows at the
    bottom; stretching them past the edge is not drawn. So: measure the band once, make the page itself as tall as the
@@ -1033,11 +1033,12 @@ function startAdd(){if(!map||!sbOn())return;closeSheet();showMap();if(map.getZoo
    if(!bx._ph&&!edCode){m2.textContent=T("Please add a photo of the outside.");return}
    if(map.getZoom()<16){m2.textContent=T("Zoom in closer so the spot is exact.");return}
    if(c.lat<18||c.lat>54||c.lng<73||c.lng>146){m2.textContent=T("This place is outside Japan, Korea and China.");return}
-   const low=nm.toLowerCase();if(osm.some(o=>Math.abs(o.lat-c.lat)<.0005&&Math.abs(o.lng-c.lng)<.0006&&km(o,c)<.04&&[o.name,o.loc].some(x=>x&&x.toLowerCase()===low))){m2.textContent=T("This place is already on the map.");return}
+   /* duplicate = same name (lower case, no spaces or punctuation) within 15 m; the database checks this too */
+   const nk=x=>String(x||"").toLowerCase().replace(/[\s\p{P}\p{S}]+/gu,""),low=nk(nm);if(low&&osm.some(o=>Math.abs(o.lat-c.lat)<.0002&&Math.abs(o.lng-c.lng)<.0003&&km(o,c)<=.015&&[o.name,o.loc].some(x=>nk(x)===low))){m2.textContent=T("This place is already on the map.");return}
    t.disabled=true;m2.textContent=T("Uploading photos…");
    try{if(bx._ph&&!bx._ph.path)bx._ph.path=await sbUpload("newplace",bx._ph.b);if(bx._ph&&!bx._ph.path){t.disabled=false;m2.textContent=T("Photo upload failed. Please try again.");return}
     m2.textContent=T("Sending…");const r=edCode?await edAdd(bx,nm,c):await fetch(`${SB.url}/rest/v1/new_places?select=id`,{method:"POST",headers:{...sbH(),Prefer:"return=representation"},body:JSON.stringify({name:nm,lat:+c.lat.toFixed(6),lng:+c.lng.toFixed(6),cat:bx.querySelector("[data-adc]").value,cuisine:bx.querySelector("[data-adf]").value,halal:bx.querySelector("[data-adh]").checked,vegan:bx.querySelector("[data-adv]").checked,vegetarian:bx.querySelector("[data-adg]").checked,photo:bx._ph?bx._ph.path:null,device:dev})});
-    t.disabled=false;if(!r.ok){m2.textContent=edCode&&r.status===400?T("Wrong code, or too many tries. Wait an hour and try again."):T("Could not send. Please try again.");return}
+    t.disabled=false;if(!r.ok){let tx="";try{tx=await r.text()}catch(e){}if(/already on the map/.test(tx)){m2.textContent=T("This place is already on the map.");return}m2.textContent=edCode&&r.status===400?T("Wrong code, or too many tries. Wait an hour and try again."):T("Could not send. Please try again.");return}
     const j=await r.json();if(Array.isArray(j)&&j[0]&&Number.isInteger(j[0].id)){npMine.add("np_"+j[0].id);save("jk_npmine",[...npMine].slice(-200))}
     if(bx._ph)URL.revokeObjectURL(bx._ph.u);bx._ph=null;bx.classList.remove("on");document.body.classList.remove("adding");flash(T("Sent. Thank you!")+" "+T("It shows for everyone after 2 other people confirm it."));npLoad(true)}catch(err){t.disabled=false;m2.textContent=T("Could not send. Please try again.")}})}
  const opts=FT.map(([sl,l])=>[l,cuis(l)]).sort((a,b)=>a[1].localeCompare(b[1],lang)).map(([l,lab])=>`<option value="${esc(l)}">${esc(lab)}</option>`).join("");

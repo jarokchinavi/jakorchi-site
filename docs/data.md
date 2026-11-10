@@ -11,3 +11,8 @@
 
 ## Tidy names (2026-11-10)
 `python tools/clean_names.py` (before `split_places.py`): removes hidden characters and odd spaces, trims, Title Case for all-lowercase Latin names. It never changes spelling (a shop name is the shop's own). Run it after every new restaurant import.
+## Halal data and duplicates (2026-11-10)
+- Halal comes from OSM tags `diet:halal` (yes/only = 1, limited = 2), also `halal`, `diet:muslim`, cuisine halal/muslim. Only ~44 places in Kanto/Kansai/Seoul data have it.
+- `make-restaurants.bat` reuses a country file younger than 7 days, downloads a fresh one when older, and writes date + SHA-256 to `downloads-log.txt`.
+- Never Google Places / place_id (owner rule + paid). Navigate links already use exact coordinates. OSM `note`/`comment` tags are mapper notes, not reviews: not shown.
+- KTO Muslim-friendly list (Halal Certified / Self-Certified / Muslim Friendly / Pork Free) is not published as open data (only on visitkorea.or.kr): not copied.
