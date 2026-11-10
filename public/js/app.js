@@ -1,5 +1,5 @@
 /* Jakorchi app. Version number: change it with tools/bump-version.py */
-const BUILD="2026-11-10.10";
+const BUILD="2026-11-10.11";
 /* iPhone home-screen app: with the see-through status bar, iOS lays the page out shorter than the screen (by the
    status-bar height). Layers pinned to that short viewport (position:fixed) stop short and an empty band shows at the
    bottom; stretching them past the edge is not drawn. So: measure the band once, make the page itself as tall as the
@@ -262,10 +262,10 @@ function renderList(){let lv=cur;if(map&&!listF){const b=map.getBounds();lv=cur.
  wantMeta(lv.slice(0,Math.max(shown,40)).map(r=>r.id))}
 function syncMarkers(){if(!map)return;svBuild();const res=cur,z=map.getZoom(),many=res.length>60,dot=false;let vis,cls=[];
  /* few results (a search or filter): show them all. Otherwise: small dots from zoom 13, full pins from zoom 14 (at most 90), up to 150 pins from zoom 15.
-    Places you saved always get their own pin (from zoom 8). */
+    Nothing below zoom 13. Places you saved always get their own pin (from zoom 13). */
  if(!many)vis=res;
  else{/* also prepare pins just outside the screen, so they slide in instead of popping up */const bd=map.getBounds().pad(.15),c=map.getCenter(),sv=[],cand=[];
-  for(const r of res){if(!bd.contains([r.lat,r.lng]))continue;if(z>=8&&SV.has(r.id))sv.push(r);else if(r.nw){/* places added by visitors or the team always get their own pin (they never lose a crowded spot) */if(r.nws==="ok"||r.verified||z>=16||npMine.has(r.id))sv.push(r)}else if(z>=13)cand.push(r);if(sv.length+cand.length>=80000)break}
+  if(z>=13)for(const r of res){if(!bd.contains([r.lat,r.lng]))continue;/* all places follow the same rules; only places you saved keep their own pin (never merged into a bubble). Unchecked visitor places only from zoom 16 */if(SV.has(r.id))sv.push(r);else if(!r.nw||r.nws==="ok"||r.verified||z>=16||npMine.has(r.id))cand.push(r);if(sv.length+cand.length>=80000)break}
   /* spread them over the screen: one place per small square (the best rated, else the one closest to the middle), so a busy street does not become one clump */
   /* zoomed out = big squares = few pins (only the best); all pins only at the closest zoom (19) */
   const CL=z<15,/* zoomed out: close places become one numbered bubble (tap = zoom in) */
@@ -281,7 +281,7 @@ function syncMarkers(){if(!map)return;svBuild();const res=cur,z=map.getZoom(),ma
   let pick=[...cell.values()].filter(Boolean);if(pick.length>cap)pick=pick.map(r=>[-sc(r),d2(r),r]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]).slice(0,cap).map(x=>x[2]);
   vis=sv.concat(pick)}}
  syncCl(cls,z);
- const ids=new Set(vis.map(r=>r.id));Object.keys(markers).forEach(id=>{if(!ids.has(id)&&id!==sheetId){const mk=markers[id],el=mk._icon&&mk._icon.firstElementChild;delete markers[id];if(el&&!RM){el.classList.add("out");setTimeout(()=>map.removeLayer(mk),170)}else map.removeLayer(mk)}});
+ const ids=new Set(vis.map(r=>r.id));Object.keys(markers).forEach(id=>{if(!ids.has(id)&&(id!==sheetId||z<13||!many)){const mk=markers[id],el=mk._icon&&mk._icon.firstElementChild;delete markers[id];if(el&&!RM){el.classList.add("out");setTimeout(()=>map.removeLayer(mk),170)}else map.removeLayer(mk)}});
  const fresh=vis.filter(r=>!markers[r.id]).sort((a,b)=>pinScore(b)-pinScore(a)),dl=new Map(fresh.map((r,i)=>[r.id,Math.min(i*14,320)]));
  vis.forEach(r=>{const d=dot&&!SV.has(r.id),m=markers[r.id];
   if(!m){markers[r.id]=pin(r,d,dl.get(r.id)||0);markers[r.id].addTo(map)}
@@ -345,7 +345,7 @@ function openSheet(id){const sh=SH(),was=sheetId!==null,r=place(id);if(!r)return
  if(!was){sh.style.transition="none";sh.style.transform=`translateY(${yOf("closed")}px)`}
  $("#sbody").scrollTop=0;void sh.offsetHeight;applyH(true);applySel();sbReviews(id);sbExtra(id);wantMeta([id])}
 function setState(x){sState=x;if(x==="peek")$("#sbody").scrollTop=0;applyH(true)}
-function closeSheet(){if(sheetId===null)return;sheetId=null;document.body.classList.remove("sheet-on");const sh=SH();sh.style.transition=RM?"none":EASE;sh.style.transform=`translateY(${yOf("closed")}px)`;sh.classList.remove("full");sState="peek";applySel();
+function closeSheet(){if(sheetId===null)return;sheetId=null;document.body.classList.remove("sheet-on");const sh=SH();sh.style.transition=RM?"none":EASE;sh.style.transform=`translateY(${yOf("closed")}px)`;sh.classList.remove("full");sState="peek";applySel();syncSoon();
  setTimeout(()=>{if(sheetId===null)sh.classList.remove("open","peek")},500)}
 function applySel(){document.querySelectorAll(".pn.sel").forEach(e=>e.classList.remove("sel"));Object.values(markers).forEach(x=>{if(x._zi)x.setZIndexOffset(x._base||0),x._zi=0});const m=sheetId&&markers[sheetId];if(m&&m._icon){const e=m._icon.querySelector(".pn");if(e)e.classList.add("sel");m.setZIndexOffset(1000);m._zi=1}}
 function showOnMap(id){const r=place(id);if(!r||!map)return;if(curView!=="explore"){goTab("explore");map.invalidateSize()}showMap();map.setView([r.lat,r.lng],Math.max(map.getZoom(),16),{animate:false});openSheet(id);nudge(id,false)}
