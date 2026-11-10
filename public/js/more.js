@@ -32,8 +32,7 @@ $$("#seg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b
 
 /* ---- start screen ---- */
 $$("#home").addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;
- if(t.hasAttribute("data-hgo")){goTab("explore");showMap();if(map)setTimeout(()=>map.invalidateSize(),60)}
- else if(t.hasAttribute("data-hauth"))soon()});
+ if(t.hasAttribute("data-hauth"))soon()});
 new MutationObserver(()=>{const on=$$("#home").classList.contains("on");document.body.classList.toggle("hmv",on);document.documentElement.classList.toggle("hmv",on)}).observe($$("#home"),{attributes:true,attributeFilter:["class"]});
 /* sign in / sign up: no empty page, a small "coming soon" popup instead (nothing is sent) */
 function soon(){const m=ensureModal();m.innerHTML=`<div class="rvbox card"><button class="rvx" data-rvclose aria-label="Close">✕</button><div class="soonm">${si("user")}<h3>${esc(T("Sign in"))}</h3><span class="soon n">${esc(T("Coming soon"))}</span><p>${esc(T("Account sync is still being built."))}</p><button class="btn fill" type="button" data-rvclose>${esc(T("Got it"))}</button></div></div>`;m.classList.add("on")}

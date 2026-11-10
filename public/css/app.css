@@ -384,8 +384,6 @@ html.hmv,html.hmv body{background:var(--hb)}
 .hm-t{margin:0;font:700 2.3rem/1 "Shippori Mincho",Georgia,serif;letter-spacing:.06em;color:var(--ht)}
 .hm-k{margin:10px 0 0;color:var(--hg);letter-spacing:.34em;font-size:.8rem;font-weight:600}
 .hm-s{margin:16px auto 0;max-width:28ch;color:var(--hm);font-size:1rem;line-height:1.45}
-.hm-go{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:54px;border:0;border-radius:16px;background:var(--hc);color:var(--hct);font:inherit;font-size:1.02rem;font-weight:600;letter-spacing:.01em;box-shadow:0 8px 22px rgba(17,22,42,.2);transition:transform .12s}
-.hm-go:active{transform:scale(.98)}
 .hm-auth p{margin:0 0 10px;text-align:center;color:var(--hm);font-size:.86rem}
 .hm-ab{display:flex;gap:10px}
 .hm-b{flex:1;min-height:46px;border-radius:14px;border:1px solid var(--hl);background:transparent;color:var(--ht);font:inherit;font-weight:600;font-size:.92rem}
@@ -441,7 +439,6 @@ input,textarea,select{font-size:16px}
 .btn{border-radius:14px;color:var(--ink)}.btn.fill{box-shadow:0 4px 14px rgba(17,22,42,.16)}
 .btn:active,.rvcta:active{transform:scale(.98)}
 .rbtn{color:var(--accent)}
-.hm-go{background:var(--hc);color:var(--hct)}
 /* gold ratings */
 .revs b[data-st]{color:#c9a45c}
 /* ===== settings: groups closed by default, tap to open ===== */
@@ -457,3 +454,9 @@ input,textarea,select{font-size:16px}
 .acc .st-f{margin:0;padding:12px 14px}
 @media (prefers-reduced-motion:reduce){.acc-b,.acc-c{transition:none}}
 .btn.rvcta{color:var(--prit)}
+/* start screen: everything close together */
+.hm{gap:12px;padding-top:calc(16px + env(safe-area-inset-top,0px))}
+.hm-top{margin-top:2vh}.hm-logo{width:64px;height:64px;margin-bottom:12px;border-radius:17px}
+.hm-t{font-size:2rem}.hm-k{margin-top:6px}.hm-s{margin-top:10px}
+.hm-auth{margin-top:6px}.hm-auth p{margin-bottom:8px}
+.hm-plus{padding:14px 14px 12px}.hm-plus ul{margin-top:10px;gap:7px}

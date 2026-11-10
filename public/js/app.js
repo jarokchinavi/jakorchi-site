@@ -269,11 +269,11 @@ function syncMarkers(){if(!map)return;svBuild();const res=cur,z=map.getZoom(),ma
   /* spread them over the screen: one place per small square (the best rated, else the one closest to the middle), so a busy street does not become one clump */
   /* zoomed out = big squares = few pins (only the best); all pins only at the closest zoom (19) */
   const CL=z<15,/* zoomed out: close places become one numbered bubble (tap = zoom in) */
-   tier=CL?[92,0]:z<16?[76,60]:z<17?[64,90]:z<18?[52,130]:z<19?[40,200]:[1,350],cs=tier[0],cap=Math.round(tier[1]*1.35),cell=new Map(),d2=r=>(r.lat-c.lat)**2+(r.lng-c.lng)**2,W=256*Math.pow(2,z),
+   tier=CL?[z<14?140:112,0]:z<16?[84,45]:z<17?[70,70]:z<18?[56,110]:z<19?[44,170]:[1,300],cs=tier[0],cap=Math.round(tier[1]*1.35),cell=new Map(),d2=r=>(r.lat-c.lat)**2+(r.lng-c.lng)**2,W=256*Math.pow(2,z),
    key=r=>{const sn=Math.sin(r.lat*Math.PI/180),x=(r.lng+180)/360*W,y=(.5-Math.log((1+sn)/(1-sn))/(4*Math.PI))*W;return Math.floor(x/cs)+","+Math.floor(y/cs)},
    sc=r=>pinScore(r)+(markers[r.id]?.5:0);
   if(CL){const g=new Map();for(const r of cand){const k=key(r),o=g.get(k),f=pinFlags(r);if(o){o.n++;o.la+=r.lat;o.ln+=r.lng;if(f.hl)o.h=1;if(f.vg)o.v=1}else g.set(k,{n:1,la:r.lat,ln:r.lng,r,h:f.hl?1:0,v:f.vg?1:0})}
-   let ar=[...g.entries()];const CMAX=innerWidth>700?70:45;/* screen cap: nearest to the middle first */if(ar.length>CMAX)ar=ar.map(e=>[(e[1].la/e[1].n-c.lat)**2+(e[1].ln/e[1].n-c.lng)**2,e]).sort((a,b)=>a[0]-b[0]).slice(0,CMAX).map(x=>x[1]);
+   let ar=[...g.entries()];const CMAX=innerWidth>700?40:24;/* screen cap: nearest to the middle first */if(ar.length>CMAX)ar=ar.map(e=>[(e[1].la/e[1].n-c.lat)**2+(e[1].ln/e[1].n-c.lng)**2,e]).sort((a,b)=>a[0]-b[0]).slice(0,CMAX).map(x=>x[1]);
    vis=sv.slice();for(const [k,o] of ar){if(o.n===1)vis.push(o.r);else cls.push([k,o.la/o.n,o.ln/o.n,o.n,o.h,o.v])}}
   else{
   sv.forEach(r=>cell.set(key(r),null));
