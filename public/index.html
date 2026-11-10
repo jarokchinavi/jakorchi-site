@@ -40,7 +40,7 @@ html.spl{background:#1c2340}
 </head>
 <body class="ex">
 <div id="splash" aria-hidden="true"><div class="spl"><svg viewBox="0 0 512 512"><rect width="512" height="512" fill="#1c2340" stroke="none"/><g fill="none" stroke="#c9a45c" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"><path d="M256 292C214 246 190 214 190 178a66 66 0 0 1 132 0c0 36-24 68-66 114"/><path d="M150 286c-16-22 16-40 0-62s16-40 0-62"/><path d="M362 286c16-22-16-40 0-62s-16-40 0-62"/></g><circle cx="256" cy="178" r="24" fill="#c8321f" stroke="none"/><path d="M130 306h252c0 66-53 106-126 106s-126-40-126-106z" fill="#f4ecdc" stroke="none"/><path d="M218 430h76" fill="none" stroke="#f4ecdc" stroke-width="16" stroke-linecap="round"/></svg><b>Jakorchi</b><small>日本 · 한국 · 中国</small></div></div>
-<link rel="stylesheet" href="/css/app.css?v=2026-11-10.3">
+<link rel="stylesheet" href="/css/app.css?v=2026-11-10.4">
 <header class="bar"><div class="bar-in"><div class="brand"><button class="ibtn mbtn" id="menuBtn" aria-label="Menu" data-ia="Menu" aria-expanded="false" aria-controls="drawer"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="seal" aria-hidden="true"><svg viewBox="0 0 512 512"><rect width="512" height="512" fill="#1c2340" stroke="none"/><g fill="none" stroke="#c9a45c" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"><path d="M256 292C214 246 190 214 190 178a66 66 0 0 1 132 0c0 36-24 68-66 114"/><path d="M150 286c-16-22 16-40 0-62s16-40 0-62"/><path d="M362 286c16-22-16-40 0-62s-16-40 0-62"/></g><circle cx="256" cy="178" r="24" fill="#c8321f" stroke="none"/><path d="M130 306h252c0 66-53 106-126 106s-126-40-126-106z" fill="#f4ecdc" stroke="none"/><path d="M218 430h76" fill="none" stroke="#f4ecdc" stroke-width="16" stroke-linecap="round"/></svg></div><div class="bt"><h1 aria-label="Jakorchi"><span class="w1">J</span>akorchi</h1><p class="tagl"><span aria-hidden="true">日本<i>·</i>한국<i>·</i>中国</span><span class="sr" data-i="Japan · Korea · China">Japan · Korea · China</span></p></div></div></div></header>
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Menu" data-ia="Menu">
@@ -51,7 +51,10 @@ html.spl{background:#1c2340}
   <div class="dr-s" data-i="Language">Language</div><div class="dr-lang" id="drLang"></div>
   <div class="dr-s" data-i="Map letters">Map letters</div><div class="dr-lang" id="drMap"></div>
   <div class="dr-s" data-i="Distance">Distance</div><div class="dr-lang" id="drUnits"></div>
-  <div class="dr-f"><span data-i="Map and place data © OpenStreetMap contributors (ODbL).">Map and place data © OpenStreetMap contributors (ODbL).</span><br><span data-i="Version">Version</span> <b id="buildNo">2026-11-10.3</b></div>
+  <div class="dr-s" data-i="Directions by">Directions by</div><div class="dr-lang" id="drTr"></div>
+  <button class="dr-i" id="cacheBtn" type="button"><span class="dr-ic"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4l-7.5 7.5M9.5 9.5l5 5-1.8 5.5c-3.4-.4-6.6-2.4-8.7-5.4z"/></svg></span><span class="dr-l" data-i="Clear saved map data">Clear saved map data</span></button>
+  <div class="plus"><div class="plus-h"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.2 6.3L21 12l-6.8 2.7L12 21l-2.2-6.3L3 12l6.8-2.7z"/></svg><b>Jakorchi Plus</b><span class="soon" data-i="Coming soon">Coming soon</span></div><p data-i="Extra features for frequent travelers.">Extra features for frequent travelers.</p><button class="btn" type="button" disabled data-i="Coming soon">Coming soon</button></div>
+  <div class="dr-f"><span data-i="Map and place data © OpenStreetMap contributors (ODbL).">Map and place data © OpenStreetMap contributors (ODbL).</span><br><span data-i="Version">Version</span> <b id="buildNo">2026-11-10.4</b></div>
  </div>
 </aside>
 <main>
@@ -61,20 +64,19 @@ html.spl{background:#1c2340}
   <div class="ftop">
    <div class="sbar"><button class="sbm" id="sbMenu" aria-label="Menu" data-ia="Menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><span class="sblogo" aria-hidden="true"><svg viewBox="0 0 512 512"><rect width="512" height="512" fill="#1c2340" stroke="none"/><g fill="none" stroke="#c9a45c" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"><path d="M256 292C214 246 190 214 190 178a66 66 0 0 1 132 0c0 36-24 68-66 114"/><path d="M150 286c-16-22 16-40 0-62s16-40 0-62"/><path d="M362 286c16-22-16-40 0-62s-16-40 0-62"/></g><circle cx="256" cy="178" r="24" fill="#c8321f" stroke="none"/><path d="M130 306h252c0 66-53 106-126 106s-126-40-126-106z" fill="#f4ecdc" stroke="none"/><path d="M218 430h76" fill="none" stroke="#f4ecdc" stroke-width="16" stroke-linecap="round"/></svg></span><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg><input id="q" type="search" placeholder="Search a name, dish, area or food" data-ip="Search a name, dish, area or food" aria-label="Search"><button class="fbtn" id="filtBtn" aria-label="Filters"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span id="fCount"></span></button></div>
    <div class="sugg" id="sugg" hidden></div>
-   <div class="chiprow"><button id="listChip" class="on" style="display:none"></button><button id="whereBtn" hidden>📍 <span id="whereTxt">All Asia</span></button><span id="allc"></span><span id="quick"><button data-f="halal"><span id="icH"></span><span data-i="Halal">Halal</span></button><button data-f="veg"><span id="icV"></span><span data-i="Vegan / vegetarian">Vegan / vegetarian</span></button><button data-f="jp"><span aria-hidden="true">🍣</span><span data-i="Japanese food">Japanese food</span></button><button data-f="kr"><span aria-hidden="true">🍲</span><span data-i="Korean food">Korean food</span></button><button data-f="cn"><span aria-hidden="true">🥟</span><span data-i="Chinese food">Chinese food</span></button></span><span id="cats"></span></div>
+   <div class="chiprow"><button id="listChip" class="on" style="display:none"></button><button id="whereBtn" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> <span id="whereTxt">All Asia</span></button><span id="allc"></span><span id="quick"><button data-f="halal"><span id="icH"></span><span data-i="Halal">Halal</span></button><button data-f="veg"><span id="icV"></span><span data-i="Vegan / vegetarian">Vegan / vegetarian</span></button><button data-f="jp"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="11.5" width="17" height="7" rx="3.5"/><path d="M3.8 12.5c2.5-3.6 13.9-3.6 16.4 0M10.5 9.8l1.8 8.7"/></svg><span data-i="Japanese food">Japanese food</span></button><button data-f="kr"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h16v2.5a6.5 6.5 0 0 1-6.5 6.5h-3A6.5 6.5 0 0 1 4 13.5zM2 11h20M8 7.5c-1-1.3 1-2 0-3.3M12 7.5c-1-1.3 1-2 0-3.3M16 7.5c-1-1.3 1-2 0-3.3"/></svg><span data-i="Korean food">Korean food</span></button><button data-f="cn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15c0-5 4-8 9-8s9 3 9 8c-2 1.8-5.5 3-9 3s-7-1.2-9-3z"/><path d="M8 9.5l1 2.2M12 8.5v2.4M16 9.5l-1 2.2"/></svg><span data-i="Chinese food">Chinese food</span></button></span><span id="cats"></span></div>
    <div class="zhint" id="zHint" hidden role="status"><svg class="zh-i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5M11 8v6M8 11h6"/></svg><span class="zh-x"><span id="zHintT"></span><span class="zh-bar"><i id="zHintBar"></i></span></span><button id="zHintBtn" type="button"></button></div>
+   <div class="mapnote" id="mapNote" role="status"></div>
    <div class="findrow"><button class="findbtn" id="findBtn" data-i="Search this area">Search this area</button></div>
   </div>
-  <div class="mapnote" id="mapNote"></div>
   <button class="rfab" id="locBtn" aria-label="My location" title="My location"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/></svg></button>
-  <button class="lbtn" id="listBtn">☰ List</button>
   <div class="panel" id="listPanel"><div class="wrap">
-   <div class="phead"><b id="count"></b><select id="fSort" aria-label="Sort"><option value="rating" data-i="Top rated">Top rated</option><option value="dist" data-i="Nearest to me">Nearest to me</option></select><button class="btn fill" id="mapBtn">🗺 <span data-i="Map">Map</span></button></div>
+   <div class="phead"><b id="count"></b><select id="fSort" aria-label="Sort"><option value="dist" data-i="Nearest first" selected>Nearest first</option><option value="rating" data-i="Top rated">Top rated</option></select><button class="btn fill" id="mapBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg> <span data-i="Map">Map</span></button></div>
    <p class="hint" id="sortMsg"></p><p class="hint" id="osmMsg">Pick a city in Filters or zoom the map, then tap “Search this area” to load restaurants, cafés, desserts and bars from OpenStreetMap.</p>
    <div id="list"></div></div></div>
   <div class="panel" id="fpanel"><div class="wrap">
-   <div class="phead"><b data-i="Filters">Filters</b><button class="btn" id="fReset" data-i="Reset">Reset</button><button class="btn fill" id="fDone" data-i="Show places">Show places</button></div>
-   <h3 data-i="Country">Country</h3><div class="chipwrap" id="country"><button data-c="" class="on">🌏 <span data-i="All">All</span></button><button data-c="Korea">🇰🇷 <span data-i="Korea">Korea</span></button><button data-c="Japan">🇯🇵 <span data-i="Japan">Japan</span></button><button data-c="China">🇨🇳 <span data-i="China">China</span></button></div>
+   <div class="phead"><b data-i="Filters">Filters</b><button class="btn" id="fReset" data-i="Reset">Reset</button><button class="btn fill" id="fDone" data-i="Back">Back</button></div>
+   <h3 data-i="Country">Country</h3><div class="chipwrap" id="country"><button data-c="" class="on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg> <span data-i="All">All</span></button><button data-c="Korea"><svg class="flg" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" rx="3" fill="#fff" stroke="#d9d4c8"/><path d="M10 10a5 5 0 0 1 10 0 2.5 2.5 0 0 1-5 0 2.5 2.5 0 0 0-5 0z" fill="#cd2e3a"/><path d="M10 10a5 5 0 0 0 10 0 2.5 2.5 0 0 1-5 0 2.5 2.5 0 0 0-5 0z" fill="#0047a0"/><g stroke="#222" stroke-width="1.1"><path d="M4 5l2.5-2M5 6l2.5-2M23.5 3l2.5 2M22.5 4l2.5 2M4 15l2.5 2M5 14l2.5 2M23.5 17l2.5-2M22.5 16l2.5-2"/></g></svg> <span data-i="Korea">Korea</span></button><button data-c="Japan"><svg class="flg" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" rx="3" fill="#fff" stroke="#d9d4c8"/><circle cx="15" cy="10" r="5.6" fill="#bc002d"/></svg> <span data-i="Japan">Japan</span></button><button data-c="China"><svg class="flg" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" rx="3" fill="#de2910"/><path d="M6.5 3.5l1 3h3.1l-2.5 1.8 1 3-2.6-1.9-2.5 1.9 1-3-2.6-1.8h3.2z" fill="#ffde00"/><g fill="#ffde00"><circle cx="12.5" cy="3.5" r=".9"/><circle cx="14.2" cy="5.8" r=".9"/><circle cx="14.2" cy="8.8" r=".9"/><circle cx="12.5" cy="11" r=".9"/></g></svg> <span data-i="China">China</span></button></div>
    <h3 data-i="Jump to a city">Jump to a city</h3><div class="cityq"><input id="cityQ" type="search" enterkeyhint="search" placeholder="Search a city in Japan, Korea or China" data-ip="Search a city in Japan, Korea or China" aria-label="Find a city" data-ia="Find a city"><button class="btn" id="cityGo" data-i="Find a city">Find a city</button></div><div class="chipwrap" id="cityRes"></div><div class="chipwrap" id="cities"></div>
    <h3 data-i="Diet">Diet</h3><div class="chipwrap"><button data-f="halal"><span id="icH2"></span><span data-i="Halal">Halal</span></button><button data-f="veg"><span id="icV2"></span><span data-i="Vegan / vegetarian">Vegan / vegetarian</span></button></div>
    <h3 data-i="Menu and favorites">Menu and favorites</h3><div class="chipwrap"><button data-f="eng"><span data-i="English menu">English menu</span></button><button data-f="fav">♥ <span data-i="Favorites">Favorites</span></button></div>
@@ -101,6 +103,23 @@ html.spl{background:#1c2340}
   <div class="btns" style="margin-top:16px"><button class="btn fill" id="tShare" data-i="Share tip">Share tip</button><button class="btn" id="tSave" data-i="Save on phone">Save on phone</button></div>
   <p class="hint" id="tMsg" style="margin-top:10px"></p></div>
   <div id="tList" style="margin-top:14px"></div>
+</section>
+<section id="home" class="view">
+ <div class="hm">
+  <div class="hm-hero">
+   <div class="hm-logo" aria-hidden="true"><svg viewBox="0 0 512 512"><rect width="512" height="512" fill="#1c2340" stroke="none"/><g fill="none" stroke="#c9a45c" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"><path d="M256 292C214 246 190 214 190 178a66 66 0 0 1 132 0c0 36-24 68-66 114"/><path d="M150 286c-16-22 16-40 0-62s16-40 0-62"/><path d="M362 286c16-22-16-40 0-62s-16-40 0-62"/></g><circle cx="256" cy="178" r="24" fill="#c8321f" stroke="none"/><path d="M130 306h252c0 66-53 106-126 106s-126-40-126-106z" fill="#f4ecdc" stroke="none"/><path d="M218 430h76" fill="none" stroke="#f4ecdc" stroke-width="16" stroke-linecap="round"/></svg></div>
+   <h1 class="hm-t">Jakorchi</h1><p class="hm-k">日本 · 한국 · 中国</p>
+   <p class="hm-s" data-i="Eat well in Japan, Korea and China">Eat well in Japan, Korea and China</p>
+   <button class="btn fill hm-go" type="button" data-hgo><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg> <span data-i="Open the map">Open the map</span></button>
+  </div>
+  <h3 class="hm-h" data-i="Popular cities">Popular cities</h3><div class="hm-c" id="hmCities"></div>
+  <div class="hm-card">
+   <div class="hm-ah"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><b data-i="Sign in">Sign in</b></div>
+   <p class="hint" data-i="Sign in to keep your lists and reviews on every phone.">Sign in to keep your lists and reviews on every phone.</p>
+   <div class="hm-ab"><button class="btn" type="button" data-hauth data-i="Log in">Log in</button><button class="btn fill" type="button" data-hauth data-i="Sign up">Sign up</button></div>
+   <p class="hm-soon" id="hmSoon" hidden><span data-i="Coming soon: account sync is still being built.">Coming soon: account sync is still being built.</span></p>
+  </div>
+ </div>
 </section>
 <section id="account" class="view">
   <button class="rbtn" data-goto="explore">← <span data-i="Map">Map</span></button>
@@ -135,8 +154,12 @@ html.spl{background:#1c2340}
 </section>
 <p class="note" data-i="Map and place data © OpenStreetMap contributors (ODbL). Places marked EXAMPLE and example ratings are placeholders. Places from OpenStreetMap are not checked by Jakorchi.">Map and place data © OpenStreetMap contributors (ODbL). Places marked EXAMPLE and example ratings are placeholders. Places from OpenStreetMap are not checked by Jakorchi.</p>
 </main>
+<nav class="seg" id="seg" aria-label="Start, map and list"><button type="button" data-seg="home"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5"/><path d="M10 20v-5h4v5"/></svg><span data-i="Start">Start</span></button><button type="button" data-seg="map" class="on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span data-i="Map">Map</span></button><button type="button" id="listBtn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg><span>List</span></button></nav>
+
 <div class="sheet" id="sheet" role="dialog" aria-label="Place details"><div class="grab" id="grab"><span></span></div><button class="sx" id="sx" aria-label="Close">✕</button><div class="sbody" id="sbody"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
-<script src="/js/app.js?v=2026-11-10.3"></script>
+<script src="/js/icons.js?v=2026-11-10.4"></script>
+<script src="/js/app.js?v=2026-11-10.4"></script>
+<script src="/js/more.js?v=2026-11-10.4"></script>
 </body>
 </html>
