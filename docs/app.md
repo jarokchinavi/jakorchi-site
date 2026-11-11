@@ -8,13 +8,13 @@ The map app (search, filters, list, reviews, prices, pins) is being rebuilt scre
 - `sw.js` (network first for app files, saved copy offline; bump `V` when caching rules change) · `logo.svg` (old logo, from icon.svg) · `version.json`
 - version: `const BUILD` in js/app.js = `?v=` in index.html = version.json (`python tools/bump-version.py`)
 
-## Design (chosen by the owner)
-- Navy / cream / gold. Light: bg #F6F1E6, ink #0A1226. Dark: bg #070D1F, ink #F3EBDB. No black, no orange, no pattern, no extra marketing words.
-- Fonts (Google Fonts): Fraunces (name, tagline, popup titles), Inter Tight (buttons, small text), Lora only for the letter J of the name (Fraunces' J looked odd). zh/ja/ko/ar use the phone's own font for the tagline; the name stays Fraunces.
+## Design (current; palette NOT fixed)
+- Now: navy / cream / gold. Light bg #F6F1E6 ink #0A1226 · dark bg #070D1F ink #F3EBDB. Designer may propose a better 2–3 colour palette (60-30-10); owner picks; then replace these lines (one palette only).
+- Fonts (Google Fonts): Fraunces (name, tagline, popup titles), Inter Tight (buttons, small text), Lora only for the J of the name. zh/ja/ko/ar tagline = phone's own font; name stays Fraunces.
 - Front page order: Light · Dark · System + Settings · old logo · Jakorchi · 日本 · 대한민국 · 中国 (own languages, never translated, always left-to-right) · tagline · Sign in / Create account · Start · Map · List.
-- Signed in = Sign in and Create account are gone. Accounts are not live yet; `JKAuth.signIn(user)` / `JKAuth.signOut()` (key `jk_user`) or a Supabase session (`sb-…-auth-token`) turns it on.
-- Sign in / Create account / Map / List show a "Coming soon" popup for now. Back button closes a popup (one history step).
-- Short phones (≤680 px high) get tighter spacing so nothing scrolls.
+- Signed in = Sign in and Create account gone. Accounts not live; `JKAuth.signIn(user)` / `signOut()` (key `jk_user`) or a Supabase session (`sb-…-auth-token`) turns it on.
+- Sign in / Create account / Map / List = "Coming soon" popup for now. Back button closes a popup (one history step).
+- Short phones (≤680 px high): tighter spacing, no scroll.
 
 ## Texts
 - English = the key itself; every new text gets all 8 other `lang/<code>.json`. Added: "Create account", "Discover authentic dining across Japan, South Korea and China", "Change email", "Sign out", "Map language", "Choose the language of the names on the map." (owner should check the translations).
