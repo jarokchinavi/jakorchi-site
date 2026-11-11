@@ -6,3 +6,4 @@
 - new texts: all 8 `lang/<code>.json` files (script with python, keep compact JSON) · check every used key exists in all 8
 - SQL: local Postgres 16 (su postgres · /tmp/pgdata · port 5544) · anon tests in one DO block ending with raise (undoes all) · then apply_migration · get_advisors security = 0
 - phones we cannot test: ask for a screenshot + the numbers shown by tapping the version number in Settings
+- code-length audit (only on request, changed files only): same logic twice → one function · unused code/CSS/replaced features → delete (search refs first) · helper used once → remove · `js/` file > ~150 lines or two jobs → split · library for one tiny feature → replace · behaviour unchanged, report lines removed
