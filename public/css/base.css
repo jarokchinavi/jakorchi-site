@@ -5,6 +5,7 @@
   --serif:"Fraunces",Georgia,"Times New Roman",serif;
   --sans:"Inter Tight",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   color-scheme:light;
+  --shift:16px; /* top bar sits this much lower (iPhone blurs the strip under the clock) */
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -21,6 +22,7 @@
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
 html{background:var(--bg);-webkit-text-size-adjust:100%}
 body{min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);font:400 16px/1.4 var(--sans);-webkit-font-smoothing:antialiased}
+html,body{touch-action:pan-x pan-y} /* no pinch / double-tap zoom on start, settings, list; the map screen sets its own touch-action */
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
 svg.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}

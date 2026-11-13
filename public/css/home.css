@@ -1,6 +1,6 @@
 /* Front page + popup layer. */
 .home{min-height:100vh;min-height:100dvh;max-width:440px;margin:0 auto;display:flex;flex-direction:column;
-  padding:max(14px,env(safe-area-inset-top)) 0 max(22px,env(safe-area-inset-bottom))}
+  padding:calc(max(14px,env(safe-area-inset-top)) + var(--shift)) 0 max(22px,env(safe-area-inset-bottom))}
 .home[hidden]{display:none}
 .top{display:flex;justify-content:space-between;align-items:center;padding:0 22px;min-height:48px}
 .themes{display:flex;gap:2px;padding:3px;border:1px solid var(--ln);border-radius:999px}
@@ -30,6 +30,7 @@ html.in .seg{margin-top:auto}
 
 /* short phones (iPhone SE and similar): everything must fit without scrolling */
 @media (max-height:680px){
+  :root{--shift:6px}
   .hero{padding-top:14px}.logo{width:72px}.hero h1{margin-top:14px;font-size:clamp(54px,18vw,68px)}.countries{margin-top:14px}.tagline{margin-top:12px;font-size:16px}
   .auth{padding-top:14px;padding-bottom:14px;gap:8px}.btn{min-height:48px}
 }

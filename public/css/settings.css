@@ -1,7 +1,7 @@
 /* Settings page. */
 .page[hidden]{display:none}
 .page{min-height:100vh;min-height:100dvh}
-.page .col{max-width:440px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 22px max(28px,env(safe-area-inset-bottom))}
+.page .col{max-width:440px;margin:0 auto;padding:calc(max(14px,env(safe-area-inset-top)) + var(--shift)) 22px max(28px,env(safe-area-inset-bottom))}
 .sbar{display:flex;align-items:center;min-height:48px}
 .back{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--ln);border-radius:999px;color:var(--ink)}
 html[dir="rtl"] .back svg{transform:scaleX(-1)}

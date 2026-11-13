@@ -1,6 +1,9 @@
 /* Jakorchi start: version number, fonts, and the self-reload when a new version is live. */
-const BUILD="2026-11-13.1";
+const BUILD="2026-11-13.2";
 window.JK = { build: BUILD, layerOpen: function () { return false; } };
+
+/* iPhone pinch gesture: off on every screen except the map (the map screen will handle its own pinch) */
+document.addEventListener("gesturestart", function (e) { if (!document.querySelector(".mapzoom")) e.preventDefault(); });
 
 /* Google Fonts stylesheet loads without blocking the first paint */
 document.querySelectorAll("link[data-font]").forEach(function (l) {

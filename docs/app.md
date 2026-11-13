@@ -8,7 +8,7 @@ Map, list, card, filters, search, reviews: still to rebuild. Old behaviour: `doc
 - `sw.js` (network first for app files, saved copy offline; bump `V` when caching rules change) · `logo.svg` + `icon.svg` (new logo: matcha green rounded square, gold double frame, moon-gate ring, gold map pin with steam, cream bowl; only green / cream / gold) · icons + `og.png` made from it (Edge headless render) · `version.json`
 - version: `const BUILD` in js/app.js = `?v=` in index.html = version.json (`python tools/bump-version.py`)
 
-## Design (current; palette NOT fixed)
+## Design (current)
 - Process, new or changed screen: show 2–3 options (PNG/JPG, light + dark, via `SendUserFile`; how: `docs/checks.md`) → owner picks → build small files → test → screenshots → release only after owner's OK.
 - Now (owner picked 2026-11-13): matcha green / cream / gold, one flat background (no second panel). Light: bg #F3EFE1 · surface #E6E1CC · ink #1B2714 · muted #51603F · gold #7A5C14 · button #26361B. Dark: bg #141D10 · surface #1E2B18 · ink #F0EBDC · muted #A9B59A · gold #D6AC5E · button #D6AC5E. Contrast: text 13.5 / 14.5, muted 5.9 / 8.0, button label 11.2 / 8.2. Designer rules: `.claude/skills/jakorchi-designer/SKILL.md` (no gradients, patterns, decorative dots, 4th hue).
 - Fonts (Google Fonts): Fraunces 300 (name, settings title), Inter Tight (tagline, buttons, small text), Lora only for the J of the name. zh/ja/ko/ar use the phone's own font except the name.
@@ -16,6 +16,8 @@ Map, list, card, filters, search, reviews: still to rebuild. Old behaviour: `doc
 - Signed in = Sign in and Create account gone. Accounts not live; `JKAuth.signIn(user)` / `signOut()` (key `jk_user`) or a Supabase session (`sb-…-auth-token`) turns it on.
 - Sign in / Create account / Map / List = "Coming soon" popup for now. Back button closes a popup (one history step).
 - Short phones (≤680 px high): tighter spacing, no scroll.
+- Zoom: pinch + double-tap zoom is OFF on start, settings and list (viewport `maximum-scale=1, user-scalable=no`, `touch-action:pan-x pan-y` in base.css, `gesturestart` block in app.js). Only the map zooms: its screen root gets class `mapzoom` and its own `touch-action:none`.
+- Top bar (front page) and the settings back button sit `--shift` lower than the phone safe area (16 px, 6 px on short phones; base.css), because iOS blurs the strip under the clock.
 
 ## Texts
 - English = the key itself; every new text gets all 8 other `lang/<code>.json`. Added: "Create account", "Discover authentic dining across Japan, South Korea and China", "Change email", "Sign out", "Map language", "Choose the language of the names on the map." (owner should check the translations).

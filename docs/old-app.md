@@ -26,7 +26,7 @@ Read before map / list / card / filters / search / review screens. Code: tag `ol
 
 ## Hard-won fixes
 1. iPhone home-screen app is laid out short by the status-bar height → measured once (`fixIosGap`, `html.iosgap`); `position:fixed` layers get cut off, so on the map screen stage / sheet / menu live inside `<body>` as `absolute`; map fills under status bar and home bar (`env(safe-area-inset-*)`).
-2. iOS 26 blurs the strip under the clock (home-screen app only, no web way to switch off; moving the bar 48 px lower removed it but owner undid it). Page background = map colour so the band matches; `theme-color` follows light/dark. Options left: accept, small shift, solid-bar status-bar style (icon must be re-added).
+2. iOS 26 blurs the strip under the clock (home-screen app only, no web way to switch off). Now: top bar / back button sit `--shift` (16 px) lower (owner, 2026-11-13); page background = map colour so the band matches; `theme-color` follows light/dark. If still blurry: raise `--shift` in base.css (48 px removed it fully but the owner found it too low).
 3. Typing: "keep map at top" scroll guard pauses while a field is focused; `--kb` (keyboard height) keeps the field above the keyboard; inputs 16 px so iPhone does not zoom.
 4. Text selection + long-press menu off everywhere except typing fields.
 5. Back button: one guard history step while any layer is open; phone back closes the layer; never call `history.back()` directly elsewhere.
