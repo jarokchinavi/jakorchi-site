@@ -2,7 +2,7 @@
 Read before map / list / card / filters / search / review screens. Code: tag `old-app-final` (`git show old-app-final:public/js/app.js`; also `js/more.js`, `js/icons.js`, `css/app.css`). Vanilla JS, no build, Leaflet from cdnjs with integrity.
 
 ## Map
-- Zoom up to 21 (raster backup stretches from 19) · OpenFreeMap vector style; labels set to app language BEFORE drawing (`styleLang`), style kept 7 days; plain OSM tiles only as backup after 6 s · map language `jk_maplet` = auto | latin | code
+- Zoom up to 21 (raster backup stretches from 19) · OpenFreeMap vector style; labels set to app language BEFORE drawing (`styleLang`), style kept 7 days; plain OSM tiles only as backup after 6 s
 - Bubbles at zoom ≤ 14 (`syncCl`, `clIcon`): cell 140 px at ≤13, 112 px at 14 · max 24 on phone, 40 on PC · tap = zoom in 2 · card open = bubbles hidden · zoom guide below zoom 13
 - Single pins from zoom 15 (15 max ~60, 16 ~95; `pinScore` rating > info; tiers in `syncMarkers`) · redraw at most every 200 ms (`syncSoon`) · visitor/team places always own pin · squares load nearest to middle first
 
@@ -32,6 +32,5 @@ Read before map / list / card / filters / search / review screens. Code: tag `ol
 5. Back button: one guard history step while any layer is open; phone back closes the layer; never call `history.back()` directly elsewhere.
 6. Filters open = map gestures off. Tap stars on a card = open full card + scroll to reviews.
 7. Slow or broken services (Supabase, OSM) never break the app: fallbacks everywhere, ask less often when slow, "Reviews can't load right now" (`noRev`), clear posting-limit messages (`sbWhy`).
-8. Clear cache = only `jk_c_*`; clear saved map data = only `/places/` files + saved map style. Favorites, lists, settings, app files never touched.
-9. No system emoji (own icons).
-10. The browser test pane pauses map drawing while hidden: map labels cannot be judged there.
+8. No system emoji (own icons).
+9. The browser test pane pauses map drawing while hidden: map labels cannot be judged there.

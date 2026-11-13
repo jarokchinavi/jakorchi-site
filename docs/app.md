@@ -1,5 +1,5 @@
-# App (public/) – front-end rebuild, front page only
-The map app (search, filters, list, reviews, prices, pins) is being rebuilt screen by screen. The old version was removed from the working tree (owner's decision, 2026-11-10); it stays in git as tag `old-app-final` (`git show old-app-final:public/js/app.js`, also `more.js`, `icons.js`, `css/app.css`) and its notes are in `docs/old-app.md` (behaviour to keep: zoom to 21, number bubbles, pin limits per zoom, typo-friendly search, filters, list, back button, local-money prices). Read the old code only when porting a feature. Database, `places/`, `lang/`, tools and the safety rules are unchanged.
+# App (public/) – front page + settings (rest being rebuilt)
+Map, list, card, filters, search, reviews: still to rebuild. Old behaviour: `docs/old-app.md`. Database, `places/`, `lang/`, tools unchanged.
 
 ## Files
 - `index.html` (page + SEO, no inline scripts) · `css/base.css` (colours light/dark, fonts) · `css/home.css` (front page, popup layer)

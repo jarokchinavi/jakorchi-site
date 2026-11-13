@@ -26,7 +26,6 @@ Live: https://jakorchinavigation.jakorchi.workers.dev · this repo = source of t
 
 ## Where
 - website `public/` (files: `docs/app.md`) · tools `tools/` · database Supabase `jsegdbtefxsforphluyc`, `database/NN-*.sql` · hosting Cloudflare Worker `jakorchinavigation`, Workers Builds on push to `main` · backup owner's Desktop `jakorchi-site\` + `jakorchi-tools\`
-- skills (`.claude/skills/`): `jakorchi-debug` · `jakorchi-designer` (use only for that job)
 - docs (read one): `app` · `old-app` · `database` · `data` · `checks` (testing) · `release` (publish, rollback, new data, DB change) · `status`
 
 ## Safety (never weaken)
