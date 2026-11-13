@@ -14,10 +14,11 @@
   function mapValue() { var v = load("jk_maplet", "auto"); return v === "auto" || v === "latin" || JK.i18n.LANGS.some(function (x) { return x[0] === v; }) ? v : "auto"; }
   function mapName(v) { return v === "auto" ? T("Same as app") : v === "latin" ? "Latin (A–Z)" : langName(v); }
 
-  function row(attr, label, value, cls) {
-    return '<button type="button" class="row ' + (cls || "") + '" ' + attr + '><span class="l">' + esc(label) + '</span><span class="v">' + (value || "") + '<i class="chev" aria-hidden="true"></i></span></button>';
+  function row(attr, label, value, cls, icon) {
+    return '<button type="button" class="row ' + (cls || "") + '" ' + attr + '>' + (icon ? JK.ic(icon) : "") + '<span class="l">' + esc(label) + '</span><span class="v">' + (value || "") + '<i class="chev" aria-hidden="true"></i></span></button>';
   }
   function head(t) { return '<h2>' + esc(t) + '</h2>'; }
+  function grp(rows) { return '<div class="grp">' + rows + '</div>'; }
 
   function render() {
     var signed = JKAuth.signedIn(), u = user() || {}, th = JKTheme.get(), h = "";
@@ -25,31 +26,30 @@
     h += head(T("Profile"));
     if (signed) {
       var name = u.name || u.email || "", init = (name.trim().charAt(0) || "J").toUpperCase();
-      h += '<div class="me"><div class="av" aria-hidden="true">' + esc(init) + '</div><div>' +
+      h += grp('<div class="me"><div class="av" aria-hidden="true">' + esc(init) + '</div><div>' +
         (u.name ? '<b>' + esc(u.name) + '</b>' : '') + (u.email ? '<small>' + esc(u.email) + '</small>' : '') + '</div></div>' +
-        row('data-soon="Change email"', T("Change email")) + row('data-soon="Change password"', T("Change password")) +
-        row("data-signout", T("Sign out"), "", "out");
+        row('data-soon="Change email"', T("Change email"), "", "", "mail") + row('data-soon="Change password"', T("Change password"), "", "", "lock") +
+        row("data-signout", T("Sign out"), "", "", "out"));
     } else {
-      h += '<div class="row"><span class="l">' + esc(T("Not signed in")) + '</span><span class="badge">' + esc(T("Coming soon")) + '</span></div>' +
-        row('data-soon="Sign in"', T("Sign in"), "", "gold") + row('data-soon="Create account"', T("Create account"), "", "gold");
+      h += grp('<div class="row">' + JK.ic("user") + '<span class="l">' + esc(T("Not signed in")) + '</span><span class="badge">' + esc(T("Coming soon")) + '</span></div>' +
+        row('data-soon="Sign in"', T("Sign in"), "", "gold") + row('data-soon="Create account"', T("Create account"), "", "gold"));
     }
     /* Jakorchi Plus: empty on purpose for now */
     h += '<button type="button" class="plusc" data-soon="Jakorchi Plus"><span class="pn">Jakorchi Plus</span><span class="soonb">' + esc(T("Coming soon")) + '</span></button>';
     /* appearance */
     h += head(T("Appearance")) + '<div class="sseg" role="group">' +
-      [["light", "Light"], ["dark", "Dark"], ["auto", "System"]].map(function (x) { return '<button type="button" data-theme-set="' + x[0] + '" aria-pressed="' + (x[0] === th) + '">' + esc(T(x[1])) + '</button>'; }).join("") + '</div>';
+      [["light", "Light", "sun"], ["dark", "Dark", "moon"], ["auto", "System", "pc"]].map(function (x) { return '<button type="button" data-theme-set="' + x[0] + '" aria-pressed="' + (x[0] === th) + '">' + JK.ic(x[2]) + esc(T(x[1])) + '</button>'; }).join("") + '</div>';
     /* language + map language */
-    h += head(T("Language")) + row('data-open="lang"', T("Language"), esc(langName(JK.i18n.get()))) +
-      row('data-open="map"', T("Map language"), esc(mapName(mapValue()))) + '<p class="note">' + esc(T("Choose the language of the names on the map.")) + '</p>';
+    h += head(T("Language")) + grp(row('data-open="lang"', T("Language"), esc(langName(JK.i18n.get())), "", "globe") +
+      row('data-open="map"', T("Map language"), esc(mapName(mapValue())), "", "pin")) + '<p class="note">' + esc(T("Choose the language of the names on the map.")) + '</p>';
     /* storage */
-    h += head(T("Storage")) + row('data-clear="cache"', T("Clear cache")) +
-      row('data-clear="map"', armed ? T("Tap again to clear. Favorites and lists stay.") : T("Clear saved map data"));
+    h += head(T("Storage")) + grp(row('data-clear="cache"', T("Clear cache"), "", "", "trash") +
+      row('data-clear="map"', armed ? T("Tap again to clear. Favorites and lists stay.") : T("Clear saved map data"), "", "", "layers"));
     /* about */
-    h += head(T("About")) + '<button type="button" class="row" data-diag><span class="l">' + esc(T("Version")) + '</span><span class="v">' + esc(BUILD) + '</span></button>' +
+    h += head(T("About")) + grp('<button type="button" class="row" data-diag>' + JK.ic("info") + '<span class="l">' + esc(T("Version")) + '</span><span class="v">' + esc(BUILD) + '</span></button>') +
       '<p class="note">' + esc(T("Jakorchi is a free food guide for travelers in Japan, Korea and China. No account, no ads, no tracking.")) + '</p>';
     body.innerHTML = h;
   }
-
   /* ---- pickers (use the shared popup layer) ---- */
   function pickLang() {
     JK.ui.show("", function () {

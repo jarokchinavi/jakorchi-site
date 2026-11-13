@@ -1,24 +1,21 @@
-/* Jakorchi base: colours (light + dark), fonts, reset. */
+/* Jakorchi base: colours (light + dark), fonts, reset. Palette: matcha green, cream, gold (60 base / 30 text + surface / 10 accent). */
 :root{
-  --bg:#F6F1E6; --ink:#0A1226; --mu:#5E667C; --ln:rgba(10,18,38,.2);
-  --gl:#B38A2E; --red:#B8322F;
-  --gold:#8F6A17; --btn:#0A1226; --on:#F6F1E6; --veil:rgba(10,18,38,.45);
+  --bg:#F3EFE1; --surface:#E6E1CC; --ink:#1B2714; --mu:#51603F; --ln:rgba(27,39,20,.22);
+  --gold:#7A5C14; --btn:#26361B; --on:#F3EFE1; --veil:rgba(27,39,20,.45);
   --serif:"Fraunces",Georgia,"Times New Roman",serif;
   --sans:"Inter Tight",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#070D1F; --ink:#F3EBDB; --mu:#A3ACC6; --ln:rgba(243,235,219,.2);
-    --gold:#D4B062; --btn:#F3EBDB; --on:#070D1F; --veil:rgba(0,0,0,.6);
-    --gl:#D4B062; --red:#E0544F;
+    --bg:#141D10; --surface:#1E2B18; --ink:#F0EBDC; --mu:#A9B59A; --ln:rgba(240,235,220,.22);
+    --gold:#D6AC5E; --btn:#D6AC5E; --on:#141D10; --veil:rgba(0,0,0,.6);
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#070D1F; --ink:#F3EBDB; --mu:#A3ACC6; --ln:rgba(243,235,219,.2);
-  --gold:#D4B062; --btn:#F3EBDB; --on:#070D1F; --veil:rgba(0,0,0,.6);
-  --gl:#D4B062; --red:#E0544F;
+  --bg:#141D10; --surface:#1E2B18; --ink:#F0EBDC; --mu:#A9B59A; --ln:rgba(240,235,220,.22);
+  --gold:#D6AC5E; --btn:#D6AC5E; --on:#141D10; --veil:rgba(0,0,0,.6);
   color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
@@ -26,5 +23,6 @@ html{background:var(--bg);-webkit-text-size-adjust:100%}
 body{min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);font:400 16px/1.4 var(--sans);-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+svg.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
 /* languages that Fraunces does not cover use the phone's own readable font (the name Jakorchi stays Fraunces) */
 html[lang="zh"],html[lang="ja"],html[lang="ko"],html[lang="ar"]{--serif:var(--sans)}

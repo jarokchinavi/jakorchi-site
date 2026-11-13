@@ -1,6 +1,6 @@
 /* Runs before the page is drawn, so there is no flash of the wrong colours. Saved as "jk_theme" (same key as before). */
 (function () {
-  var COLORS = { light: "#F6F1E6", dark: "#070D1F" };
+  var COLORS = { light: "#F3EFE1", dark: "#141D10" };
   function read() {
     try { var v = JSON.parse(localStorage.getItem("jk_theme")); if (v === "light" || v === "dark") return v; } catch (e) {}
     return "auto";

@@ -1,10 +1,10 @@
-# Status (2026-11-10 · front-end rebuild, front page)
+# Status (2026-11-13 · front-end rebuild, front page + settings)
 
 ## Done
-- Auto publishing (Cloudflare) · version + self-update · new front page (light/dark, 9 languages) · old front end only in tag `old-app-final` · DB advisor 0
+- Auto publishing (Cloudflare) · version + self-update · front page + settings in the green/cream/gold design (2026-11-13, light/dark, 9 languages) · new logo + icons · old front end only in tag `old-app-final` · DB advisor 0
 
 ## Next (owner picks the order)
-- Settings page built (version 2026-11-10.13, tested locally, not yet released) · Change email / password / Sign out are placeholders until accounts exist
+- Change email / password / Sign out are placeholders until accounts exist
 - Map screen · list · place card · filters · search · accounts (then call `JKAuth.signIn`) · later in settings: delete account, contact/feedback, privacy page, units, directions
 - Map and List buttons show "Coming soon" until then
 
