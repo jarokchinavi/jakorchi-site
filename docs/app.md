@@ -1,5 +1,5 @@
 # App (public/) – front page + settings (rest being rebuilt)
-Map, list, card, filters, search, reviews: still to rebuild. Old behaviour: `docs/old-app.md`. Database, `places/`, `lang/`, tools unchanged.
+Map, list, card, filters, search, reviews: still to rebuild. Old behaviour: `docs/old-app.md`; old code only in git tag `old-app-final`, read only when porting. Database, `places/`, `lang/`, tools unchanged.
 
 ## Files
 - `index.html` (page + SEO, no inline scripts) · `css/base.css` (colours light/dark, fonts) · `css/home.css` (front page, popup layer)
@@ -9,6 +9,7 @@ Map, list, card, filters, search, reviews: still to rebuild. Old behaviour: `doc
 - version: `const BUILD` in js/app.js = `?v=` in index.html = version.json (`python tools/bump-version.py`)
 
 ## Design (current; palette NOT fixed)
+- Process, new or changed screen: show 2–3 options (PNG/JPG, light + dark, via `SendUserFile`; how: `docs/checks.md`) → owner picks → build small files → test → screenshots → release only after owner's OK.
 - Now: navy / cream / gold. Light bg #F6F1E6 ink #0A1226 · dark bg #070D1F ink #F3EBDB. Designer may propose a better 2–3 colour palette (60-30-10); owner picks; then replace these lines (one palette only).
 - Fonts (Google Fonts): Fraunces (name, tagline, popup titles), Inter Tight (buttons, small text), Lora only for the J of the name. zh/ja/ko/ar tagline = phone's own font; name stays Fraunces.
 - Front page order: Light · Dark · System + Settings · old logo · Jakorchi · 日本 · 대한민국 · 中国 (own languages, never translated, always left-to-right) · tagline · Sign in / Create account · Start · Map · List.

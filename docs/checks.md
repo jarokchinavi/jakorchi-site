@@ -5,5 +5,5 @@
 - screenshots for the owner: `SendUserFile` (the inline preview did not show for the owner: send PNG/JPG files) · mock-ups: Edge headless `--screenshot` of a local HTML file
 - new texts: script with python, compact JSON; check every used key exists in all 8 `lang/<code>.json`
 - SQL: local Postgres 16 (su postgres · /tmp/pgdata · port 5544) · anon tests in one DO block ending with raise (undoes all) · then apply_migration · get_advisors security = 0
-- phones we cannot test: ask for a screenshot + the numbers shown by tapping the version number in Settings
+- phones we cannot test (real iPhone, owner's phone): ask screenshot + numbers from tapping the version number in Settings → About. No blind fixes
 - code-length audit (only on request, changed files only): same logic twice → one function · unused code/CSS/replaced features → delete (search refs first) · helper used once → remove · `js/` file > ~150 lines or two jobs → split · library for one tiny feature → replace · behaviour unchanged, report lines removed

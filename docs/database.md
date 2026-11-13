@@ -11,6 +11,7 @@ Setup files: `database/01…NN-*.sql` (all applied, in this order). New change =
 - 🗂 storage bucket review-photos · JPEG / WebP ≤ 400 KB
 
 ## Access
+- Owner's test rows (reviews, new places, votes, owner info) stay; never clear without a new yes
 - dashboard = owner login only (2-step login on)
 - publishable key: read views + add rows · never change / delete · phone ids private
 - views security_invoker · checks in schema private · public RPC: editor_check, editor_add_place
