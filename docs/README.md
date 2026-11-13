@@ -7,4 +7,4 @@
 - `release.md` · publish, rollback, new data, DB change
 - `status.md` · done / next / owner to do
 
-Rule: lasting change → replace the old line. No history, no duplicates. Owner rules + safety: `/CLAUDE.md` only.
+Owner rules + safety: `/CLAUDE.md` only.
