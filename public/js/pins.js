@@ -1,6 +1,7 @@
 /* Which places show on the map, and how (rules from the old app, nothing is drawn all at once):
    - below zoom 13 nothing, except places you saved (always their own marker, from every zoom, never in a cluster)
-   - zoom 13-14: numbered stacks (cell 120 px, then 96 px; at most 18 on a phone, 30 on a big screen, nearest to the middle first); tap = zoom in 2
+   - zoom 13-14: a few calm numbered stacks (cell 170 px, then 140 px; at most 8 on a phone, 14 on a big screen, nearest to the middle first, room between them; lone places wait for zoom 15); tap = zoom in 2
+   - pins and stacks are only redrawn when the map is calm (moveend), never while you pinch or drag; they fade in and out
    - zoom 15+: single pins, best first (rating, then how much we know), a pin is skipped when it would touch another: at most 18 at zoom 15, 30 at 16, 48 at 17, 70 at 18, 100 at 19
    - only places in view (plus a little margin); the screen is redrawn at most every 200 ms
    Zoom numbers here are the classic ones (MapLibre + 1). JK.pins: sync() · soon() · select(id) */
@@ -10,10 +11,12 @@
     var a = JK.ratings.avg(r.id), s = a != null ? 100 + a * 10 + Math.min(JK.ratings.count(r.id), 10) : 0;
     if (r.cuisine) s += 3; if (r.loc) s += 2; if (r.hours) s += 1; if (r.web) s += 1; if (r.phone) s += 1; return s;
   };
+  /* a marker that is no longer needed fades out first (150 ms), then goes; new ones fade in (css) */
+  function drop(m) { var e = m.getElement(); e.classList.add("out"); setTimeout(function () { m.remove(); }, 170); }
   function put(store, id, make, sig, ll, anchor, z, onclick) {
     var m = store[id];
     if (m && m._sig === sig) return m;
-    if (m) m.remove();
+    if (m) drop(m);
     var e = make(); e.style.zIndex = z;
     m = new maplibregl.Marker({ element: e, anchor: anchor }).setLngLat(ll).addTo(JK.mapObj()); m._sig = sig;
     e.addEventListener("click", function (ev) { ev.stopPropagation(); onclick(); });
@@ -38,7 +41,7 @@
     if (z >= 13) {
       var cand = [], L = JK.places.list;
       for (var i = 0; i < L.length; i++) { var r = L[i]; if (r.lat < s || r.lat > n || r.lng < w || r.lng > e || sv.has(r.id)) continue; if (JK.filters.pass(r)) cand.push(r); }
-      var CL = z < 15, tier = [z < 14 ? 120 : 96, 0];
+      var CL = z < 15, tier = [z < 14 ? 170 : 140, 0]; /* big cells = few, calm stacks */
       var cs = tier[0], W = 256 * Math.pow(2, z);
       var d2 = function (r) { return Math.pow(r.lat - c.lat, 2) + Math.pow(r.lng - c.lng, 2); };
       var key = function (r) { var sn = Math.sin(r.lat * Math.PI / 180), x = (r.lng + 180) / 360 * W, y = (.5 - Math.log((1 + sn) / (1 - sn)) / (4 * Math.PI)) * W; return Math.floor(x / cs) + "," + Math.floor(y / cs); };
@@ -46,15 +49,19 @@
       else if (CL) {
         var g = new Map();
         cand.forEach(function (r) { var k = key(r), o = g.get(k); if (o) { o.n++; o.la += r.lat; o.ln += r.lng; } else g.set(k, { n: 1, la: r.lat, ln: r.lng, r: r }); });
-        var ar = Array.from(g.entries()), CMAX = innerWidth > 700 ? 30 : 18;
-        /* nearest to the middle first; a stack is skipped when it would touch one that is already there */
-        var tc = [], keepAr = [];
+        var ar = Array.from(g.entries()), CMAX = innerWidth > 700 ? 14 : 8, singles = [];
+        /* calm: only a few stacks (8 on a phone, 14 on a big screen), nearest to the middle first, with room between them;
+           lone places wait until zoom 15 (only shown when there are hardly any stacks, so the map is never empty) */
+        var tc = [];
         ar.map(function (x) { return [Math.pow(x[1].la / x[1].n - c.lat, 2) + Math.pow(x[1].ln / x[1].n - c.lng, 2), x]; }).sort(function (p, q) { return p[0] - q[0]; }).forEach(function (e) {
-          if (keepAr.length >= CMAX) return; var o = e[1][1];
-          if (o.n > 1) { var px = map.project([o.ln / o.n, o.la / o.n]); if (tc.some(function (t) { return Math.abs(t[0] - px.x) < 100 && Math.abs(t[1] - px.y) < 44; })) return; tc.push([px.x, px.y]); }
-          keepAr.push(e[1]);
+          var o = e[1][1];
+          if (o.n < 2) { singles.push(o.r); return; }
+          if (cls.length >= CMAX) return;
+          var px = map.project([o.ln / o.n, o.la / o.n]); if (tc.some(function (t) { return Math.abs(t[0] - px.x) < 150 && Math.abs(t[1] - px.y) < 70; })) return; tc.push([px.x, px.y]);
+          cls.push([e[1][0], o.la / o.n, o.ln / o.n, o.n]);
         });
-        ar = keepAr;        ar.forEach(function (x) { var o = x[1]; if (o.n === 1) vis.push(o.r); else cls.push([x[0], o.la / o.n, o.ln / o.n, o.n]); });
+        if (cls.length < 3) singles.slice(0, 6 - cls.length).forEach(function (r) { vis.push(r); });
+        ar = [];
       } else {
         /* like the big map apps: the closer you are, the more you see. The best places first (rating, then how much we know),
            and a pin is only added when it does not touch one that is already there. */
@@ -80,8 +87,8 @@
       put(markers, selP.id, function () { return JK.pinui.pill(selP, { rating: sa, sel: true, glyph: JK.lists.glyph(selP.id) }); }, 'x' + (sa != null ? sa.toFixed(1) : ''), [selP.lng, selP.lat], 'bottom', 500, function () { JK.peek.open(selP); });
     }
     JK.ratings.want(saved.map(function (r) { return r.id; }));
-    Object.keys(markers).forEach(function (id) { if (!keepP[id]) { markers[id].remove(); delete markers[id]; } });
-    Object.keys(clMk).forEach(function (id) { if (!keepC[id]) { clMk[id].remove(); delete clMk[id]; } });
+    Object.keys(markers).forEach(function (id) { if (!keepP[id]) { drop(markers[id]); delete markers[id]; } });
+    Object.keys(clMk).forEach(function (id) { if (!keepC[id]) { drop(clMk[id]); delete clMk[id]; } });
     JK.pins.shown = { pins: Object.keys(markers).length, clusters: Object.keys(clMk).length };
   }
   function soon() { clearTimeout(tm); var w = at + 200 - Date.now(); if (w <= 0) { at = Date.now(); sync(); } else tm = setTimeout(function () { at = Date.now(); sync(); }, w); }

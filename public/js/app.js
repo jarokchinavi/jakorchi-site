@@ -1,5 +1,5 @@
 /* Jakorchi start: version number, fonts, and the self-reload when a new version is live. */
-const BUILD="2026-11-16.2";
+const BUILD="2026-11-16.3";
 window.JK = { build: BUILD, layerOpen: function () { return false; } };
 
 /* iPhone pinch gesture: off on every screen except the map (the map screen will handle its own pinch) */

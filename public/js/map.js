@@ -7,15 +7,20 @@
   var isDark = function () { var t = document.documentElement.getAttribute("data-theme"); return t ? t === "dark" : window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches; };
   JK.mapObj = function () { return map; };
 
-  function ringUpdate() { ring.hidden = !map || map.getZoom() + 1 >= 13; }
+  /* the circle fades out smoothly while you zoom in (full below classic zoom 11.4, gone at 13); it never blocks a pinch (CSS: only the "Zoom in" label takes taps) */
+  function ringUpdate() {
+    var f = map ? Math.max(0, Math.min(1, (13 - (map.getZoom() + 1)) / 1.6)) : 0;
+    ring.hidden = f <= 0.02; ring.style.opacity = f.toFixed(2); ring.classList.toggle("off", f < 0.4);
+  }
   function create(st) {
     var v = load("jk_view", null); if (!v || typeof v.lat !== "number") v = { lat: 35.6812, lng: 139.7671, z: 12.5 };
     map = new maplibregl.Map({ container: "map", style: st, center: [v.lng, v.lat], zoom: v.z, minZoom: 3, maxZoom: 20, attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false, fadeDuration: 100 });
     map.touchZoomRotate.disableRotation();
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
-    map.on("move", function () { JK.pins.soon(); ringUpdate(); });
+    /* while you pinch or drag only the circle follows; pins, stacks and data wait until the map is calm (smooth, no flicker) */
+    map.on("move", ringUpdate);
     map.on("moveend", function () {
-      JK.places.want(); JK.pins.soon(); ringUpdate();
+      setTimeout(function () { JK.places.want(); }, 120); setTimeout(function () { JK.pins.soon(); }, 60); ringUpdate();
       var c = map.getCenter(); try { localStorage.setItem("jk_view", JSON.stringify({ lat: +c.lat.toFixed(5), lng: +c.lng.toFixed(5), z: +map.getZoom().toFixed(2) })); } catch (e) {}
     });
     map.on("click", function () { if (JK.peek.current()) JK.peek.close(); });
