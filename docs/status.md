@@ -7,6 +7,7 @@
 - Profile page + signed-in start page built (2026-11-16); Change name / email / password and Delete account are placeholders until accounts exist (Sign out works)
 - Map screen · list · place card · filters · search · accounts (then call `JKAuth.signIn`) · later in settings: delete account, contact/feedback, privacy page, units, directions
 - Map and List buttons show "Coming soon" until then
+- Directions = a row on the place card that opens the visitor's own maps app (Google / Apple, Naver + Kakao in Korea, Amap in China); no own navigation (`docs/old-app.md` Directions)
 
 ## Owner to do
 0. iPhone top blur (iOS 26, home-screen app): top bar moved 16 px lower (2026-11-13); owner to check on the phone, more/less = `--shift` in base.css (`docs/old-app.md` fix 2)

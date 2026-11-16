@@ -19,7 +19,7 @@ Read before map / list / card / filters / search / review screens. Code: tag `ol
 - Texts: `T(key)`, English = key · only the chosen `lang/<code>.json` is downloaded (`loadLang`) · `lang/phrases.json` loads when opened · ar = right-to-left, map stays left-to-right
 - Reports (`openFlag`): closed / halal / vegan-vegetarian yes-no + food type · "closed" label (`closedTag`) from 3 yes and more yes than no
 - Prices: reviews carry price 1–4 · `PRC` local money (JP ¥ 1,500/4,000/10,000 · KR ₩ 13,000/30,000/80,000 · CN ¥ 50/150/400) · slider 1–20 (20 = any) · `prLoad` bulk-loads from `place_ratings`
-- Saved places + lists only on the phone · directions walk/transit/car (`trMode`) · Jakorchi Plus "coming soon"
+- Saved places + lists only on the phone · Jakorchi Plus "coming soon" · directions: see section Directions
 - Editor mode hidden: open app with `#editor` at end of address (stays in menu once the code is on)
 - About & privacy (`#about`): names the outside services, keep it true; `CONTACT` in js/app.js = contact email ("" hides the line)
 - `sw.js`: navigation + css/js/lang = network first (saved copy offline) · places = saved copy first, refresh in background · bump `V` when caching rules change
@@ -34,3 +34,11 @@ Read before map / list / card / filters / search / review screens. Code: tag `ol
 7. Slow or broken services (Supabase, OSM) never break the app: fallbacks everywhere, ask less often when slow, "Reviews can't load right now" (`noRev`), clear posting-limit messages (`sbWhy`).
 8. No system emoji (own icons).
 9. The browser test pane pauses map drawing while hidden: map labels cannot be judged there.
+
+## Directions (owner decided 2026-11-16: NO own navigation, no Google Maps / paid map API)
+- The place card gets a Directions row that opens the visitor's own maps app with the restaurant as destination: plain links only, free, no key. Walk / Transit / Car choice (`jk_tr`, default walk). Old code: `links()` in old `js/app.js` (tag `old-app-final`).
+- Always: Google Maps `https://www.google.com/maps/dir/?api=1&destination=<lat>,<lng>&travelmode=walking|transit|driving` · Apple Maps `https://maps.apple.com/?daddr=<lat>,<lng>&dirflg=w|r|d`
+- South Korea first: Naver `nmap://route/walk|public|car?dlat&dlng&dname&appname=jakorchi` with web fallback `https://map.naver.com/p/search/<name>?c=<x>,<y>,17,0,0,0,dh` (the old app already had it) · new: Kakao `https://map.kakao.com/link/to/<name>,<lat>,<lng>` (no travel mode in this link; the transit option is unreliable on the web link)
+- China first: Amap `https://uri.amap.com/navigation?to=<lng>,<lat>,<name>&mode=walk|bus|car&src=jakorchi&callnative=1`. Amap uses GCJ-02 (shifted) coordinates and its route docs list no coordinate-system parameter (the old app sent `coordinate=wgs84`: unverified). Our places are WGS-84, so convert them ourselves (standard WGS84→GCJ-02 formula, only for points inside China) before building the Amap link, then test on a real phone. Baidu: not added (link form unverified, needs a key, BD-09 coordinates); decide after the phone test.
+- Use the place name in the country's own language (`localName`) so Naver / Amap find the real listing. Old "Google reviews" / "Naver reviews" were plain search links: fine to keep, no Google data used.
+- Why not Google Maps in the app: costs money after 10,000 free loads a month, terms limit mixing with other maps and saving data, China is blocked and shifted, South Korea only partly open (2026). Keep the free open map (OpenFreeMap / OpenStreetMap).
