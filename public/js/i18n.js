@@ -19,6 +19,7 @@
     h.lang = lang; h.dir = lang === "ar" ? "rtl" : "ltr";
     document.querySelectorAll("[data-i]").forEach(function (el) { el.textContent = T(el.getAttribute("data-i")); });
     document.querySelectorAll("[data-ia]").forEach(function (el) { el.setAttribute("aria-label", T(el.getAttribute("data-ia"))); });
+    document.querySelectorAll("[data-ip]").forEach(function (el) { el.setAttribute("placeholder", T(el.getAttribute("data-ip"))); });
     h.classList.remove("wait");
     document.dispatchEvent(new Event("jk:lang"));
   }

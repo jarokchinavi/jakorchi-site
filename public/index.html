@@ -29,18 +29,38 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet" media="print" data-font>
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400&text=J&display=swap" rel="stylesheet" media="print" data-font>
-<link rel="stylesheet" href="/css/base.css?v=2026-11-16.1">
-<link rel="stylesheet" href="/css/home.css?v=2026-11-16.1">
-<link rel="stylesheet" href="/css/settings.css?v=2026-11-16.1">
-<script src="/js/theme.js?v=2026-11-16.1"></script>
-<script src="/js/auth.js?v=2026-11-16.1"></script>
-<script src="/js/app.js?v=2026-11-16.1" defer></script>
-<script src="/js/icons.js?v=2026-11-16.1" defer></script>
-<script src="/js/i18n.js?v=2026-11-16.1" defer></script>
-<script src="/js/home.js?v=2026-11-16.1" defer></script>
-<script src="/js/profile.js?v=2026-11-16.1" defer></script>
-<script src="/js/settings.js?v=2026-11-16.1" defer></script>
-</head>
+<link rel="stylesheet" href="/css/base.css?v=2026-11-16.2">
+<link rel="stylesheet" href="/css/home.css?v=2026-11-16.2">
+<link rel="stylesheet" href="/css/map.css?v=2026-11-16.2">
+<link rel="stylesheet" href="/css/card.css?v=2026-11-16.2">
+<link rel="stylesheet" href="/css/settings.css?v=2026-11-16.2">
+<script src="/js/theme.js?v=2026-11-16.2"></script>
+<script src="/js/auth.js?v=2026-11-16.2"></script>
+<script src="/js/app.js?v=2026-11-16.2" defer></script>
+<script src="/js/icons.js?v=2026-11-16.2" defer></script>
+<script src="/js/router.js?v=2026-11-16.2" defer></script>
+<script src="/js/i18n.js?v=2026-11-16.2" defer></script>
+<script src="/js/home.js?v=2026-11-16.2" defer></script>
+<script src="/js/sheet.js?v=2026-11-16.2" defer></script>
+<script src="/js/maplib.js?v=2026-11-16.2" defer></script>
+<script src="/js/places.js?v=2026-11-16.2" defer></script>
+<script src="/js/ratings.js?v=2026-11-16.2" defer></script>
+<script src="/js/lists.js?v=2026-11-16.2" defer></script>
+<script src="/js/pinui.js?v=2026-11-16.2" defer></script>
+<script src="/js/filters.js?v=2026-11-16.2" defer></script>
+<script src="/js/pins.js?v=2026-11-16.2" defer></script>
+<script src="/js/search.js?v=2026-11-16.2" defer></script>
+<script src="/js/food.js?v=2026-11-16.2" defer></script>
+<script src="/js/sb.js?v=2026-11-16.2" defer></script>
+<script src="/js/reviews.js?v=2026-11-16.2" defer></script>
+<script src="/js/report.js?v=2026-11-16.2" defer></script>
+<script src="/js/navigate.js?v=2026-11-16.2" defer></script>
+<script src="/js/save.js?v=2026-11-16.2" defer></script>
+<script src="/js/peek.js?v=2026-11-16.2" defer></script>
+<script src="/js/profile.js?v=2026-11-16.2" defer></script>
+<script src="/js/menu.js?v=2026-11-16.2" defer></script>
+<script src="/js/map.js?v=2026-11-16.2" defer></script>
+<script src="/js/settings.js?v=2026-11-16.2" defer></script></head>
 <body>
 <main class="home" id="home">
   <header class="top">
@@ -68,10 +88,33 @@
 
   <nav class="seg" data-ia="Start" aria-label="Start">
     <button type="button" class="on" aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span data-i="Start">Start</span></button>
-    <button type="button" data-soon="Map"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6.5v14L9 18l6 2.5 6-2.5v-14L15 6.5zM9 4v14M15 6.5v14"/></svg><span data-i="Map">Map</span></button>
+    <button type="button" data-go="map"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6.5v14L9 18l6 2.5 6-2.5v-14L15 6.5zM9 4v14M15 6.5v14"/></svg><span data-i="Map">Map</span></button>
     <button type="button" data-soon="List"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="2"/></svg><span data-i="List">List</span></button>
   </nav>
 </main>
+<section class="mapscr" id="mapscr" hidden aria-label="Map">
+  <div id="map" class="mapbox" role="application"></div>
+  <div class="mtop">
+    <div class="mrow">
+      <div class="search">
+        <button type="button" class="mb" id="menuBtn" data-ia="Menu" aria-label="Menu"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h10"/></svg></button>
+        <input id="q" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="none" data-ip="Search a name, dish, area or food" placeholder="Search a name, dish, area or food" data-ia="Search a name, dish, area or food" aria-label="Search a name, dish, area or food">
+        <button type="button" class="prof out" id="profBtn" data-soon="Sign in" aria-label="Sign in"></button>
+      </div>
+      <button type="button" class="round" id="filtBtn" data-ia="Filters" aria-label="Filters"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h8M16 7h4M4 17h4M12 17h8"/><circle cx="14" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+    </div>
+    <div class="sugg" id="sugg" hidden></div>
+    <div class="chips" id="cats"></div>
+  </div>
+  <button type="button" class="zring" id="zring" hidden data-ia="Zoom in" aria-label="Zoom in"><span data-i="Zoom in">Zoom in</span></button>
+  <button type="button" class="round loc" id="locBtn" data-ia="Your location" aria-label="Your location"><svg class="ic" style="width:22px;height:22px" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+  <aside class="peek" id="peek" hidden></aside>
+  <nav class="seg mnav" data-ia="Start" aria-label="Start">
+    <button type="button" data-go="home"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span data-i="Start">Start</span></button>
+    <button type="button" class="on" aria-current="page"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6.5v14L9 18l6 2.5 6-2.5v-14L15 6.5zM9 4v14M15 6.5v14"/></svg><span data-i="Map">Map</span></button>
+    <button type="button" data-soon="List"><svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="2"/></svg><span data-i="List">List</span></button>
+  </nav>
+</section>
 <section class="page" id="settings" hidden aria-labelledby="stTitle">
   <div class="col">
     <header class="sbar">
@@ -90,6 +133,12 @@
     <div id="pfBody"></div>
   </div>
 </section>
+<div class="sw" id="menuSheet" hidden><div class="veil"></div><div class="sheet" role="dialog" aria-modal="true" data-ia="Menu" aria-label="Menu"></div></div>
+<div class="sw" id="saveSheet" hidden><div class="veil"></div><div class="sheet" role="dialog" aria-modal="true" data-ia="Save to a list" aria-label="Save to a list"></div></div>
+<div class="sw" id="navSheet" hidden><div class="veil"></div><div class="sheet" role="dialog" aria-modal="true" data-ia="Navigate" aria-label="Navigate"></div></div>
+<div class="sw" id="revSheet" hidden><div class="veil"></div><div class="sheet" role="dialog" aria-modal="true" data-ia="Write a review" aria-label="Write a review"></div></div>
+<div class="sw" id="repSheet" hidden><div class="veil"></div><div class="sheet" role="dialog" aria-modal="true" data-ia="Report wrong info" aria-label="Report wrong info"></div></div>
+<div class="sw" id="filtSheet" hidden><div class="veil"></div><div class="sheet" role="dialog" aria-modal="true" data-ia="Filters" aria-label="Filters"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <div class="layer" id="layer" hidden>

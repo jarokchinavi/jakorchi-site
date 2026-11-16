@@ -32,14 +32,14 @@
 
   function open(f) {
     if (!page.hidden) return;
-    from = f; page.hidden = false; home.hidden = true; settings.hidden = true; render(); window.scrollTo(0, 0);
+    from = f; page.hidden = false; JK.hideScreens(); settings.hidden = true; render(); window.scrollTo(0, 0);
     try { history.pushState({ jk: "p" }, ""); } catch (e) {}
     var b = $("#profileBack"); if (b) b.focus();
   }
   function closePage() {
     if (page.hidden) return;
     page.hidden = true;
-    if (from === "settings") { settings.hidden = false; document.dispatchEvent(new Event("jk:auth")); } else home.hidden = false;
+    if (from === "settings") { settings.hidden = false; document.dispatchEvent(new Event("jk:auth")); } else JK.showScreen();
   }
   function back() { if (history.state && history.state.jk === "p") history.back(); else closePage(); }
 

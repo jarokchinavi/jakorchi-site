@@ -83,7 +83,7 @@
     (async function () {
       /* only the saved restaurant files and the map style; app files, favorites, lists and settings stay */
       try { var ks = await caches.keys(); for (var i = 0; i < ks.length; i++) { var c = await caches.open(ks[i]), rs = await c.keys(); for (var j = 0; j < rs.length; j++) if (new URL(rs[j].url).pathname.indexOf("/places/") === 0) await c.delete(rs[j]); } } catch (e) {}
-      try { localStorage.removeItem("jk_style1"); } catch (e) {}
+      try { localStorage.removeItem("jk_style1"); localStorage.removeItem("jk_style2"); } catch (e) {}
       flash(T("Saved map data cleared."));
     })();
   }
@@ -91,11 +91,11 @@
   /* ---- open / close (phone back button closes it) ---- */
   function open() {
     if (!page.hidden) return;
-    page.hidden = false; home.hidden = true; render(); window.scrollTo(0, 0);
+    page.hidden = false; JK.hideScreens(); render(); window.scrollTo(0, 0);
     try { history.pushState({ jk: "s" }, ""); } catch (e) {}
     var b = $("#settingsBack"); if (b) b.focus();
   }
-  function closePage() { if (page.hidden) return; page.hidden = true; home.hidden = false; var g = $("#openSettings"); if (g) g.focus(); }
+  function closePage() { if (page.hidden) return; page.hidden = true; JK.showScreen(); var g = $("#openSettings"); if (g && !g.closest("[hidden]")) g.focus(); }
   window.addEventListener("popstate", function () { if (!page.hidden && !(history.state && history.state.jk === "s") && !JK.ui.isOpen()) closePage(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !page.hidden && !JK.ui.isOpen()) back(); });
   function back() { if (history.state && history.state.jk === "s") history.back(); else closePage(); }
@@ -114,7 +114,7 @@
   document.getElementById("layer").addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
     if (b.dataset.pickLang) JK.i18n.set(b.dataset.pickLang).then(function () { JK.ui.refresh(); });
-    else if (b.dataset.pickMap) { save("jk_maplet", b.dataset.pickMap); JK.ui.refresh(); if (!page.hidden) render(); }
+    else if (b.dataset.pickMap) { save("jk_maplet", b.dataset.pickMap); document.dispatchEvent(new Event("jk:maplet")); JK.ui.refresh(); if (!page.hidden) render(); }
   });
   document.addEventListener("jk:lang", function () { if (!page.hidden) render(); });
   document.addEventListener("jk:auth", function () { if (!page.hidden) render(); });

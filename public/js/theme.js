@@ -11,6 +11,7 @@
     if (t === "auto") r.removeAttribute("data-theme"); else r.setAttribute("data-theme", t);
     var m = document.querySelector('meta[name="theme-color"]');
     if (m) m.content = isDark(t) ? COLORS.dark : COLORS.light;
+    try { document.dispatchEvent(new Event("jk:theme")); } catch (e) {}
   }
   window.JKTheme = {
     get: read,
