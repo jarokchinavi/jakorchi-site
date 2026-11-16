@@ -1,4 +1,5 @@
-/* Line icons for the settings page (own drawings, no emoji). JK.ic("name") returns an <svg>. */
+/* Line icons + row helpers for the settings and profile pages (own drawings, no emoji).
+   JK.ic("name") = <svg> · JK.row(attr, label, value, cls, icon) = one tappable row · JK.grp(rows) = rounded group. */
 (function () {
   var P = {
     sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/>',
@@ -12,7 +13,13 @@
     pin: '<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
     trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
     layers: '<path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/>',
-    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01" stroke-width="2"/>'
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01" stroke-width="2"/>',
+    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>'
   };
   JK.ic = function (n) { return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + (P[n] || "") + '</svg>'; };
+  JK.row = function (attr, label, value, cls, icon) {
+    return '<button type="button" class="row ' + (cls || "") + '" ' + attr + '>' + (icon ? JK.ic(icon) : "") + '<span class="l">' + JK.ui.esc(label) + '</span><span class="v">' +
+      (value ? '<span class="vt">' + value + '</span>' : "") + '<i class="chev" aria-hidden="true"></i></span></button>';
+  };
+  JK.grp = function (rows) { return '<div class="grp">' + rows + '</div>'; };
 })();

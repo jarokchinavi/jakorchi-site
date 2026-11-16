@@ -4,7 +4,7 @@
 - Auto publishing (Cloudflare) · version + self-update · front page + settings in the green/cream/gold design (2026-11-13, light/dark, 9 languages) · new logo + icons · old front end only in tag `old-app-final` · DB advisor 0
 
 ## Next (owner picks the order)
-- Change email / password / Sign out are placeholders until accounts exist
+- Profile page + signed-in start page built (2026-11-16); Change name / email / password and Delete account are placeholders until accounts exist (Sign out works)
 - Map screen · list · place card · filters · search · accounts (then call `JKAuth.signIn`) · later in settings: delete account, contact/feedback, privacy page, units, directions
 - Map and List buttons show "Coming soon" until then
 

@@ -25,6 +25,9 @@ body{min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);fo
 html,body{touch-action:pan-x pan-y} /* no pinch / double-tap zoom on start, settings, list; the map screen sets its own touch-action */
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+.av{position:relative;flex:none;display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:#1F3017;color:#D6AC5E;box-shadow:0 0 0 1.5px #D6AC5E;font:400 26px/1 var(--serif)}
+.av::after{content:"";position:absolute;inset:4px;border-radius:50%;border:1px solid rgba(214,172,94,.45)}
+.av.big{width:84px;height:84px;font-size:36px}.av.big::after{inset:5px}
 svg.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
 /* languages that Fraunces does not cover use the phone's own readable font (the name Jakorchi stays Fraunces) */
 html[lang="zh"],html[lang="ja"],html[lang="ko"],html[lang="ar"]{--serif:var(--sans)}

@@ -29,7 +29,7 @@
   };
 
   function soon(name) {
-    var account = /^(Sign in|Create account|Change email|Change password)$/.test(name);
+    var account = /^(Sign in|Create account|Change email|Change password|Change name|Delete account)$/.test(name);
     show("", function () {
       return '<h2>' + esc(T(name)) + '</h2><span class="badge">' + esc(T("Coming soon")) + '</span>' +
         (account ? '<p>' + esc(T("Account sync is still being built.")) + '</p>' : '') +

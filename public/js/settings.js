@@ -14,22 +14,16 @@
   function mapValue() { var v = load("jk_maplet", "auto"); return v === "auto" || v === "latin" || JK.i18n.LANGS.some(function (x) { return x[0] === v; }) ? v : "auto"; }
   function mapName(v) { return v === "auto" ? T("Same as app") : v === "latin" ? "Latin (A–Z)" : langName(v); }
 
-  function row(attr, label, value, cls, icon) {
-    return '<button type="button" class="row ' + (cls || "") + '" ' + attr + '>' + (icon ? JK.ic(icon) : "") + '<span class="l">' + esc(label) + '</span><span class="v">' + (value || "") + '<i class="chev" aria-hidden="true"></i></span></button>';
-  }
+  var row = JK.row, grp = JK.grp;
   function head(t) { return '<h2>' + esc(t) + '</h2>'; }
-  function grp(rows) { return '<div class="grp">' + rows + '</div>'; }
 
   function render() {
     var signed = JKAuth.signedIn(), u = user() || {}, th = JKTheme.get(), h = "";
     /* profile: the account options exist only when signed in */
     h += head(T("Profile"));
     if (signed) {
-      var name = u.name || u.email || "", init = (name.trim().charAt(0) || "J").toUpperCase();
-      h += grp('<div class="me"><div class="av" aria-hidden="true">' + esc(init) + '</div><div>' +
-        (u.name ? '<b>' + esc(u.name) + '</b>' : '') + (u.email ? '<small>' + esc(u.email) + '</small>' : '') + '</div></div>' +
-        row('data-soon="Change email"', T("Change email"), "", "", "mail") + row('data-soon="Change password"', T("Change password"), "", "", "lock") +
-        row("data-signout", T("Sign out"), "", "", "out"));
+      h += grp('<button type="button" class="row prow" data-profile="settings"><span class="av" aria-hidden="true">' + esc(JK.me.initial(u)) + '</span><span class="l"><b>' + esc(JK.me.name(u)) + '</b>' +
+        (u.name && u.email ? '<small>' + esc(u.email) + '</small>' : "") + '</span><i class="chev" aria-hidden="true"></i></button>');
     } else {
       h += grp('<div class="row">' + JK.ic("user") + '<span class="l">' + esc(T("Not signed in")) + '</span><span class="badge">' + esc(T("Coming soon")) + '</span></div>' +
         row('data-soon="Sign in"', T("Sign in"), "", "gold") + row('data-soon="Create account"', T("Create account"), "", "gold"));
@@ -114,7 +108,6 @@
     else if (b.dataset.open === "map") pickMap();
     else if (b.dataset.clear === "cache") clearCache();
     else if (b.dataset.clear === "map") clearMap();
-    else if (b.hasAttribute("data-signout")) JKAuth.signOut();
     else if (b.hasAttribute("data-diag")) diag();
     else if (b.dataset.themeSet) setTimeout(render, 0);
   });

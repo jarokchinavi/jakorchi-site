@@ -25,10 +25,16 @@ html[dir="rtl"] .chev{transform:rotate(-45deg)}
 .sseg button{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;border-radius:999px;color:var(--mu);font-size:14px;transition:color .15s,background-color .15s}
 .sseg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600}
 
-.me{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--ln)}
-.av{display:grid;place-items:center;flex:none;width:52px;height:52px;border-radius:24%;background:var(--btn);color:var(--on);font:400 24px/1 "Fraunces",Georgia,serif}
-.me b{display:block;font-weight:600;word-break:break-word}
-.me small{display:block;color:var(--mu);font-size:13px;word-break:break-word}
+.prow{min-height:78px}
+.prow .av{width:46px;height:46px;font-size:20px}.prow .av::after{inset:3px}
+.prow .l b{display:block;font-weight:600;word-break:break-word}
+.prow .l small{display:block;color:var(--mu);font-size:13px;word-break:break-word}
+.vt{min-width:0;max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.row .v{min-width:0}
+.id{display:flex;flex-direction:column;align-items:center;text-align:center;margin:22px 0 4px}
+.id .nm{margin-top:16px;font:400 28px/1.15 var(--serif);letter-spacing:-.01em;word-break:break-word}
+.id .em{margin-top:4px;font-size:14px;color:var(--mu);word-break:break-word}
+.grp+.grp{margin-top:22px}.id+.grp{margin-top:22px}
 
 /* Jakorchi Plus: membership bar (logo green, thin gold line, gold name) */
 .plusc{width:100%;text-align:start;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px;margin-top:22px;padding:0 20px;
