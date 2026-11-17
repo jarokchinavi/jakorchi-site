@@ -16,10 +16,17 @@
     p.addEventListener("click", click); p.addEventListener("input", input); p.addEventListener("change", change);
   }
   function chip(on, attr, label, icon) { return '<button type="button" class="chip' + (on ? " on" : "") + '" ' + attr + ">" + (icon ? JK.ic(icon, 18) : "") + esc(label) + "</button>"; }
-  function render() {
-    var thumb = st.ph ? '<div class="adthumb"><img src="' + st.ph.u + '" alt="' + esc(T("Photo")) + '"><button type="button" class="round sm" data-ad-rm aria-label="' + esc(T("Remove photo")) + '">' + JK.ic("close", 18) + "</button></div>" : "";
+  /* step 1 "spot": only a slim bar, so the map stays free to move the +; step 2 "form": the details (the spot is kept) */
+  function renderSpot() {
+    p.classList.add("slim");
     p.innerHTML = '<div class="fhead"><h2>' + esc(T("Add a restaurant")) + '</h2><button type="button" class="round sm" data-ad-cancel aria-label="' + esc(T("Cancel")) + '">' + JK.ic("close", 20) + "</button></div>" +
-      '<p class="sn">' + esc(T("Move the map so the + is on the entrance of the restaurant.")) + "</p>" +
+      '<p class="sn">' + esc(T("Move the map so the + is on the entrance of the restaurant.")) + '</p><p class="rng err" id="adMsg"></p><button type="button" class="btn" data-ad-here>' + JK.ic("pin", 20) + esc(T("Add here")) + "</button>";
+  }
+  function render() {
+    if (st.step === "spot") { renderSpot(); return; }
+    p.classList.remove("slim");
+    var thumb = st.ph ? '<div class="adthumb"><img src="' + st.ph.u + '" alt="' + esc(T("Photo")) + '"><button type="button" class="round sm" data-ad-rm aria-label="' + esc(T("Remove photo")) + '">' + JK.ic("close", 18) + "</button></div>" : "";
+    p.innerHTML = '<div class="fhead"><div class="ahl"><button type="button" class="round sm" data-ad-back aria-label="' + esc(T("Back")) + '"><svg class="ic" style="width:20px;height:20px" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 6l-6 6 6 6"/></svg></button><h2>' + esc(T("Add a restaurant")) + '</h2></div><button type="button" class="round sm" data-ad-cancel aria-label="' + esc(T("Cancel")) + '">' + JK.ic("close", 20) + "</button></div>" +
       '<label class="field">' + JK.ic("restaurant", 20) + '<input id="adName" maxlength="80" autocomplete="off" placeholder="' + esc(T("Restaurant name")) + '" aria-label="' + esc(T("Restaurant name")) + '" value="' + esc(st.name) + '"></label>' +
       '<div class="chips adrow">' + CATS.map(function (c) { return chip(st.cat === c[0], 'data-adc="' + c[0] + '"', T(c[1]), c[0]); }).join("") + "</div>" +
       '<label class="field">' + JK.ic("search", 20) + '<input id="adFood" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="' + esc(T("Type a food or dish")) + '" aria-label="' + esc(T("Type of food")) + '" value="' + esc(st.foodText) + '"></label><div class="fsug" id="adSug"></div>' +
@@ -41,7 +48,7 @@
   }
   function go(m) {
     if (!x) build(); if (JK.peek.current()) JK.peek.close();
-    st = { name: "", cat: "restaurant", food: "", foodText: "", halal: false, vegan: false, vege: false, ph: null };
+    st = { step: "spot", spot: null, name: "", cat: "restaurant", food: "", foodText: "", halal: false, vegan: false, vege: false, ph: null };
     if (m.getZoom() + 1 < 17) m.easeTo({ zoom: 16, duration: 500 });
     scr.classList.add("adding"); x.hidden = false; p.hidden = false; render();
   }
@@ -62,6 +69,13 @@
     else if (b.hasAttribute("data-adh")) { st.halal = !st.halal; b.classList.toggle("on", st.halal); }
     else if (b.hasAttribute("data-adv")) { st.vegan = !st.vegan; b.classList.toggle("on", st.vegan); }
     else if (b.hasAttribute("data-adg")) { st.vege = !st.vege; b.classList.toggle("on", st.vege); }
+    else if (b.hasAttribute("data-ad-here")) {
+      var m = JK.mapObj(), c = spot();
+      if (m.getZoom() + 1 < 16) { msg(T("Zoom in closer so the spot is exact.")); return; }
+      if (c.lat < 18 || c.lat > 54 || c.lng < 73 || c.lng > 146) { msg(T("This place is outside Japan, Korea and China.")); return; }
+      st.spot = c; st.step = "form"; x.hidden = true; render();
+    }
+    else if (b.hasAttribute("data-ad-back")) { st.step = "spot"; x.hidden = false; render(); }
     else if (b.hasAttribute("data-ad-photo")) document.getElementById("adFile").click();
     else if (b.hasAttribute("data-ad-rm")) { URL.revokeObjectURL(st.ph.u); st.ph = null; render(); }
     else if (b.hasAttribute("data-ad-send")) send(b);
@@ -69,11 +83,10 @@
   var norm = function (s) { return String(s || "").toLowerCase().replace(/[\s\p{P}\p{S}]+/gu, ""); };
   function spot() { var m = JK.mapObj(), r = x.getBoundingClientRect(), box = scr.getBoundingClientRect(), c = m.unproject([r.left + r.width / 2 - box.left, r.top + r.height / 2 - box.top]); return { lat: +c.lat.toFixed(6), lng: +c.lng.toFixed(6) }; }
   async function send(btn) {
-    if (busy) return; var m = JK.mapObj(), nm = st.name.trim().slice(0, 80), c = spot();
+    if (busy) return; var nm = st.name.trim().slice(0, 80), c = st.spot;
+    if (!c) { st.step = "spot"; x.hidden = false; render(); return; }
     if (!nm) { msg(T("Please enter the name.")); return; }
     if (!st.ph) { msg(T("Please add a photo of the outside.")); return; }
-    if (m.getZoom() + 1 < 16) { msg(T("Zoom in closer so the spot is exact.")); return; }
-    if (c.lat < 18 || c.lat > 54 || c.lng < 73 || c.lng > 146) { msg(T("This place is outside Japan, Korea and China.")); return; }
     var k = norm(nm);
     if (k && JK.places.list.some(function (o) { return Math.abs(o.lat - c.lat) < .0002 && Math.abs(o.lng - c.lng) < .0003 && [o.name, o.loc].some(function (v) { return norm(v) === k; }); })) { msg(T("This place is already on the map.")); return; }
     busy = true; btn.disabled = true; msg(T("Uploading photos…"));
