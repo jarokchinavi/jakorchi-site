@@ -1,16 +1,25 @@
 /* Jakorchi start: version number, fonts, and the self-reload when a new version is live. */
-const BUILD="2026-11-18.1";
+const BUILD="2026-11-18.2";
 window.JK = { build: BUILD, layerOpen: function () { return false; } };
 
 /* iPhone pinch gesture: off on every screen except the map (the map screen will handle its own pinch) */
 document.addEventListener("gesturestart", function (e) { if (!document.querySelector(".mapzoom")) e.preventDefault(); });
 
-/* Google Fonts stylesheet loads without blocking the first paint */
+/* Google Fonts stylesheet loads without blocking the first paint; the intro name shows once the serif font is there (or after 1.2 s by CSS) */
+var fnt = function () { document.documentElement.classList.add("fnt"); };
 document.querySelectorAll("link[data-font]").forEach(function (l) {
-  var on = function () { l.media = "all"; };
+  var on = function () { l.media = "all"; try { document.fonts.load('300 84px "Fraunces"', "Jakorchi").then(fnt, fnt); } catch (e) { fnt(); } };
   l.addEventListener("load", on);
   if (l.sheet) on();
 });
+
+/* Intro: only at app start, at least 2 s from the first paint, then a .25 s fade and gone (rules of the old app; CSS hides it after 4 s if this fails) */
+(function () {
+  var e = document.getElementById("splash"); if (!e) return;
+  requestAnimationFrame(function () { requestAnimationFrame(function () {
+    setTimeout(function () { e.classList.add("out"); setTimeout(function () { e.remove(); }, 260); }, 2000);
+  }); });
+})();
 
 /* New version live? Reload once (never while a popup is open, never in a loop). */
 function checkVersion() {

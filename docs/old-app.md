@@ -10,7 +10,7 @@ Read before map / list / card / filters / search / review screens. NOTE: the num
 - Only at app start (every launch), never between screens. Full-screen solid colour, painted at once from the HTML (no JS needed): logo, name, "日本 · 한국 · 中国". No animation except the fade-out (.25 s; none with reduced motion).
 - Visible at least 2 s counted from the first paint, then fades and is removed. Safety: a CSS timer hides it after 4 s even if the JS fails.
 - Page background and the phone's status-bar colour (`theme-color`) match the intro while it shows, then switch back to the theme.
-- New design (2026-11-17): owner picks 1 of 3 (A green panel · B same as the start page · C big mark); not built until picked.
+- New app: built 2026-11-18 as design B (owner pick): flat theme colour (cream / dark green), logo, big name, 日本 대한민국 中国, a short gold line, tagline at the bottom. Markup `#splash` in index.html, CSS in `css/home.css`, timing in `js/app.js` (2 s after the first paint, .25 s fade, then removed; CSS hides it after 4 s). The name shows once the serif font is loaded (or after .7 s). Same rules as above.
 
 ## Search + list
 - Normal match first; typo / spelling variants (`fold`, `near`, `fuzzyHit`; ramen/raamen) only with < 3 hits; no library · live while typing (350 ms pause)

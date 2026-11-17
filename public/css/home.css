@@ -42,6 +42,26 @@ html[dir="rtl"] .pa .go svg{transform:scaleX(-1)}
   .hero{padding-top:14px}.logo{width:72px}.hero h1{margin-top:14px;font-size:clamp(54px,18vw,68px)}.countries{margin-top:14px}.tagline{margin-top:12px;font-size:16px}
   .auth{padding-top:14px;padding-bottom:14px;gap:8px}.mebox{padding-top:14px;padding-bottom:14px}.btn{min-height:48px}
 }
+/* Intro (owner picked design B, 2026-11-18): only at app start; flat theme colour like the start page, so the next screen appears without a jump.
+   Painted at once from the HTML; hidden by js/app.js after 2 s (fade .25 s); this CSS timer hides it after 4 s even if the js fails. */
+#splash{position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .25s;animation:splx .01s 4s forwards}
+#splash.out{opacity:0;pointer-events:none}
+@keyframes splx{to{opacity:0;visibility:hidden;pointer-events:none}}
+#splash .spl{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 20px}
+#splash img{display:block;width:96px;height:96px;border-radius:24%}
+#splash .nm{display:block;font:300 clamp(60px,21.5vw,84px)/.9 "Fraunces",Georgia,"Times New Roman",serif;letter-spacing:-.05em;margin-top:26px;direction:ltr;opacity:0;transition:opacity .15s;animation:nmx 0s .7s forwards}
+#splash .nm .j{font-family:"Lora",Georgia,"Times New Roman",serif;font-weight:400}
+html.fnt #splash .nm{opacity:1;animation:none}
+@keyframes nmx{to{opacity:1}}
+#splash .cn{direction:ltr;display:flex;gap:22px;margin-top:22px;font-size:16px;font-weight:500;color:var(--mu)}
+#splash .cn [lang="ja"]{font-family:"Yu Gothic","Hiragino Sans","Noto Sans JP",sans-serif}
+#splash .cn [lang="ko"]{font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+#splash .cn [lang="zh"]{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif}
+#splash .rl{display:block;width:44px;height:2px;background:var(--gold);margin-top:26px}
+#splash .tg{position:absolute;left:40px;right:40px;bottom:calc(max(40px,env(safe-area-inset-bottom)) + 24px);text-align:center;font:400 15px/1.45 var(--sans);color:var(--mu);text-wrap:balance}
+html.wait #splash .tg{visibility:hidden}
+@media (prefers-reduced-motion:reduce){#splash,#splash .nm{transition:none}}
+@media (max-height:680px){#splash img{width:72px;height:72px}#splash .nm{margin-top:14px;font-size:clamp(54px,18vw,68px)}#splash .cn{margin-top:14px}#splash .rl{margin-top:16px}}
 html.wait .home{visibility:hidden;animation:jkshow 0s 1.2s forwards}
 @keyframes jkshow{to{visibility:visible}}
 
