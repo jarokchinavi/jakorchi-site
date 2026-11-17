@@ -5,6 +5,7 @@
 html.onmap,html.onmap body{overflow:hidden;height:100%;overscroll-behavior:none}
 .mapscr{position:fixed;inset:0;z-index:1;background:var(--bg)}
 .mapscr[hidden]{display:none}
+.mapscr.pre{visibility:hidden;pointer-events:none;z-index:-1} /* built in the background while the start page shows */
 #map.mapbox{position:absolute;inset:0;width:100%;height:100%;touch-action:none;z-index:0}
 .maplibregl-canvas:focus{outline:0}
 .maplibregl-ctrl-bottom-left{bottom:calc(max(22px,env(safe-area-inset-bottom)) + 66px)!important;left:14px}

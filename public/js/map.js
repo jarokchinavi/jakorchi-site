@@ -2,7 +2,7 @@
    The map starts the first time the map screen opens (the start page stays light and fast). JK.mapObj() = the MapLibre map or null.
    Zoom: up to 21 (classic numbers, MapLibre 20). + / - buttons and a quiet note ("Zoom in closer to see restaurants.") while places are hidden. */
 (function () {
-  var map = null, box = document.getElementById("map"), prof = document.getElementById("profBtn"), me = null, starting = false;
+  var map = null, box = document.getElementById("map"), prof = document.getElementById("profBtn"), me = null, starting = false, loaded = false, scr = document.getElementById("mapscr");
   var load = function (k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
   var isDark = function () { var t = document.documentElement.getAttribute("data-theme"); return t ? t === "dark" : window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches; };
   JK.mapObj = function () { return map; };
@@ -27,13 +27,31 @@
       var c = map.getCenter(); try { localStorage.setItem("jk_view", JSON.stringify({ lat: +c.lat.toFixed(5), lng: +c.lng.toFixed(5), z: +map.getZoom().toFixed(2) })); } catch (e) {}
     });
     map.on("click", function () { if (JK.peek.current()) JK.peek.close(); });
-    map.on("load", function () { var at = document.querySelector(".maplibregl-ctrl-attrib"); if (at) { at.classList.remove("maplibregl-compact-show"); at.removeAttribute("open"); } JK.places.want(); JK.pins.sync(); noteUpdate(); document.documentElement.classList.add("mapok"); });
+    map.on("load", function () {
+      var at = document.querySelector(".maplibregl-ctrl-attrib"); if (at) { at.classList.remove("maplibregl-compact-show"); at.removeAttribute("open"); }
+      loaded = true;
+      if (JK.screen === "map") activate(); else if (scr.classList.contains("pre")) { scr.classList.remove("pre"); scr.hidden = true; } /* prepared in the background: ready and waiting */
+    });
     if (JK.mapCode() === "ar") { try { maplibregl.setRTLTextPlugin("https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js", true); } catch (e) {} }
   }
   function start() {
     if (map || starting) return; starting = true;
-    JK.mapLib().then(function () { return JK.mapStyle(isDark()); }).then(create).catch(function () { starting = false; JK.toast(JK.i18n.T("Could not search. Please try again.")); });
+    JK.mapLib().then(function () { return JK.mapStyle(isDark()); }).then(create).catch(function () { starting = false; scr.classList.remove("pre"); if (JK.screen !== "map") scr.hidden = true; else JK.toast(JK.i18n.T("Could not search. Please try again.")); });
   }
+  /* the map is shown: load the places, draw the pins */
+  function activate() {
+    if (!map || !loaded || JK.screen !== "map") return;
+    scr.classList.remove("pre"); JK.places.want(); JK.pins.sync(); noteUpdate(); document.documentElement.classList.add("mapok");
+  }
+  /* A moment after the start page is up, the map is built in the background (invisible, no places loaded yet), so the Map button shows it at once.
+     Not on slow / data-saving connections; phones with little memory only get the map library + style ready. */
+  function prewarm() {
+    if (map || starting || JK.screen === "map" || document.hidden) return;
+    var cn = navigator.connection; if (cn && (cn.saveData || /(^|-)2g$/.test(cn.effectiveType || ""))) return;
+    if (navigator.deviceMemory && navigator.deviceMemory < 3) { JK.mapLib().then(function () { return JK.mapStyle(isDark()); }).catch(function () {}); return; }
+    scr.hidden = false; scr.classList.add("pre"); start();
+  }
+  setTimeout(function () { (window.requestIdleCallback || function (f) { setTimeout(f, 0); })(prewarm, { timeout: 1500 }); }, 400); /* start page is already painted */
   function restyle() { if (map) JK.mapStyle(isDark()).then(function (st) { map.setStyle(st, { diff: false }); }); }
   function labels() {
     if (!map || !map.getStyle()) return; var e = JK.labelExpr();
@@ -55,7 +73,7 @@
     else { prof.className = "prof out"; prof.innerHTML = JK.ic("user", 20); prof.removeAttribute("data-profile"); prof.setAttribute("data-soon", "Sign in"); prof.setAttribute("aria-label", JK.i18n.T("Sign in")); }
   }
   document.getElementById("locBtn").addEventListener("click", locate);
-  document.addEventListener("jk:screen", function (e) { if (e.detail === "map") { start(); if (map) setTimeout(function () { map.resize(); JK.pins.soon(); }, 30); } });
+  document.addEventListener("jk:screen", function (e) { if (e.detail === "map") { scr.classList.remove("pre"); start(); if (map) { map.resize(); activate(); setTimeout(function () { map.resize(); JK.pins.soon(); }, 30); } } });
   document.addEventListener("jk:theme", restyle);
   document.addEventListener("jk:lang", function () { labels(); profile(); });
   document.addEventListener("jk:maplet", labels);

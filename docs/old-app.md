@@ -6,6 +6,12 @@ Read before map / list / card / filters / search / review screens. NOTE: the num
 - Bubbles at zoom ≤ 14 (`syncCl`, `clIcon`): cell 140 px at ≤13, 112 px at 14 · max 24 on phone, 40 on PC · tap = zoom in 2 · card open = bubbles hidden · zoom guide below zoom 13
 - Single pins from zoom 15 (15 max ~60, 16 ~95; `pinScore` rating > info; tiers in `syncMarkers`) · redraw at most every 200 ms (`syncSoon`) · visitor/team places always own pin · squares load nearest to middle first
 
+## Intro (splash) – old rules, to keep
+- Only at app start (every launch), never between screens. Full-screen solid colour, painted at once from the HTML (no JS needed): logo, name, "日本 · 한국 · 中国". No animation except the fade-out (.25 s; none with reduced motion).
+- Visible at least 2 s counted from the first paint, then fades and is removed. Safety: a CSS timer hides it after 4 s even if the JS fails.
+- Page background and the phone's status-bar colour (`theme-color`) match the intro while it shows, then switch back to the theme.
+- New design (2026-11-17): owner picks 1 of 3 (A green panel · B same as the start page · C big mark); not built until picked.
+
 ## Search + list
 - Normal match first; typo / spelling variants (`fold`, `near`, `fuzzyHit`; ramen/raamen) only with < 3 hits; no library · live while typing (350 ms pause)
 - List = places on screen, nearest first (to you, else map middle); typed search or "Top rated" sorts by rating · status pill only while loading or on a problem
