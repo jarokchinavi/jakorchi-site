@@ -1,5 +1,5 @@
 # OLD app: behaviour + fixes to keep (look and button places are new; rules below stay)
-Read before map / list / card / filters / search / review screens. Code: tag `old-app-final` (`git show old-app-final:public/js/app.js`; also `js/more.js`, `js/icons.js`, `css/app.css`). Vanilla JS, no build, Leaflet from cdnjs with integrity.
+Read before map / list / card / filters / search / review screens. NOTE: the numbers below are the OLD app's; where the new app differs (pin caps, stack sizes, zoom 11 with a filter, List rules) `docs/app.md` wins. Code: tag `old-app-final` (`git show old-app-final:public/js/app.js`; also `js/more.js`, `js/icons.js`, `css/app.css`). Vanilla JS, no build, Leaflet from cdnjs with integrity.
 
 ## Map
 - Zoom up to 21 (raster backup stretches from 19) · OpenFreeMap vector style; labels set to app language BEFORE drawing (`styleLang`), style kept 7 days; plain OSM tiles only as backup after 6 s

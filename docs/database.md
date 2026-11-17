@@ -17,16 +17,16 @@ Setup files: `database/01…NN-*.sql` (all applied, in this order). New change =
 - views security_invoker · checks in schema private · public RPC: editor_check, editor_add_place
 - after every change: get_advisors security = 0
 
-## Editor mode
+## Editor mode (database side is ready; the NEW app has no editor screen yet)
 - owner sets the code once in the SQL Editor: select private.set_editor_code('…'); · Claude never sees it
-- app: menu → Editor mode → code → added restaurants are verified at once
+- old app: `#editor` at the end of the address → menu → Editor mode → code → added restaurants are verified at once (to rebuild)
 - 10 wrong tries = locked 1 hour
 - team place (only real info from the owner): insert into public.new_places (name, lat, lng, cat, cuisine, halal, vegan, vegetarian, photo, device, verified) values (…, 'jakorchi-editor', true)
 
 ## Spam limits
 - per phone / day: reports 120 · reviews 15 · photo reports 60 · new places 5 · votes 60 · menu photos 20 · owner info 5 · info reports 60
 - whole app (14-higher-limits.sql, for ~1000 visitors at once): reviews 1000/h 5000/d · reports 10000/h 100000/d · photo reports 1000/h · uploads 300/h 1500/d 2000 total (free storage 1 GB) · new places 150/h 750/d · votes 3000/h · menu 300/h · owner info 250/h 1500/d · info reports 1500/h
-- errors: 'busy, try again later' = whole app full · 'too many … today' = phone limit · app shows a clear text for both (`sbWhy` was in the old js/app.js, tag `old-app-final`; comes back with the review screens)
+- errors: 'busy, try again later' = whole app full · 'too many … today' = phone limit · the app shows a clear text for both (`JK.sb.why` in `js/sb.js`)
 
 - 12-kyoto-halal.sql (applied): 5 team places in Kyoto (GYUMON Gion / Shimogyo / Nakagyo, HALRA, WAGYUZA), halal, verified. Names + coordinates from the owner; GYUMON Shimogyo not yet confirmed on a directory.
 - 13-no-duplicate-places.sql (applied): new place refused when the same name (lower case, no spaces/punctuation) is within 15 m. The app checks the same against map places first.

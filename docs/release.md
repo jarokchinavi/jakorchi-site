@@ -5,6 +5,8 @@
 4. Live check: `/version.json` = new · files 200 · no console errors · CSP header present · `/old/` not served
 5. Backup: `robocopy public\ → Desktop jakorchi-site /E` (never /MIR: no deleting). Tell owner the version (Settings → Version)
 
+If the Cloudflare build fails with no reason (check on GitHub: commit > Checks, or the Workers Builds log in the dashboard, owner login): push an empty commit to retry once; still failing → rollback.
+
 ## Rollback
 `git revert`, push, check `/version.json`. Tell owner: what happened, what was undone, what next. Then find cause.
 

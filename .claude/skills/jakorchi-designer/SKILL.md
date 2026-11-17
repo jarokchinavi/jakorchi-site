@@ -8,10 +8,9 @@ description: Use only when designing a new or changed Jakorchi screen or choosin
 Process + current design: `docs/app.md`.
 
 ## Colors
-- Palette is NOT fixed. Propose the best looking, professional one: 2-3 colors, 60-30-10 (60 base, 30 text/surfaces, 10 accent).
-- Each option: hex codes, light + dark, contrast check (text 4.5:1). Tints of the same colors only; no 4th hue.
+- Palette is FIXED (owner picked matcha green / cream / gold, 2026-11-13; hex codes in `docs/app.md`). Change it only after the owner asks.
+- A new look for a screen: 2-3 options in that palette, light + dark, contrast check (text 4.5:1). Tints of the same colors only; no 4th hue (map colours are the one exception: blue water, green parks).
 - Fit a food guide: warm, calm, trustworthy.
-- Chosen palette -> replace the design lines in `docs/app.md` (one palette only).
 
 ## No AI look
 - No gradients, glass/blur, textures, grain, patterns.
