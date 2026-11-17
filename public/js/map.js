@@ -23,7 +23,7 @@
     /* while you pinch or drag nothing is rebuilt; pins, stacks and data wait until the map is calm (smooth, no flicker) */
     map.on("zoom", noteUpdate);
     map.on("moveend", function () {
-      noteUpdate(); setTimeout(function () { JK.places.want(); }, 120); setTimeout(function () { JK.pins.soon(); }, 60);
+      noteUpdate(); JK.filters.follow(); setTimeout(function () { JK.places.want(); }, 120); setTimeout(function () { JK.pins.soon(); }, 60);
       var c = map.getCenter(); try { localStorage.setItem("jk_view", JSON.stringify({ lat: +c.lat.toFixed(5), lng: +c.lng.toFixed(5), z: +map.getZoom().toFixed(2) })); } catch (e) {}
     });
     map.on("click", function () { if (JK.peek.current()) JK.peek.close(); });

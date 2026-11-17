@@ -5,9 +5,14 @@
   var T = function (k) { return JK.i18n.T(k); }, esc = JK.ui.esc;
   var PRC = { Japan: { s: "¥", b: [1500, 4000, 10000] }, Korea: { s: "₩", b: [13000, 30000, 80000] }, China: { s: "¥", b: [50, 150, 400] } };
   var nf = function (n) { return Math.round(n).toLocaleString("en-US"); }, P = function (c) { return PRC[c] || PRC.Japan; };
+  /* money the way people write it there: with the app in the country's own language 1,500円 · 13,000원 · 50元, otherwise ¥1,500 · ₩13,000 · ¥50 */
+  var LOCAL = { Japan: ["ja", "円"], Korea: ["ko", "원"], China: ["zh", "元"] };
+  function style(c) { var l = LOCAL[c] || LOCAL.Japan; return JK.i18n.get() === l[0] ? { pre: "", post: l[1] } : { pre: P(c).s, post: "" }; }
   JK.price = {
     sym: function (t, c) { return P(c).s.repeat(t); },
-    range: function (t, c) { var p = P(c), b = p.b; return t === 1 ? T("under {0}").replace("{0}", p.s + nf(b[0])) : t === 4 ? p.s + nf(b[2]) + "+" : p.s + nf(b[t - 2]) + "–" + nf(b[t - 1]); }
+    bounds: function (c) { return P(c).b.slice(); },
+    fmt: function (n, c) { var s = style(c); return s.pre + nf(n) + s.post; },
+    range: function (t, c) { var b = P(c).b, s = style(c); return t === 1 ? T("under {0}").replace("{0}", s.pre + nf(b[0]) + s.post) : t === 4 ? s.pre + nf(b[2]) + "+" + s.post : s.pre + nf(b[t - 2]) + "–" + nf(b[t - 1]) + s.post; }
   };
   var sheet = document.querySelector("#revSheet .sheet"), cur = null, st = { stars: 0, price: 0, photos: [] }, busy = false;
   var starSvg = function (on, s) { return '<svg viewBox="0 0 24 24" style="width:' + s + 'px;height:' + s + 'px" class="st' + (on ? " on" : "") + '"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>'; };
