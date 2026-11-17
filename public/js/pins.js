@@ -38,7 +38,7 @@
         [r.lng, r.lat], near ? "bottom" : "center", isel ? 500 : 400, function () { JK.peek.open(r); });
     });
     var vis = [], cls = [];
-    if (z >= 13) {
+    if (z >= (JK.filters.far() ? 11 : 13)) { /* a filter on = pins show from further away (zoom 11) */
       var cand = [], L = JK.places.list;
       for (var i = 0; i < L.length; i++) { var r = L[i]; if (r.lat < s || r.lat > n || r.lng < w || r.lng > e || sv.has(r.id)) continue; if (JK.filters.pass(r)) cand.push(r); }
       var CL = z < 15, tier = [z < 14 ? 170 : 140, 0]; /* big cells = few, calm stacks */
@@ -48,7 +48,7 @@
       if (JK.filters.active() && JK.filters.total() <= 60) vis = cand;
       else if (CL) {
         var g = new Map();
-        cand.forEach(function (r) { var k = key(r), o = g.get(k); if (o) { o.n++; o.la += r.lat; o.ln += r.lng; } else g.set(k, { n: 1, la: r.lat, ln: r.lng, r: r }); });
+        cand.forEach(function (r) { var k = key(r), o = g.get(k), f = JK.pinui.flags(r); if (o) { o.n++; o.la += r.lat; o.ln += r.lng; if (f.h) o.h = 1; if (f.v) o.v = 1; } else g.set(k, { n: 1, la: r.lat, ln: r.lng, r: r, h: f.h ? 1 : 0, v: f.v ? 1 : 0 }); });
         var ar = Array.from(g.entries()), CMAX = innerWidth > 700 ? 14 : 8, singles = [];
         /* calm: only a few stacks (8 on a phone, 14 on a big screen), nearest to the middle first, with room between them;
            lone places wait until zoom 15 (only shown when there are hardly any stacks, so the map is never empty) */
@@ -58,7 +58,7 @@
           if (o.n < 2) { singles.push(o.r); return; }
           if (cls.length >= CMAX) return;
           var px = map.project([o.ln / o.n, o.la / o.n]); if (tc.some(function (t) { return Math.abs(t[0] - px.x) < 150 && Math.abs(t[1] - px.y) < 70; })) return; tc.push([px.x, px.y]);
-          cls.push([e[1][0], o.la / o.n, o.ln / o.n, o.n]);
+          cls.push([e[1][0], o.la / o.n, o.ln / o.n, o.n, o.h, o.v]);
         });
         if (cls.length < 3) singles.slice(0, 6 - cls.length).forEach(function (r) { vis.push(r); });
         ar = [];
@@ -72,12 +72,12 @@
         cand.sort(function (a, b) { return score(b) - score(a) || d2(a) - d2(b); });
         for (var q = 0; q < cand.length && vis.length < cap; q++) { var px = map.project([cand[q].lng, cand[q].lat]); if (near(px)) continue; taken.push([px.x, px.y]); vis.push(cand[q]); }
       }      vis.forEach(function (r) {
-        var a = JK.ratings.avg(r.id), isel = sel === r.id; keepP[r.id] = 1;
-        put(markers, r.id, function () { return JK.pinui.pill(r, { rating: a, sel: isel }); }, "p" + (a != null ? a.toFixed(1) : "") + (isel ? "s" : ""), [r.lng, r.lat], "bottom", isel ? 500 : 10, function () { JK.peek.open(r); });
+        var a = JK.ratings.avg(r.id), isel = sel === r.id, fl = JK.pinui.flags(r); keepP[r.id] = 1;
+        put(markers, r.id, function () { return JK.pinui.pill(r, { rating: a, sel: isel }); }, "p" + (a != null ? a.toFixed(1) : "") + (isel ? "s" : "") + JK.pinui.kind(r) + (fl.h ? "h" : "") + (fl.v ? "v" : ""), [r.lng, r.lat], "bottom", isel ? 500 : 10, function () { JK.peek.open(r); });
       });
       cls.forEach(function (x) {
         var id = Math.round(z) + ":" + x[0]; keepC[id] = 1;
-        put(clMk, id, function () { return JK.pinui.cluster(x[3]); }, String(x[3]), [x[2], x[1]], "center", 5, function () { map.easeTo({ center: [x[2], x[1]], zoom: Math.min(mz + 2, 16) }); });
+        put(clMk, id, function () { return JK.pinui.cluster(x[3], x[4], x[5]); }, x[3] + "|" + x[4] + "|" + x[5], [x[2], x[1]], "center", 5, function () { map.easeTo({ center: [x[2], x[1]], zoom: Math.min(mz + 2, 16) }); });
       });
       JK.ratings.want(vis.map(function (r) { return r.id; }));
     }

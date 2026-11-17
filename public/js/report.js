@@ -18,30 +18,27 @@
   var fchip = function (f, on) { return '<button type="button" class="chip' + (on ? " on" : "") + '" data-food="' + f[0] + '">' + JK.ic(FI[f[0]] || "restaurant", 18) + esc(JK.food.label(f[0])) + "</button>"; };
   /* a typing field (small typing mistakes are fine, any language); the swipe list below shows until you start typing, then only the matches show */
   function food() {
-    if (voted(cur.id)) return '<p class="rng">' + esc(T("You already suggested a food type for this place.")) + "</p>";
+    var lab = '<span>' + esc(T("What kind of food is it?")) + "</span>";
+    if (voted(cur.id)) return '<div class="qb">' + lab + '<p class="rng">' + esc(T("You already suggested a food type for this place.")) + "</p></div>";
     JK.food.ready();
-    return '<label class="field">' + JK.ic("search", 20) + '<input id="foodIn" type="search" enterkeyhint="done" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + esc(foodText) + '" placeholder="' + esc(T("Type a food or dish")) + '" aria-label="' + esc(T("Type a food or dish")) + '"></label>' +
-      '<div class="fsug" id="foodSug"></div><div class="fswipe" id="foodDef" role="group" aria-label="' + esc(T("What kind of food is it?")) + '">' + FT.map(function (f) { return fchip(f, foodSel === f[0]); }).join("") + '</div><p class="rng">' + esc(T("Pick one. The answers of visitors decide automatically.")) + "</p>";
+    return '<div class="qb">' + lab + '<label class="field">' + JK.ic("search", 20) + '<input id="foodIn" type="search" enterkeyhint="done" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + esc(foodText) + '" placeholder="' + esc(T("Type a food or dish")) + '" aria-label="' + esc(T("Type a food or dish")) + '"></label><div class="fsug" id="foodSug"></div></div>';
   }
+  /* empty until you type: only the matching foods show (no long list) */
   function foodDraw() {
-    var inp = document.getElementById("foodIn"), sug = document.getElementById("foodSug"), def = document.getElementById("foodDef"); if (!inp || !sug) return;
-    var v = inp.value.trim(); foodText = inp.value; def.hidden = !!v;
-    def.querySelectorAll("[data-food]").forEach(function (x) { x.classList.toggle("on", x.dataset.food === foodSel); });
+    var inp = document.getElementById("foodIn"), sug = document.getElementById("foodSug"); if (!inp || !sug) return;
+    var v = inp.value.trim(); foodText = inp.value;
     if (!v) { sug.innerHTML = ""; return; }
-    var l = JK.food.suggest(v, 8);
+    var l = JK.food.suggest(v, 6);
     sug.innerHTML = l.length ? l.map(function (s) { return fchip(FT.filter(function (f) { return f[0] === s; })[0], foodSel === s); }).join("") : '<p class="rng">' + esc(T("Nothing found.")) + "</p>";
   }
   function render() {
     var title = focus === "halal" ? T("Halal") : focus === "vegetarian" ? T("Vegan / vegetarian") : focus === "food" ? T("What kind of food is it?") : T("Report wrong info"), h = "";
-    if (!focus || focus === "halal" || focus === "vegetarian") {
-      h += '<div class="fh" style="margin-top:4px">' + esc(T("Does this place have…")) + "</div>";
-      if (!focus || focus === "halal") h += row("halal", T("Halal"));
-      if (!focus || focus === "vegetarian") h += row("vegetarian", T("Vegan / vegetarian"));
-    }
-    if (!focus || focus === "food") h += '<div class="fh">' + esc(T("What kind of food is it?")) + "</div>" + food();
-    if (!focus) h += '<div class="fh">' + esc(T("Closed for good, or not here")) + "</div>" + row("closed", T("Closed"));
+    if (!focus || focus === "halal") h += row("halal", T("Halal"));
+    if (!focus || focus === "vegetarian") h += row("vegetarian", T("Vegan / vegetarian"));
+    if (!focus || focus === "food") h += food();
+    if (!focus) h += row("closed", T("Closed for good, or not here"));
     sheet.innerHTML = '<div class="handle"></div><div class="fhead"><h2>' + esc(title) + '</h2><button type="button" class="round sm" data-sheet-close aria-label="' + esc(T("Close")) + '">' + JK.ic("close", 20) + "</button></div>" +
-      '<p class="sn">' + esc(JK.places.dname(cur)) + "</p>" + h + '<p class="rng">' + esc(T("Reports from visitors are not checked.")) + '</p><button type="button" class="btn" data-rp-send style="margin-top:14px">' + esc(T("Send report")) + "</button>";
+      '<p class="sn">' + esc(JK.places.dname(cur)) + "</p>" + h + '<p class="rng" style="margin-top:18px">' + esc(T("Reports from visitors are not checked.")) + '</p><button type="button" class="btn" data-rp-send style="margin-top:10px">' + esc(T("Send report")) + "</button>";
     foodDraw();
   }
   function open(p, f) { cur = p; ans = {}; foodSel = ""; foodText = ""; focus = f || ""; render(); JK.sheet.open("repSheet"); }

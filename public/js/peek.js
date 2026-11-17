@@ -28,7 +28,7 @@
   function acts(p) {
     var saved = JK.lists.of(p.id).length > 0, a = function (k, ic, label, on, main) { return '<button type="button" class="qa' + (main ? " main" : "") + (on ? " on" : "") + '" data-act="' + k + '"><i>' + JK.ic(ic, 22) + "</i><span>" + esc(label) + "</span></button>"; };
     return '<div class="acts">' + a("nav", "nav", T("Navigate"), 0, 1) + a("save", saved ? "check" : "plus", saved ? T("Saved") : T("Save to a list"), saved) + a("rev", "star", T("Write a review")) +
-      a("food", "restaurant", T("Food type")) + a("share", "share", T("Share")) + a("rep", "flag", T("Report wrong info")) + "</div>";
+      a("share", "share", T("Share")) + a("rep", "flag", T("Report wrong info")) + "</div>";
   }
   /* the essentials are always shown (a dash when we do not have it yet) */
   function details(p) {
@@ -88,14 +88,13 @@
     else if (b.dataset.act === "save") JK.saveOpen(cur);
     else if (b.dataset.act === "rev") JK.reviews.open(cur);
     else if (b.dataset.act === "rep") JK.report.open(cur, "");
-    else if (b.dataset.act === "food") JK.report.open(cur, "food");
     else if (b.dataset.act === "share") share(cur);
     else if (b.dataset.act === "mphoto") document.getElementById("mpFile").click();
   });
   el.addEventListener("change", function (e) { if (e.target.id === "mpFile" && e.target.files[0]) { var f = e.target.files[0]; e.target.value = ""; addMenuPhoto(f); } });
   /* swipe the handle: up = full, down = small, down again = close */
   var y0 = null;
-  el.addEventListener("touchstart", function (e) { if (e.target.closest(".handle")) y0 = e.touches[0].clientY; }, { passive: true });
+  el.addEventListener("touchstart", function (e) { y0 = null; if (e.touches.length === 1 && (e.target.closest(".handle") || e.touches[0].clientY - el.getBoundingClientRect().top <= 72)) y0 = e.touches[0].clientY; }, { passive: true });
   el.addEventListener("touchend", function (e) { if (y0 === null) return; var d = e.changedTouches[0].clientY - y0; y0 = null; if (d < -40) el.classList.add("full"); else if (d > 40) { if (el.classList.contains("full")) el.classList.remove("full"); else close(); } });
   document.addEventListener("jk:review", function (e) { if (cur && e.detail === cur.id) { revs = null; JK.reviews.load(cur.id).then(function (a) { revs = a; render(); }).catch(function () {}); } });
   document.addEventListener("jk:report", function (e) { if (cur && e.detail === cur.id) JK.report.flags(cur.id).then(function (c) { fl = c; render(); }).catch(function () {}); });

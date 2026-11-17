@@ -2,16 +2,21 @@
    JK.filters: pass(place) · active() · total() · state · open() · setList(id) · savedPass(place). Event "jk:filters". */
 (function () {
   var T = function (k) { return JK.i18n.T(k); }, esc = JK.ui.esc;
-  var S = { cat: "", country: "", halal: false, veg: false, fav: false, cu: "", food: "", alt: [], list: "" };
+  var S = { cat: "", country: "", halal: false, veg: false, fav: false, cu: "", food: "", alt: [], list: "", top: false, price: "" };
+  var PRICE = { cheap: [1], mid: [2, 3], high: [4] }; /* price levels from visitors' reviews: 1 cheapest .. 4 most expensive */
   var JP = /\b(japanese|sushi|ramen|udon|soba|tempura|tonkatsu|katsu|izakaya|yakitori|okonomiyaki|takoyaki|teppanyaki|gyudon|donburi|kaiseki|omakase|shabu)/i;
   var KR = /^(korean|bunsik|bibimbap|bulgogi|kimchi|gukbap|naengmyeon|tteokbokki|samgyeopsal|galbi|jjigae|jjimdak|kimbap|gimbap|grilled meat \(bbq\))/i;
   var CN = /^(chinese|cantonese|sichuan|szechuan|hunan|shanghai|dim sum|dumplings?|hot pot|mala|lamb skewers|roast duck|peking|wok)/i;
   var RE = { jp: JP, kr: KR, cn: CN };
   var CATS = [["restaurant", "Restaurants"], ["coffee", "Coffee & tea"], ["dessert", "Desserts & bakery"], ["drinks", "Drinks & bars"], ["fast", "Street food & fast food"]];
   var cache = null, foldFn = function (s) { return JK.search ? JK.search.fold(s) : String(s).toLowerCase(); };
-  function active() { return !!(S.cat || S.country || S.halal || S.veg || S.fav || S.cu || S.food || S.list); }
+  function active() { return !!(S.cat || S.country || S.halal || S.veg || S.fav || S.cu || S.food || S.list || S.top || S.price); }
+  /* a filter that picks places from the data (not just saved ones): then pins are shown from further away (zoom 11 instead of 13) */
+  function far() { return !!(S.cat || S.country || S.halal || S.veg || S.cu || S.food || S.top || S.price); }
   function pass(r) {
     if (S.fav || S.list) return false; /* only saved places show then (saved places always have their own marker) */
+    if (S.top) { var a = JK.ratings.avg(r.id); if (a == null || a < 4) return false; }
+    if (S.price) { var pr = JK.ratings.price(r.id); if (!pr || PRICE[S.price].indexOf(pr) < 0) return false; }
     if (S.cat && r.cat !== S.cat) return false;
     if (S.country && r.country !== S.country) return false;
     if (S.halal && !(r.halal || r.halalL)) return false;
@@ -30,7 +35,7 @@
   function changed() { cache = null; mark(); document.dispatchEvent(new Event("jk:filters")); }
   var catsEl = document.getElementById("cats"), btn = document.getElementById("filtBtn");
   function mark() {
-    btn.classList.toggle("on", !!(S.country || S.halal || S.veg || S.fav || S.cu || S.food));
+    btn.classList.toggle("on", !!(S.country || S.halal || S.veg || S.fav || S.cu || S.food || S.top || S.price));
     var listChip = S.list ? '<button type="button" class="chip on" data-list-off>' + esc(JK.lists.name(JK.lists.all().filter(function (l) { return l.id === S.list; })[0] || { d: "" })) + JK.ic("close", 16) + "</button>" : "";
     catsEl.innerHTML = listChip + CATS.map(function (c) { return '<button type="button" class="chip' + (S.cat === c[0] ? " on" : "") + '" data-cat="' + c[0] + '">' + JK.ic(c[0], 20) + esc(T(c[1])) + "</button>"; }).join("");
   }
@@ -40,9 +45,11 @@
       '<div class="fh">' + esc(T("Country")) + '</div><div class="frow">' + chip(!S.country, 'data-country=""', "All", "globe") + chip(S.country === "Korea", 'data-country="Korea"', "Korea") + chip(S.country === "Japan", 'data-country="Japan"', "Japan") + chip(S.country === "China", 'data-country="China"', "China") + "</div>" +
       '<div class="fh">' + esc(T("Jump to a city")) + '</div><label class="field">' + JK.ic("city", 20) + '<input id="cityQ" type="search" enterkeyhint="search" placeholder="' + esc(T("Search a city in Japan, Korea or China")) + '" aria-label="' + esc(T("Find a city")) + '"></label>' +
       '<div class="fh">' + esc(T("Diet")) + '</div><div class="frow">' + chip(S.halal, "data-halal", "Halal", "halal") + chip(S.veg, "data-veg", "Vegan / vegetarian", "leaf") + "</div>" +
-      '<div class="fh">' + esc(T("Menu and favorites")) + '</div><div class="frow">' + chip(S.fav, "data-fav", "Favorites", "heart") + "</div>" +
-      '<div class="fh">' + esc(T("Details")) + '</div><label class="field">' + JK.ic("restaurant", 20) + '<input id="foodQ" type="search" enterkeyhint="search" value="' + esc(S.food) + '" placeholder="' + esc(T("Type a food or dish")) + '" aria-label="' + esc(T("Type a food or dish")) + '" autocomplete="off" autocapitalize="off" spellcheck="false"></label>' +
+      '<div class="fh">' + esc(T("Menu and favorites")) + '</div><div class="frow">' + chip(S.fav, "data-fav", "Favorites", "heart") + chip(S.top, "data-top", "Top rated", "star") + '</div><div class="fdiv"></div>' +
+      '<div class="fh" style="margin-top:0">' + esc(T("Details")) + '</div><label class="field">' + JK.ic("restaurant", 20) + '<input id="foodQ" type="search" enterkeyhint="search" value="' + esc(S.food) + '" placeholder="' + esc(T("Type a food or dish")) + '" aria-label="' + esc(T("Type a food or dish")) + '" autocomplete="off" autocapitalize="off" spellcheck="false"></label>' +
       '<div class="fsug" id="foodSug2"></div><div class="frow" id="cuRow" style="margin-top:8px"' + (S.food ? " hidden" : "") + ">" + chip(S.cu === "jp", 'data-cu="jp"', "Japanese food", "jp") + chip(S.cu === "kr", 'data-cu="kr"', "Korean food", "kr") + chip(S.cu === "cn", 'data-cu="cn"', "Chinese food", "cn") + "</div>" +
+      '<div class="fh">' + esc(T("Price per person")) + '</div><div class="frow">' + chip(S.price === "cheap", 'data-price="cheap"', "Cheap", "coin") + chip(S.price === "mid", 'data-price="mid"', "Mid", "coin") + chip(S.price === "high", 'data-price="high"', "High", "coin") + "</div>" +
+      (S.price || S.top ? '<p class="rng">' + esc(T("Prices come from visitors' reviews. While this is set, places without a price are hidden.")) + "</p>" : "") +
       '<button type="button" class="btn" data-sheet-close style="margin-top:18px">' + esc(T("Show places")) + "</button>";
     document.querySelector("#filtSheet .sheet").innerHTML = h; foodDraw();
   }
@@ -57,8 +64,10 @@
       else if (b.hasAttribute("data-halal")) S.halal = !S.halal;
       else if (b.hasAttribute("data-veg")) S.veg = !S.veg;
       else if (b.hasAttribute("data-fav")) S.fav = !S.fav;
+      else if (b.hasAttribute("data-top")) { S.top = !S.top; if (S.top) JK.ratings.all(); }
+      else if (b.dataset.price) { S.price = S.price === b.dataset.price ? "" : b.dataset.price; if (S.price) JK.ratings.all(); }
       else if (b.dataset.cu) S.cu = S.cu === b.dataset.cu ? "" : b.dataset.cu;
-      else if (b.hasAttribute("data-f-reset")) { S.country = ""; S.halal = S.veg = S.fav = false; S.cu = S.food = ""; S.alt = []; }
+      else if (b.hasAttribute("data-f-reset")) { S.country = ""; S.halal = S.veg = S.fav = S.top = false; S.cu = S.food = S.price = ""; S.alt = []; }
       else if (b.dataset.fk) { S.food = JK.food.label(b.dataset.fk); S.alt = JK.food.alt(S.food).concat(b.dataset.fk); }
       else return;
       render(); changed();
@@ -80,7 +89,8 @@
   document.addEventListener("keydown", function (e) { if (e.key === "Enter" && e.target.id === "cityQ") { e.preventDefault(); JK.search.city(e.target.value.trim()); JK.sheet.close(); } });
   function input() {}
   document.addEventListener("jk:lang", mark);
-  JK.filters = { state: S, pass: pass, savedPass: savedPass, active: active, total: total, open: function () { render(); JK.sheet.open("filtSheet"); },
+  document.addEventListener("jk:ratings", function () { if (S.top || S.price) cache = null; });
+  JK.filters = { state: S, pass: pass, savedPass: savedPass, active: active, far: far, total: total, open: function () { render(); JK.sheet.open("filtSheet"); },
     setList: function (id) { S.list = id; changed(); }, redraw: mark,
     setFood: function (slug) { S.food = JK.food.label(slug); S.alt = JK.food.alt(S.food).concat(slug); changed(); JK.toast(S.food); } };
   document.addEventListener("jk:places", function () { cache = null; });

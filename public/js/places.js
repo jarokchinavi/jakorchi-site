@@ -45,13 +45,13 @@
   function want() {
     var map = JK.mapObj(); if (!map) return;
     ready.then(function () {
-      var lz = map.getZoom() + 1; if (lz < 13) return;
+      var lz = map.getZoom() + 1, far = JK.filters && JK.filters.far(); if (lz < (far ? 11 : 13)) return; /* a filter on = places load from further away */
       var b = map.getBounds(), c = b.getCenter(); if (c.lat < 18 || c.lat > 54 || c.lng < 73 || c.lng > 146) return;
       var x0 = tx(b.getWest(), Z), x1 = tx(b.getEast(), Z), y0 = ty(b.getNorth(), Z), y1 = ty(b.getSouth(), Z), ts = [];
       for (var x = x0; x <= x1; x++) for (var y = y0; y <= y1; y++) ts.push([x, y]);
       var cx = tx(c.lng, Z), cy = ty(c.lat, Z);
       ts.sort(function (p, q) { return (Math.pow(p[0] - cx, 2) + Math.pow(p[1] - cy, 2)) - (Math.pow(q[0] - cx, 2) + Math.pow(q[1] - cy, 2)); });
-      ts = ts.slice(0, innerWidth > 700 ? 9 : 6);
+      ts = ts.slice(0, (far && lz < 13 ? 1.5 : 1) * (innerWidth > 700 ? 9 : 6));
       var add = function (k) { if (!done.has(k) && queue.indexOf(k) < 0) queue.push(k); }, n = 1 << (SZ - Z);
       ts.forEach(function (t) {
         var x = t[0], y = t[1];
@@ -69,5 +69,6 @@
     return (p.nm && p.nm[l]) || ((l === "ja" || l === "ko" || l === "zh") && p.loc) || p.name;
   }
   function localName(p) { return p.loc || p.name; }
+  document.addEventListener("jk:filters", function () { JK.places.want(); });
   JK.places = { list: list, get: function (id) { return byId.get(id); }, add: function (p) { if (p && !byId.has(p.id)) { byId.set(p.id, p); list.push(p); } }, want: function () { clearTimeout(timer); timer = setTimeout(want, 500); }, dname: dname, localName: localName };
 })();

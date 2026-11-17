@@ -1,30 +1,33 @@
-/* The map screen: map, zoom ring, "my location", profile circle in the search bar, light/dark map, map language.
+/* The map screen: map, "my location", profile circle in the search bar, light/dark map, map language.
    The map starts the first time the map screen opens (the start page stays light and fast). JK.mapObj() = the MapLibre map or null.
-   Zoom: up to 21 (classic numbers, MapLibre 20). Below zoom 13 the zoom ring shows; tap it to zoom in. */
+   Zoom: up to 21 (classic numbers, MapLibre 20). + / - buttons and a quiet note ("Zoom in closer to see restaurants.") while places are hidden. */
 (function () {
-  var map = null, box = document.getElementById("map"), ring = document.getElementById("zring"), prof = document.getElementById("profBtn"), me = null, starting = false;
+  var map = null, box = document.getElementById("map"), prof = document.getElementById("profBtn"), me = null, starting = false;
   var load = function (k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
   var isDark = function () { var t = document.documentElement.getAttribute("data-theme"); return t ? t === "dark" : window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches; };
   JK.mapObj = function () { return map; };
 
-  /* the circle fades out smoothly while you zoom in (full below classic zoom 11.4, gone at 13); it never blocks a pinch (CSS: only the "Zoom in" label takes taps) */
-  function ringUpdate() {
-    var f = map ? Math.max(0, Math.min(1, (13 - (map.getZoom() + 1)) / 1.6)) : 0;
-    ring.hidden = f <= 0.02; ring.style.opacity = f.toFixed(2); ring.classList.toggle("off", f < 0.4);
-  }
+  /* the quiet note shows while places are hidden (zoomed out; with a filter on, places show from zoom 11) */
+  var note = document.getElementById("znote");
+  function noteUpdate() { if (map) note.classList.toggle("on", map.getZoom() + 1 < (JK.filters && JK.filters.far() ? 11 : 13)); }
+  document.getElementById("zstep").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-zs]"); if (!b || !map) return;
+    if (b.dataset.zs === "in") map.zoomIn({ duration: 250 }); else map.zoomOut({ duration: 250 });
+  });
+  document.addEventListener("jk:filters", noteUpdate);
   function create(st) {
     var v = load("jk_view", null); if (!v || typeof v.lat !== "number") v = { lat: 35.6812, lng: 139.7671, z: 12.5 };
     map = new maplibregl.Map({ container: "map", style: st, center: [v.lng, v.lat], zoom: v.z, minZoom: 3, maxZoom: 20, attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false, fadeDuration: 100 });
     map.touchZoomRotate.disableRotation();
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
-    /* while you pinch or drag only the circle follows; pins, stacks and data wait until the map is calm (smooth, no flicker) */
-    map.on("move", ringUpdate);
+    /* while you pinch or drag nothing is rebuilt; pins, stacks and data wait until the map is calm (smooth, no flicker) */
+    map.on("zoom", noteUpdate);
     map.on("moveend", function () {
-      setTimeout(function () { JK.places.want(); }, 120); setTimeout(function () { JK.pins.soon(); }, 60); ringUpdate();
+      noteUpdate(); setTimeout(function () { JK.places.want(); }, 120); setTimeout(function () { JK.pins.soon(); }, 60);
       var c = map.getCenter(); try { localStorage.setItem("jk_view", JSON.stringify({ lat: +c.lat.toFixed(5), lng: +c.lng.toFixed(5), z: +map.getZoom().toFixed(2) })); } catch (e) {}
     });
     map.on("click", function () { if (JK.peek.current()) JK.peek.close(); });
-    map.on("load", function () { var at = document.querySelector(".maplibregl-ctrl-attrib"); if (at) { at.classList.remove("maplibregl-compact-show"); at.removeAttribute("open"); } JK.places.want(); JK.pins.sync(); ringUpdate(); document.documentElement.classList.add("mapok"); });
+    map.on("load", function () { var at = document.querySelector(".maplibregl-ctrl-attrib"); if (at) { at.classList.remove("maplibregl-compact-show"); at.removeAttribute("open"); } JK.places.want(); JK.pins.sync(); noteUpdate(); document.documentElement.classList.add("mapok"); });
     if (JK.mapCode() === "ar") { try { maplibregl.setRTLTextPlugin("https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js", true); } catch (e) {} }
   }
   function start() {
@@ -51,7 +54,6 @@
     if (inn) { prof.className = "av prof"; prof.innerHTML = JK.ui.esc(JK.me.initial(u)); prof.setAttribute("data-profile", ""); prof.removeAttribute("data-soon"); prof.setAttribute("aria-label", JK.i18n.T("Profile")); }
     else { prof.className = "prof out"; prof.innerHTML = JK.ic("user", 20); prof.removeAttribute("data-profile"); prof.setAttribute("data-soon", "Sign in"); prof.setAttribute("aria-label", JK.i18n.T("Sign in")); }
   }
-  ring.addEventListener("click", function () { if (map) map.easeTo({ zoom: map.getZoom() + 2 }); });
   document.getElementById("locBtn").addEventListener("click", locate);
   document.addEventListener("jk:screen", function (e) { if (e.detail === "map") { start(); if (map) setTimeout(function () { map.resize(); JK.pins.soon(); }, 30); } });
   document.addEventListener("jk:theme", restyle);

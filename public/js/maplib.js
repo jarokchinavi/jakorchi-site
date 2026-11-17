@@ -33,10 +33,25 @@
       var p = l.paint || (l.paint = {});
       Object.keys(p).forEach(function (n) { if (/color/.test(n)) p[n] = walk(p[n], l.type === "line"); });
       if (l.id === "background") p["background-color"] = "rgb(18,18,18)";
-      if (l.type === "symbol") { p["text-color"] = "rgb(176,176,176)"; p["text-halo-color"] = "rgb(18,18,18)"; p["text-halo-width"] = 1.4; }
-      if (l["source-layer"] === "building" && l.type === "fill") { p["fill-color"] = "rgb(36,36,36)"; p["fill-outline-color"] = "rgb(36,36,36)"; }
+      if (l.type === "symbol") { p["text-color"] = /^label_/.test(l.id) ? "rgb(238,238,238)" : /^water/.test(l.id) ? "rgb(132,178,226)" : "rgb(204,204,204)"; p["text-halo-color"] = "rgb(12,12,12)"; p["text-halo-width"] = 1.8; }
+      if (l["source-layer"] === "building" && l.type === "fill") { p["fill-color"] = "rgb(40,40,43)"; p["fill-outline-color"] = "rgb(52,52,55)"; }
+      var o = DARK[l.id]; if (o) Object.keys(o).forEach(function (k) { p[k] = o[k]; });
     });
   }
+  /* dark map, clear to read (like the light map): blue water, dark green parks, clearly lighter roads, gold motorways, bright labels */
+  var DARK = {
+    background: { "background-color": "rgb(20,21,22)" },
+    water: { "fill-color": "rgb(17,45,72)" }, waterway: { "line-color": "rgb(34,80,120)" },
+    park: { "fill-color": "rgb(22,40,27)" }, landcover_wood: { "fill-color": "rgb(24,42,29)" }, landuse_residential: { "fill-color": "rgb(27,28,29)" },
+    highway_path: { "line-color": "rgb(60,60,62)" }, highway_minor: { "line-color": "rgb(76,76,79)" },
+    highway_major_casing: { "line-color": "rgb(46,46,48)" }, highway_major_inner: { "line-color": "rgb(112,112,116)" }, highway_major_subtle: { "line-color": "rgba(96,96,100,0.8)" },
+    highway_motorway_casing: { "line-color": "rgb(58,50,32)" }, highway_motorway_inner: { "line-color": "rgb(176,148,84)" }, highway_motorway_subtle: { "line-color": "rgba(120,104,62,0.8)" },
+    highway_motorway_bridge_casing: { "line-color": "rgb(58,50,32)" }, highway_motorway_bridge_inner: { "line-color": "rgb(176,148,84)" },
+    tunnel_motorway_casing: { "line-color": "rgb(48,44,34)" }, tunnel_motorway_inner: { "line-color": "rgb(110,96,60)" },
+    railway: { "line-color": "rgb(84,84,88)" }, railway_transit: { "line-color": "rgb(84,84,88)" }, railway_service: { "line-color": "rgb(70,70,74)" },
+    railway_dashline: { "line-color": "rgb(20,21,22)" }, railway_transit_dashline: { "line-color": "rgb(20,21,22)" }, railway_service_dashline: { "line-color": "rgb(20,21,22)" },
+    road_pier: { "line-color": "rgb(70,70,72)" }, road_area_pier: { "fill-color": "rgb(60,60,62)" }
+  };
 
   /* ---- labels in the map language (jk_maplet: auto | latin | language code) ---- */
   function mapCode() { var v = "auto"; try { v = JSON.parse(localStorage.getItem("jk_maplet")) || "auto"; } catch (e) {} return v === "auto" ? JK.i18n.get() : v === "latin" ? "en" : v; }

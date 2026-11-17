@@ -14,7 +14,18 @@
       .catch(function () { bad = Date.now(); })
       .then(function () { if (q.size && !tm) tm = setTimeout(run, 400); });
   }
+  /* every place that has a review (for the Top rated and Price filters): one call, at most every 10 minutes */
+  var allAt = 0;
+  function all() {
+    if (Date.now() - allAt < 600000) return; allAt = Date.now();
+    var h = { apikey: SB.key }; if (SB.key.indexOf("eyJ") === 0) h.Authorization = "Bearer " + SB.key;
+    fetch(SB.url + "/rest/v1/place_ratings?select=place_id,n,sum_stars,n_price,sum_price&n=gt.0&limit=5000", { headers: h })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (a) { a.forEach(function (x) { R.set(x.place_id, { n: x.n, s: x.sum_stars, np: x.n_price || 0, sp: x.sum_price || 0 }); }); document.dispatchEvent(new Event("jk:ratings")); })
+      .catch(function () { allAt = 0; });
+  }
   JK.ratings = {
+    all: all,
     avg: function (id) { var r = R.get(id); return r && r.n ? r.s / r.n : null; },
     count: function (id) { var r = R.get(id); return r ? r.n : 0; },
     price: function (id) { var r = R.get(id); return r && r.np ? Math.min(4, Math.max(1, Math.round(r.sp / r.np))) : 0; },

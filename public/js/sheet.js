@@ -1,7 +1,8 @@
-/* Slide-up sheets (menu, filters, place peek). JK.sheet.open(id) · JK.sheet.close().
-   One at a time, one history step (phone back closes it), swipe the handle down to close. Slides in 200 ms. */
+/* Slide-up sheets (menu, filters, save, navigate, review, report) + pop-up windows + the place card: swipe down to close.
+   JK.sheet.open(id) · JK.sheet.close(). One at a time, one history step (phone back closes it), slides in 200 ms.
+   Swipe area: the handle (wide, tall) AND the whole top strip (64 px) of every sheet / pop-up / card, as long as the content is scrolled to the top. */
 (function () {
-  var cur = null, drag = null;
+  var cur = null, drag = null, ZONE = 64;
   function open(id) {
     var el = typeof id === "string" ? document.getElementById(id) : id;
     if (!el) return;
@@ -23,16 +24,27 @@
     if (cur && e.target.closest(".veil") && cur.contains(e.target)) close();
     if (e.target.closest("[data-sheet-close]")) close();
   });
-  /* swipe down on the handle */
+  /* swipe down on a sheet or a pop-up (the place card has its own up / down handling in peek.js) */
   document.addEventListener("touchstart", function (e) {
-    var h = e.target.closest(".handle"); if (!h || !cur) return;
-    drag = { y: e.touches[0].clientY, s: cur.querySelector(".sheet") }; drag.s.style.transition = "none";
+    drag = null; if (e.touches.length !== 1) return;
+    var p = e.target.closest(".sheet, .box"); if (!p || p.classList.contains("peek")) return;
+    if (p.classList.contains("sheet") && !cur) return;
+    var r = p.getBoundingClientRect(), y = e.touches[0].clientY;
+    if (!(e.target.closest(".handle") || (y - r.top <= ZONE && p.scrollTop <= 0))) return;
+    drag = { y: y, s: p, on: false, box: p.classList.contains("box") };
   }, { passive: true });
-  document.addEventListener("touchmove", function (e) { if (!drag) return; var d = Math.max(0, e.touches[0].clientY - drag.y); drag.s.style.transform = "translateY(" + d + "px)"; }, { passive: true });
+  document.addEventListener("touchmove", function (e) {
+    if (!drag) return; var d = e.touches[0].clientY - drag.y;
+    if (!drag.on) { if (d < 8) { if (d < -8) drag = null; return; } drag.on = true; drag.s.style.transition = "none"; }
+    if (e.cancelable) e.preventDefault();
+    drag.s.style.transform = "translateY(" + Math.max(0, d) + "px)";
+  }, { passive: false });
   document.addEventListener("touchend", function (e) {
-    if (!drag) return; var d = (e.changedTouches[0].clientY - drag.y), s = drag.s; drag = null; s.style.transition = "";
-    if (d > 90) close(); else s.style.transform = "";
+    if (!drag) return; var d = e.changedTouches[0].clientY - drag.y, s = drag, on = drag.on; drag = null;
+    if (!on) return; s.s.style.transition = "";
+    if (d > 90) { if (s.box) { s.s.style.transform = ""; JK.ui.close(); } else close(); } else s.s.style.transform = "";
   });
+  document.addEventListener("touchcancel", function () { if (drag && drag.on) { drag.s.style.transition = ""; drag.s.style.transform = ""; } drag = null; });
   var prev = JK.layerOpen; JK.layerOpen = function () { return prev() || !!cur; };
   JK.sheet = { open: open, close: close, isOpen: function () { return !!cur; } };
 })();

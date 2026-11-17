@@ -6,6 +6,7 @@
 
 ## Next (owner picks the order)
 - Still to build from the old app (gap list, owner decides): owner info ("I own or work at this restaurant", note for visitors) · Add a tip (+ share, must-try dish, how to order, show-staff phrases) · Show on map + distance · "Is this place really here?" · photo reporting + photo viewer · English menu tag + filter · Price slider filter · Top rated / Nearest first sorting · live "Search this area" (Overpass) · Add a restaurant (visitor) + editor mode · list rename / delete / share · List screen · blue dot / nearest address / location-off message · Useful phrases · About & privacy · "A new version is ready" notice · offline maps
+- When the List screen is built: tapping a list under "My places" (Favorites, Want to go, own lists) must ALSO open a popup list of those places (owner, 2026-11-17); today it only filters the map
 - Search rules still missing: match on dish, romanized name, names in other languages; food suggestions from the area; ~60 cities with local names (now 8 + Nominatim on Enter); Photon place suggestions
 - China has no data files yet (places/) · ratings exist for very few places
 - Accounts (then call `JKAuth.signIn`) · Change name / email / password and Delete account are placeholders · Sign in / Create account / Plus = "Coming soon"

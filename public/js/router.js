@@ -12,7 +12,8 @@
     window.scrollTo(0, 0);
     document.dispatchEvent(new CustomEvent("jk:screen", { detail: n }));
   };
-  JK.hideScreens = function () { Object.keys(els).forEach(function (k) { els[k].hidden = true; }); };
+  /* pages (settings, profile) scroll like normal pages: the map's "no page scroll" lock is lifted while they show (JK.showScreen puts it back) */
+  JK.hideScreens = function () { Object.keys(els).forEach(function (k) { els[k].hidden = true; }); document.documentElement.classList.remove("onmap"); };
   JK.showScreen = function () { JK.show(JK.screen); };
   JK.toast = function (t, ms) { toast.textContent = t; toast.hidden = false; clearTimeout(tt); tt = setTimeout(function () { toast.hidden = true; }, ms || 2600); };
   document.addEventListener("click", function (e) { var b = e.target.closest("[data-go]"); if (b) JK.show(b.dataset.go); });
