@@ -1,5 +1,5 @@
 # App (public/) – current state
-Built: front page, settings, profile, map, place card, search, filters, lists, List screen, Add a restaurant. Not built yet: accounts, the old features listed in `docs/status.md`. Old behaviour: `docs/old-app.md`; old code only in git tag `old-app-final`, read only when porting. Database, `places/`, tools unchanged.
+Built: front page, settings, profile, map, place card, search, filters, lists, List screen, Add a restaurant. Not built yet: accounts, the old features listed in `docs/status.md`. Old rules that still count: `docs/old-app.md`; old code only in git tag `old-app-final`, read only when porting.
 
 ## Files
 - `index.html` (page + SEO, no inline scripts; sections `#home` `#mapscr` `#listscr` `#settings` `#profile`; sheets `#menuSheet #saveSheet #navSheet #revSheet #repSheet #filtSheet`) · `css/base.css` (colours light/dark, fonts) · `css/home.css` (front page, popup layer) · `css/map.css` (pins, search bar, chips, sheets, menu, zoom buttons, add panel, List screen) · `css/card.css` (place card, swipe row, tabs, report / review / navigate sheets) · `css/settings.css`
@@ -32,6 +32,9 @@ Built: front page, settings, profile, map, place card, search, filters, lists, L
 ## Add a restaurant (`js/addplace.js`, Menu > Add a restaurant)
 - Map zooms to classic 17. Step 1: a slim bar (hint + "Add here") and a plain + in the middle of the free map. Step 2 (spot kept in `st.spot`, Back returns to aiming): name, kind, food type (optional, from the food list), Halal / Vegan / Vegetarian, photo of the outside (required; `JK.sb.shrink` + `upload("newplace")`), Send = `JK.sb.postId("new_places", …)`.
 - The database refuses: no photo, same name within 15 m, > 5 a day per phone, outside Japan / Korea / China. The adder sees the place at once; others from classic zoom 16; after 3 yes it shows like any place.
+
+## Intro (splash, built 2026-11-18, design B)
+- Only at app start, never between screens. `#splash` in index.html (flat theme colour cream / dark green, logo, name, 日本 대한민국 中国, short gold line, tagline), CSS in `css/home.css`, timing in `js/app.js`. Painted from the HTML at once; visible 2 s from the first paint, .25 s fade, then removed (no fade with reduced motion; no other animation). CSS hides it after 4 s if the JS fails. Name shows once the serif font is loaded (or after .7 s). Colour = page background = `theme-color` while it shows.
 
 ## Design (current)
 - Process, new or changed screen: show 2–3 options (PNG/JPG, light + dark, via `SendUserFile`; how: `docs/checks.md`) → owner picks → build small files → test → screenshots → release only after owner's OK.

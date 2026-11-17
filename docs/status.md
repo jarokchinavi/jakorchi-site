@@ -1,8 +1,8 @@
-# Status (2026-11-17 · front-end rebuild: map, card, List, Add a restaurant live)
+# Status (2026-11-18 · front-end rebuild: intro, map, card, List, Add a restaurant live)
 
 ## Done
 - Auto publishing (Cloudflare) · version + self-update · front page, settings, profile in the green / cream / gold design (light / dark, 9 languages) · new logo + icons · old front end only in tag `old-app-final` · DB advisor 0
-- Map, place card, search, filters (incl. Top rated, Price, Open now, Halal split), lists, List screen, Add a restaurant + confirm votes, team places (5 Kyoto halal). Details: `docs/app.md`.
+- Intro at app start · map (opens instantly) · place card · search · filters (incl. Top rated, Price, Open now, Halal split) · lists · List screen · Add a restaurant + confirm votes · team places (5 Kyoto halal). Details: `docs/app.md`.
 
 ## Next (owner picks the order)
 - Still to build from the old app: owner info ("I own or work at this restaurant", note for visitors) · Add a tip (+ share, must-try dish, how to order, show-staff phrases) · "Show on map" in the card · photo reporting + photo viewer · English menu tag + filter · live "Search this area" (Overpass) · editor mode (team adds places verified at once) · list rename / delete / share · blue dot / nearest address / location-off message · Useful phrases · About & privacy · "A new version is ready" notice · offline maps

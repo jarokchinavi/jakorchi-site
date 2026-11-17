@@ -22,7 +22,7 @@ Free food guide, Japan / Korea / China, 9 languages (en nl de fr es zh ja ko ar)
 | file | when |
 |---|---|
 | `app` | build / change a screen, front-end code, design (palette, process) |
-| `old-app` | map, list, card, filters, search, review screens (old behaviour + fixes) |
+| `old-app` | search, card, report / review, directions, iPhone fixes (old rules that still count) |
 | `safety` | touching js / html / `_headers`, remote text, outside file or package |
 | `database` | Supabase, SQL, tables, limits, editor mode |
 | `data` | restaurant data files, `tools/` scripts |
