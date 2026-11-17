@@ -13,7 +13,7 @@
     }).join("");
     sheet.innerHTML = '<div class="handle"></div><div class="mh"><img src="/logo.svg" width="46" height="46" alt=""><div><b>Jakorchi</b><small>日本 &nbsp; 한국 &nbsp; 中国</small></div>' +
       '<button type="button" class="round sm" data-sheet-close aria-label="' + esc(T("Close")) + '">' + JK.ic("close", 20) + "</button></div>" +
-      '<div class="qas">' + q("heart", "Favorites", 'data-list="fav"') + q("addpin", "Add a restaurant", 'data-soon="Add a restaurant"') + q("bulb", "Add a tip", 'data-soon="Add a tip"') + q("phrase", "Useful phrases", 'data-soon="Useful phrases"') + "</div>" +
+      '<div class="qas">' + q("heart", "Favorites", 'data-list="fav"') + q("addpin", "Add a restaurant", "data-add") + q("bulb", "Add a tip", 'data-soon="Add a tip"') + q("phrase", "Useful phrases", 'data-soon="Useful phrases"') + "</div>" +
       '<div class="ms">' + esc(T("My places")) + '</div><div class="grp">' + lists + "</div>" +
       '<button type="button" class="btn ghost" data-newlist>' + JK.ic("listplus", 20) + esc(T("New list")) + "</button>" +
       '<div class="foot"><button type="button" class="chip" data-menu-settings>' + JK.ic("gear", 20) + esc(T("Settings")) + '</button><button type="button" class="chip" data-soon="About &amp; privacy">' + JK.ic("info", 20) + esc(T("About")) + "</button>" +
@@ -27,6 +27,7 @@
     JK.filters.setList(id);
     var ps = JK.lists.places(), map = JK.mapObj();
     if (map && ps.length) { var b = new maplibregl.LngLatBounds(); ps.filter(function (p) { return JK.lists.of(p.id).some(function (x) { return x.id === id; }); }).forEach(function (p) { b.extend([p.lng, p.lat]); }); if (!b.isEmpty()) map.fitBounds(b, { padding: 70, maxZoom: 15, duration: 600 }); }
+    JK.show("list"); /* a list from My places also opens as a list (the map is filtered the same way; swipe the bar back to the map) */
   }
   var nlCb = null;
   /* New list: asks for a name; cb(id) runs after the list exists (the save popup uses it to add the place at once) */
@@ -42,6 +43,7 @@
     var b = e.target.closest("button"); if (!b) return;
     if (b.id === "menuBtn") { render(); JK.sheet.open("menuSheet"); }
     else if (b.closest("#menuSheet") && b.dataset.list) showList(b.dataset.list);
+    else if (b.hasAttribute("data-add")) { JK.sheet.close(); setTimeout(function () { JK.addPlace.open(); }, 180); }
     else if (b.hasAttribute("data-newlist")) newList(null);
     else if (b.hasAttribute("data-nl-ok")) {
       var n = (document.getElementById("nlName") || {}).value || "";

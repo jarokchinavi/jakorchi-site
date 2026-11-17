@@ -1,8 +1,15 @@
 /* Place card (slides up from a pin) and the Navigate, Write a review, Report and Save sheets. */
-.peek{position:fixed;left:0;right:0;bottom:0;z-index:7;max-width:440px;margin:0 auto;height:66dvh;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);border:1px solid var(--ln);border-bottom:0;border-radius:28px 28px 0 0;transform:translateY(105%);transition:transform .2s ease-out,height .2s ease-out}
+.peek{position:fixed;left:0;right:0;bottom:0;z-index:7;max-width:440px;margin:0 auto;height:92dvh;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);border:1px solid var(--ln);border-bottom:0;border-radius:28px 28px 0 0;transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);will-change:transform}
 .peek[hidden]{display:none}
-.peek.open{transform:none}
-.peek.full{height:92dvh}
+/* the card is always 92 % high; "small" just slides it down (a transform only = smooth, and it follows your finger) */
+.peek.open{transform:translateY(26dvh)}
+.peek.open.full{transform:none}
+.peek.drag{transition:none}
+.npph{margin:14px 0 4px}.npph small,.npv small{display:block;color:var(--mu);font-size:12.5px;margin-bottom:6px}
+.npph img{width:100%;max-height:190px;object-fit:cover;border-radius:18px;border:1px solid var(--ln)}
+.npv{margin:14px 0 4px;padding:14px 16px;border:1px solid var(--ln);border-radius:20px}.npv b{display:block;font-size:15px}.npv p{margin:4px 0 0;color:var(--mu)}
+.npb{display:flex;gap:8px;margin-top:10px}.npb .chip{flex:1}.npb .chip[disabled]{opacity:.5}
+.peek.open:not(.full) .cbody{padding-bottom:calc(26dvh + 24px)}
 @media (prefers-reduced-motion:reduce){.peek{transition:none}}
 .peek .handle{flex:none;cursor:pointer}
 .chead{flex:none;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:0 22px}

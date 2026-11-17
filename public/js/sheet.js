@@ -31,18 +31,20 @@
     if (p.classList.contains("sheet") && !cur) return;
     var r = p.getBoundingClientRect(), y = e.touches[0].clientY;
     if (!(e.target.closest(".handle") || (y - r.top <= ZONE && p.scrollTop <= 0))) return;
-    drag = { y: y, s: p, on: false, box: p.classList.contains("box") };
+    drag = { y: y, s: p, on: false, box: p.classList.contains("box"), v: 0, ly: y, lt: Date.now() };
   }, { passive: true });
+  /* it follows your finger 1:1 (a transform only); let go: a pull of 90 px or a quick flick closes it, otherwise it springs back */
   document.addEventListener("touchmove", function (e) {
-    if (!drag) return; var d = e.touches[0].clientY - drag.y;
-    if (!drag.on) { if (d < 8) { if (d < -8) drag = null; return; } drag.on = true; drag.s.style.transition = "none"; }
+    if (!drag) return; var t = e.touches[0], d = t.clientY - drag.y, now = Date.now();
+    if (!drag.on) { if (d < 8) { if (d < -8) drag = null; return; } drag.on = true; drag.s.style.transition = "none"; drag.s.style.willChange = "transform"; }
     if (e.cancelable) e.preventDefault();
     drag.s.style.transform = "translateY(" + Math.max(0, d) + "px)";
+    if (now - drag.lt >= 16) { drag.v = (t.clientY - drag.ly) / (now - drag.lt); drag.ly = t.clientY; drag.lt = now; }
   }, { passive: false });
   document.addEventListener("touchend", function (e) {
     if (!drag) return; var d = e.changedTouches[0].clientY - drag.y, s = drag, on = drag.on; drag = null;
-    if (!on) return; s.s.style.transition = "";
-    if (d > 90) { if (s.box) { s.s.style.transform = ""; JK.ui.close(); } else close(); } else s.s.style.transform = "";
+    if (!on) return; s.s.style.transition = ""; s.s.style.willChange = "";
+    if (d > 90 || (d > 24 && s.v > .6)) { if (s.box) { s.s.style.transform = ""; JK.ui.close(); } else close(); } else s.s.style.transform = "";
   });
   document.addEventListener("touchcancel", function () { if (drag && drag.on) { drag.s.style.transition = ""; drag.s.style.transform = ""; } drag = null; });
   var prev = JK.layerOpen; JK.layerOpen = function () { return prev() || !!cur; };

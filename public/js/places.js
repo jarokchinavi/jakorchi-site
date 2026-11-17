@@ -45,7 +45,7 @@
   function want() {
     var map = JK.mapObj(); if (!map) return;
     ready.then(function () {
-      var lz = map.getZoom() + 1, far = JK.filters && JK.filters.far(); if (lz < (far ? 11 : 13)) return; /* a filter on = places load from further away */
+      var lz = map.getZoom() + 1, far = JK.filters && JK.filters.far(); if (lz >= 11) npLoad(map); if (lz < (far ? 11 : 13)) return; /* a filter on = places load from further away */
       var b = map.getBounds(), c = b.getCenter(); if (c.lat < 18 || c.lat > 54 || c.lng < 73 || c.lng > 146) return;
       var x0 = tx(b.getWest(), Z), x1 = tx(b.getEast(), Z), y0 = ty(b.getNorth(), Z), y1 = ty(b.getSouth(), Z), ts = [];
       for (var x = x0; x <= x1; x++) for (var y = y0; y <= y1; y++) ts.push([x, y]);
@@ -63,6 +63,27 @@
       run();
     });
   }
+  /* Places the Jakorchi team added (checked) or that 3 visitors confirmed: a small table in the database (view new_places_public), read only.
+     They come on top of the OpenStreetMap squares, have an id np_<number>, always get their own pin, and carry Halal / Vegan from the database.
+     Places nobody has checked yet stay hidden until "Add a restaurant" is built. */
+  var npBox = null, npAt = 0;
+  function npLoad(map) {
+    var b = map.getBounds(), s = b.getSouth(), n = b.getNorth(), w = b.getWest(), e = b.getEast();
+    if (npBox && s >= npBox[0] && n <= npBox[1] && w >= npBox[2] && e <= npBox[3] && Date.now() - npAt < 300000) return;
+    var ps = (n - s) / 2, pw = (e - w) / 2, bx = [s - ps, n + ps, w - pw, e + pw];
+    JK.sb.get("new_places_public?select=id,name,lat,lng,cat,cuisine,yes,no,halal,vegan,vegetarian,photo,verified&lat=gte." + bx[0].toFixed(5) + "&lat=lte." + bx[1].toFixed(5) + "&lng=gte." + bx[2].toFixed(5) + "&lng=lte." + bx[3].toFixed(5) + "&order=id.desc&limit=500").then(function (rows) {
+      npBox = bx; npAt = Date.now(); var add = 0, CATS = ["restaurant", "coffee", "dessert", "drinks", "fast"];
+      (Array.isArray(rows) ? rows : []).forEach(function (x) {
+        if (!x || !Number.isInteger(x.id) || !isFinite(x.lat) || !isFinite(x.lng)) return;
+        var yes = x.yes | 0, no = x.no | 0, tv = x.verified === true, id = "np_" + x.id, st = tv || (yes >= 3 && yes > no) ? "ok" : "wait", old = byId.get(id);
+        if (old) { if (old.nws !== st || old.npy !== yes || old.npn !== no) { old.nws = st; old.npy = yes; old.npn = no; add++; } return; }
+        var p = { id: id, name: String(x.name || "").slice(0, 80), loc: "", cat: CATS.indexOf(x.cat) >= 0 ? x.cat : "restaurant", cuisine: /^[a-z &\/()-]{0,40}$/.test(x.cuisine || "") ? x.cuisine : "", lat: +x.lat, lng: +x.lng,
+          halal: x.halal === true, halalL: false, vegan: x.vegan === true, veganL: false, veg: x.vegetarian === true || x.vegan === true, vegL: false, hours: "", addr: "", web: "", country: countryOf(+x.lat, +x.lng), phone: "", nm: null, sub: "", nw: 1, npv: tv, nws: st, npy: yes, npn: no, nph: /^[a-z0-9_]{1,60}\/[a-z0-9-]{8,40}\.(jpg|webp)$/.test(x.photo || "") ? x.photo : "" };
+        byId.set(id, p); list.push(p); add++;
+      });
+      if (add) document.dispatchEvent(new Event("jk:places"));
+    }).catch(function () {});
+  }
   /* names: the name in the app language when we have it, else the real name */
   function dname(p) {
     var l = JK.i18n.get(); if (l === "en") return p.name;
@@ -70,5 +91,8 @@
   }
   function localName(p) { return p.loc || p.name; }
   document.addEventListener("jk:filters", function () { JK.places.want(); });
-  JK.places = { list: list, get: function (id) { return byId.get(id); }, add: function (p) { if (p && !byId.has(p.id)) { byId.set(p.id, p); list.push(p); } }, want: function () { clearTimeout(timer); timer = setTimeout(want, 500); }, dname: dname, localName: localName };
+  /* places this phone added (kept on the phone): they show for the person who added them even before 3 phones confirmed */
+  var mineSet = function () { try { var a = JSON.parse(localStorage.getItem("jk_npmine")); return Array.isArray(a) ? a : []; } catch (e) { return []; } };
+  function npForce() { npBox = null; var m = JK.mapObj(); if (m) npLoad(m); }
+  JK.places = { mine: function (id) { return mineSet().indexOf(id) >= 0; }, addMine: function (id) { var a = mineSet(); a.push(id); try { localStorage.setItem("jk_npmine", JSON.stringify(a.slice(-200))); } catch (e) {} }, reloadTeam: npForce, list: list, get: function (id) { return byId.get(id); }, add: function (p) { if (p && !byId.has(p.id)) { byId.set(p.id, p); list.push(p); } }, want: function () { clearTimeout(timer); timer = setTimeout(want, 500); }, dname: dname, localName: localName };
 })();

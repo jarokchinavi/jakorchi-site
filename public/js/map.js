@@ -44,7 +44,7 @@
     if (!navigator.geolocation || !map) return;
     JK.toast(JK.i18n.T("Finding your location…"), 4000);
     navigator.geolocation.getCurrentPosition(function (p) {
-      var ll = [p.coords.longitude, p.coords.latitude];
+      var ll = [p.coords.longitude, p.coords.latitude]; JK.myPos = { lat: p.coords.latitude, lng: p.coords.longitude };
       if (!me) { var e = document.createElement("div"); e.className = "me"; e.setAttribute("aria-label", JK.i18n.T("Your location")); me = new maplibregl.Marker({ element: e }).setLngLat(ll).addTo(map); } else me.setLngLat(ll);
       map.easeTo({ center: ll, zoom: Math.max(map.getZoom(), 15) });
     }, function () {}, { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });

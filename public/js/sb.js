@@ -21,6 +21,12 @@
       .then(function (r) { if (r.ok) return { ok: 1 }; return r.text().then(function (tx) { return { ok: 0, status: r.status, msg: why(tx) }; }); })
       .catch(function () { return { ok: 0, status: 0, msg: "" }; });
   }
+  /* add a row and get its id back (used for a new restaurant): { ok, id, status, text, msg } */
+  function postId(path, body) {
+    return fetch(SB.url + "/rest/v1/" + path + "?select=id", { method: "POST", headers: h({ "Content-Type": "application/json", Prefer: "return=representation" }), body: JSON.stringify(body) })
+      .then(function (r) { return r.text().then(function (tx) { var j = null; try { j = JSON.parse(tx); } catch (e) {} return { ok: r.ok, status: r.status, id: r.ok && Array.isArray(j) && j[0] ? j[0].id : null, text: tx, msg: why(tx) }; }); })
+      .catch(function () { return { ok: false, status: 0, id: null, text: "", msg: "" }; });
+  }
   /* any photo -> JPEG of at most ~380 KB; drawing it again also removes camera data such as the location */
   function shrink(file) {
     if (!file || file.size > 30e6 || (file.type && !/^image\//.test(file.type))) return Promise.reject();
@@ -44,5 +50,5 @@
     return fetch(SB.url + "/storage/v1/object/review-photos/" + path, { method: "POST", headers: h({ "Content-Type": "image/jpeg", "x-upsert": "false" }), body: blob })
       .then(function (r) { return r.ok ? path : null; }).catch(function () { return null; });
   }
-  JK.sb = { get: get, post: post, dev: dev, why: why, shrink: shrink, upload: upload, photoUrl: function (p) { return SB.url + "/storage/v1/object/public/review-photos/" + p; }, okPath: function (p) { return /^[a-z0-9_]{1,60}\/[a-z0-9-]{8,40}\.(jpg|webp)$/.test(p); } };
+  JK.sb = { get: get, post: post, postId: postId, dev: dev, why: why, shrink: shrink, upload: upload, photoUrl: function (p) { return SB.url + "/storage/v1/object/public/review-photos/" + p; }, okPath: function (p) { return /^[a-z0-9_]{1,60}\/[a-z0-9-]{8,40}\.(jpg|webp)$/.test(p); } };
 })();

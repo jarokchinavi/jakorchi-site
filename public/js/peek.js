@@ -30,6 +30,26 @@
     return '<div class="acts">' + a("nav", "nav", T("Navigate"), 0, 1) + a("save", saved ? "check" : "plus", saved ? T("Saved") : T("Save to a list"), saved) + a("rev", "star", T("Write a review")) +
       a("share", "share", T("Share")) + a("rep", "flag", T("Report wrong info")) + "</div>";
   }
+  /* a restaurant a visitor added: the photo of the outside, and until 3 phones confirmed it: "Is this place really here?" (Yes / No) */
+  var nvoted = function () { try { var a = JSON.parse(localStorage.getItem("jk_npvoted")); return Array.isArray(a) ? a : []; } catch (e) { return []; } };
+  function npSec(p) {
+    var h = "";
+    if (p.nph && JK.sb.okPath(p.nph)) h += '<div class="npph"><small>' + esc(T("Photo of the outside")) + '</small><a href="' + esc(JK.sb.photoUrl(p.nph)) + '" target="_blank" rel="noopener noreferrer"><img src="' + esc(JK.sb.photoUrl(p.nph)) + '" alt="" loading="lazy"></a></div>';
+    if (p.nws === "wait") {
+      h += '<div class="npv"><small>' + esc(T("New place added by a visitor · confirmed by {0} of 3").replace("{0}", p.npy || 1)) + "</small>";
+      if (JK.places.mine(p.id)) h += "<p>" + esc(T("You added this place. It shows for everyone after {0} more confirmations.").replace("{0}", Math.max(1, 3 - (p.npy || 1)))) + "</p>";
+      else { var v = nvoted().indexOf(p.id) >= 0; h += "<b>" + esc(T("Is this place really here?")) + '</b><div class="npb"><button type="button" class="chip" data-npv="yes"' + (v ? " disabled" : "") + ">" + JK.ic("check", 18) + esc(T("Yes, it's here")) + '</button><button type="button" class="chip" data-npv="no"' + (v ? " disabled" : "") + ">" + JK.ic("close", 18) + esc(T("No, it's not here")) + "</button></div>" + (v ? '<p class="rng">' + esc(T("Thanks for checking!")) + "</p>" : ""); }
+      h += "</div>";
+    }
+    return h;
+  }
+  function npVote(v) {
+    if (!cur || !cur.nw) return; var n = Number(String(cur.id).slice(3)), id = cur.id; if (!Number.isInteger(n) || (v !== "yes" && v !== "no")) return;
+    JK.sb.post("new_place_votes", { place_id: n, verdict: v, device: JK.sb.dev() }).then(function (r) {
+      if (r.ok || r.status === 409) { var a = nvoted(); a.push(id); try { localStorage.setItem("jk_npvoted", JSON.stringify(a.slice(-300))); } catch (e) {} JK.toast(r.ok ? T("Thanks for checking!") : T("You already answered.")); JK.places.reloadTeam(); if (cur && cur.id === id) render(); }
+      else JK.toast(r.msg || T("Could not send. Please try again."));
+    });
+  }
   /* the essentials are always shown (a dash when we do not have it yet) */
   function details(p) {
     var dash = '<span class="muted">–</span>', row = function (ic, l, v) { return '<div class="inf">' + JK.ic(ic, 20) + "<span><small>" + esc(l) + "</small>" + (v || dash) + "</span></div>"; };
@@ -37,7 +57,7 @@
     var addrRow = p.addr ? '<button type="button" class="inf cprow" data-copy="' + esc(p.addr) + '" aria-label="' + esc(T("Copy address")) + '">' + JK.ic("pin", 20) + "<span><small>" + esc(T("Address")) + "</small>" + esc(p.addr) + "</span>" + JK.ic("copy", 20) + "</button>" : row("pin", T("Address"), '<span class="muted">' + esc(T("No address in OpenStreetMap yet")) + "</span>");
     return addrRow + row("phone", T("Phone"), tel ? '<a href="tel:' + esc(tel.replace(/[^+0-9]/g, "")) + '">' + esc(tel) + "</a>" : "") + row("clock", T("Opening hours"), p.hours ? esc(p.hours) : "") +
       row("globe", T("Website"), web ? '<a href="' + esc(web) + '" target="_blank" rel="noopener noreferrer">' + esc(web.replace(/^https?:\/\/(www\.)?/, "").slice(0, 40)) + "</a>" : "") +
-      '<p class="src">' + esc(T("From OpenStreetMap · not checked by Jakorchi")) + '</p><div class="warnb">' + JK.ic("warn", 20) + "<span><b>" + esc(T("Heads up:")) + "</b> " + esc(T("Details come from OpenStreetMap and are not checked. Halal and vegan tags can be wrong or old. Ask the staff before you order.")) + "</span></div>";
+      (p.nw ? npSec(p) : "") + '<p class="src">' + esc(p.nw ? T(p.npv ? "Added by the Jakorchi team" : "Added by visitors · not checked by Jakorchi") : T("From OpenStreetMap · not checked by Jakorchi")) + '</p><div class="warnb">' + JK.ic("warn", 20) + "<span><b>" + esc(T("Heads up:")) + "</b> " + esc(p.nw ? T("This place was added by visitors and is not checked. Halal and vegan tags can be wrong. Ask the staff before you order.") : T("Details come from OpenStreetMap and are not checked. Halal and vegan tags can be wrong or old. Ask the staff before you order.")) + "</span></div>";
   }  function reviewsTab(p) {
     return '<button type="button" class="btn ghost" data-act="rev">' + JK.ic("star", 20) + esc(T("Write a review")) + "</button>" + (revs === null ? '<p class="muted">' + esc(T("Loading places…")) + "</p>" : revs === false ? '<p class="muted">' + esc(T("Reviews can't load right now.")) + "</p>" : JK.reviews.html(revs, p.country));
   }
@@ -64,7 +84,7 @@
     cur = p; tab = "d"; revs = fl = ph = null; render(); el.hidden = false; void el.offsetWidth; el.classList.add("open"); el.classList.remove("full"); scr.classList.add("pk");
     JK.pins.select(p.id, p); extras(p);
   }
-  function close() { if (!cur) return; cur = null; el.classList.remove("open", "full"); scr.classList.remove("pk"); setTimeout(function () { if (!cur) el.hidden = true; }, 220); JK.pins.select(null); }
+  function close() { if (!cur) return; cur = null; el.classList.remove("open", "full"); scr.classList.remove("pk"); setTimeout(function () { if (!cur) el.hidden = true; }, 320); JK.pins.select(null); }
   async function addMenuPhoto(file) {
     JK.toast(T("Preparing photo…"), 3000);
     try {
@@ -84,6 +104,7 @@
     else if (b.dataset.tab) { tab = b.dataset.tab; render(); }
     else if (b.dataset.copy) { if (b.dataset.copy) JK.copy(b.dataset.copy); }
     else if (b.hasAttribute("data-grab")) el.classList.toggle("full");
+    else if (b.dataset.npv) npVote(b.dataset.npv);
     else if (b.dataset.act === "nav") JK.navigate.open(cur);
     else if (b.dataset.act === "save") JK.saveOpen(cur);
     else if (b.dataset.act === "rev") JK.reviews.open(cur);
@@ -93,9 +114,32 @@
   });
   el.addEventListener("change", function (e) { if (e.target.id === "mpFile" && e.target.files[0]) { var f = e.target.files[0]; e.target.value = ""; addMenuPhoto(f); } });
   /* swipe the handle: up = full, down = small, down again = close */
-  var y0 = null;
-  el.addEventListener("touchstart", function (e) { y0 = null; if (e.touches.length === 1 && (e.target.closest(".handle") || e.touches[0].clientY - el.getBoundingClientRect().top <= 72)) y0 = e.touches[0].clientY; }, { passive: true });
-  el.addEventListener("touchend", function (e) { if (y0 === null) return; var d = e.changedTouches[0].clientY - y0; y0 = null; if (d < -40) el.classList.add("full"); else if (d > 40) { if (el.classList.contains("full")) el.classList.remove("full"); else close(); } });
+  /* hold it: the card follows your finger 1:1 (only a transform, so it stays smooth), the whole card with the name moves along;
+     let go: it snaps to full / small / closed (a quick flick also works). Grab it by the bar or anywhere in the top strip. */
+  var dg = null, SMALL = .26;
+  var pos = function () { return el.classList.contains("full") ? 0 : innerHeight * SMALL; };
+  el.addEventListener("touchstart", function (e) {
+    dg = null; if (e.touches.length !== 1 || !cur) return;
+    var t = e.touches[0]; if (!(e.target.closest(".handle") || t.clientY - el.getBoundingClientRect().top <= 72)) return;
+    dg = { y: t.clientY, base: pos(), on: false, v: 0, ly: t.clientY, lt: Date.now(), cur: pos() };
+  }, { passive: true });
+  el.addEventListener("touchmove", function (e) {
+    if (!dg) return; var t = e.touches[0], dy = t.clientY - dg.y;
+    if (!dg.on) { if (Math.abs(dy) < 6) return; dg.on = true; el.classList.add("drag"); }
+    if (e.cancelable) e.preventDefault();
+    var y = Math.max(0, Math.min(innerHeight, dg.base + dy)), now = Date.now();
+    el.style.transform = "translateY(" + y + "px)"; dg.cur = y;
+    if (now - dg.lt >= 16) { dg.v = (t.clientY - dg.ly) / (now - dg.lt); dg.ly = t.clientY; dg.lt = now; }
+  }, { passive: false });
+  function release() {
+    if (!dg) return; var d = dg; dg = null; if (!d.on) return;
+    el.classList.remove("drag"); var y = d.cur, sm = innerHeight * SMALL, snaps = [0, sm, innerHeight], target;
+    if (d.v > .5) target = snaps.filter(function (s) { return s > y + 8; })[0]; else if (d.v < -.5) target = snaps.filter(function (s) { return s < y - 8; }).pop();
+    if (target === undefined) target = snaps.reduce(function (a, s) { return Math.abs(s - y) < Math.abs(a - y) ? s : a; }, snaps[0]);
+    el.style.transform = "";
+    if (target === 0) el.classList.add("full"); else if (target === sm) el.classList.remove("full"); else close();
+  }
+  el.addEventListener("touchend", release); el.addEventListener("touchcancel", release);
   document.addEventListener("jk:review", function (e) { if (cur && e.detail === cur.id) { revs = null; JK.reviews.load(cur.id).then(function (a) { revs = a; render(); }).catch(function () {}); } });
   document.addEventListener("jk:report", function (e) { if (cur && e.detail === cur.id) JK.report.flags(cur.id).then(function (c) { fl = c; render(); }).catch(function () {}); });
   ["jk:ratings", "jk:lists", "jk:lang"].forEach(function (ev) { document.addEventListener(ev, render); });
