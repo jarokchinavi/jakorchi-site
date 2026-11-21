@@ -51,7 +51,7 @@
     var b = e.target.closest("button"); if (!b) return;
     if (b.hasAttribute("data-profile")) open(b.dataset.profile === "settings" ? "settings" : "home");
     else if (b.id === "profileBack") back();
-    else if (!page.hidden && b.hasAttribute("data-signout")) JKAuth.signOut();
+    else if (!page.hidden && b.hasAttribute("data-signout")) JK.account.signOut();
   });
   /* signed out (here or in another tab) while the profile page is open: leave it */
   document.addEventListener("jk:auth", function () { drawCard(); if (!page.hidden) { if (JKAuth.signedIn()) render(); else back(); } });

@@ -25,7 +25,7 @@
       h += grp('<button type="button" class="row prow" data-profile="settings"><span class="av" aria-hidden="true">' + esc(JK.me.initial(u)) + '</span><span class="l"><b>' + esc(JK.me.name(u)) + '</b>' +
         (u.name && u.email ? '<small>' + esc(u.email) + '</small>' : "") + '</span><i class="chev" aria-hidden="true"></i></button>');
     } else {
-      h += grp('<div class="row">' + JK.ic("user") + '<span class="l">' + esc(T("Not signed in")) + '</span><span class="badge">' + esc(T("Coming soon")) + '</span></div>' +
+      h += grp('<div class="row">' + JK.ic("user") + '<span class="l">' + esc(T("Not signed in")) + '</span></div>' +
         row('data-soon="Sign in"', T("Sign in"), "", "gold") + row('data-soon="Create account"', T("Create account"), "", "gold"));
     }
     /* Jakorchi Plus: empty on purpose for now */

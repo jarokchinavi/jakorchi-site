@@ -8,12 +8,13 @@ Setup files: `database/01…NN-*.sql` (all applied, in this order). New change =
 - 📍 new_places · photo of outside required · shown at 3 yes (adder = 1) · 3 no hides · pending > 90 days gone · verified = team place · hide: hidden = true
 - 📍✔ new_place_votes · 🍽 menu_photos (hide: hidden = true) · 🏪 owner_info (3 reports hide) · 🏪🚩 owner_info_reports
 - 👁 views the app reads (read only): reviews_public · place_ratings (n, sum_stars, n_price, sum_price) · place_flag_counts · new_places_public · menu_photos_public · owner_info_public
+- 👤 user_saved · saved places + lists of one account (jsonb ≤ 400 KB); signed-in owner only (RLS `auth.uid()`), anon has no access; `updated_at` set by the database (`15-account-saved.sql`, applied)
 - 🗂 storage bucket review-photos · JPEG / WebP ≤ 400 KB
 
 ## Access
 - Owner's test rows (reviews, new places, votes, owner info) stay; never clear without a new yes
 - dashboard = owner login only (2-step login on)
-- publishable key: read views + add rows · never change / delete · phone ids private
+- publishable key: read views + add rows · never change / delete · phone ids private · signed-in visitors (Supabase Auth, e-mail + password, "Confirm email" off) only touch their own `user_saved` row
 - views security_invoker · checks in schema private · public RPC: editor_check, editor_add_place
 - after every change: get_advisors security = 0
 

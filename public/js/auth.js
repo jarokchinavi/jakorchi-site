@@ -1,7 +1,6 @@
 /* Is the visitor signed in? Runs before the page is drawn.
    When signed in, the Sign in / Create account buttons are hidden (class "in" on <html>).
-   Accounts are not live yet: until they are, nobody is signed in. When they go live, the
-   sign-in code calls JKAuth.signIn(user) / JKAuth.signOut(); a Supabase session is also recognised. */
+   js/account.js signs in / out (Supabase Auth) and calls JKAuth.signIn(user) / JKAuth.signOut(); a saved Supabase session is also recognised. */
 (function () {
   function hasUser() {
     try { var v = localStorage.getItem("jk_user"); return !!v && v !== "null" && v !== "false"; } catch (e) { return false; }
@@ -12,7 +11,7 @@
         var k = localStorage.key(i);
         if (/^sb-.+-auth-token$/.test(k)) {
           var s = JSON.parse(localStorage.getItem(k));
-          if (s && s.access_token && (!s.expires_at || s.expires_at * 1000 > Date.now())) return true;
+          if (s && s.access_token && (s.refresh_token || !s.expires_at || s.expires_at * 1000 > Date.now())) return true;
         }
       }
     } catch (e) {}
@@ -30,5 +29,6 @@
     signOut: function () { try { localStorage.removeItem("jk_user"); } catch (e) {} refresh(); }
   };
   document.documentElement.classList.toggle("in", signedIn());
+  try { if (sessionStorage.getItem("jk_wskip")) document.documentElement.classList.add("wskip"); } catch (e) {} /* welcome screen skipped in this visit */
   window.addEventListener("storage", refresh); /* signed in or out in another tab */
 })();

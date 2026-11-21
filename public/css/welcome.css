@@ -1,0 +1,34 @@
+/* Welcome screen: full screen at app start when not signed in (sign in / create account / skip). Flat colours, gold only as accent.
+   Layout: a surface panel on top (logo, countries, gold line, title), the form below. */
+#welcome{position:fixed;inset:0;z-index:9000;background:var(--bg);color:var(--ink);overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:0 0 calc(env(safe-area-inset-bottom,0px) + 18px)}
+html.in #welcome,html.wskip #welcome,#welcome[hidden]{display:none}
+html.wskip #welcome.on{display:flex}
+html.in #welcome.on{display:none}
+#welcome .wskip{position:absolute;top:calc(env(safe-area-inset-top,0px) + var(--shift) + 4px);inset-inline-end:14px;z-index:1;padding:12px 14px;color:var(--mu);font-size:14px;font-weight:500}
+#welcome .wl{width:100%;display:flex;flex-direction:column;margin-bottom:auto}
+#welcome .wtop{display:flex;flex-direction:column;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top,0px) + var(--shift) + 40px) 24px 6px;background:var(--surface)}
+#welcome .wtop img{width:84px;height:84px;flex:none}
+#welcome .wcn{display:flex;gap:14px;color:var(--mu);font-size:14px;direction:ltr}
+#welcome .wrl{display:block;width:56px;height:2px;background:var(--gold);margin-top:10px}
+#welcome h1,#welcome .wsub{background:var(--surface);text-align:center;padding:0 24px}
+#welcome h1{padding-top:14px;font:300 30px/1.1 var(--serif);letter-spacing:-.025em}
+#welcome .wsub{margin:0;padding-top:8px;padding-bottom:26px;border-radius:0 0 30px 30px;color:var(--mu);font-size:15px}
+#welcome form,#welcome .wsw{width:100%;max-width:420px;margin-inline:auto;padding-inline:24px}
+#welcome form{margin-top:10px}
+#welcome .wf{display:block;margin-top:14px}
+#welcome .wf[hidden]{display:none}
+#welcome .wf span{display:block;font-size:13px;color:var(--mu);margin-bottom:6px}
+#welcome .wf input{width:100%;height:52px;border-radius:14px;border:1px solid var(--ln);background:var(--surface);color:var(--ink);padding:0 16px;font:400 16px var(--sans);outline:0}
+#welcome .wf input::placeholder{color:var(--mu);opacity:.75}
+#welcome .wf input:focus{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+#welcome .werr{min-height:22px;margin-top:12px;font-size:13.5px;font-weight:600;color:var(--ink)}
+#welcome .btn{margin-top:6px}
+#welcome .btn:disabled{opacity:.6}
+#welcome .wsw{display:block;margin-top:18px;padding-block:8px;text-align:center;font-size:14.5px;color:var(--ink)}
+#welcome .wsw u{color:var(--gold);font-weight:600;text-underline-offset:3px;text-decoration-thickness:1.5px}
+@media (max-height:700px){
+  #welcome .wtop{padding-top:calc(env(safe-area-inset-top,0px) + var(--shift) + 34px)}
+  #welcome .wtop img{width:64px;height:64px}
+  #welcome h1{font-size:27px}
+  #welcome .wsub{padding-bottom:20px}
+}

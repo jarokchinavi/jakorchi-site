@@ -50,5 +50,5 @@
     return fetch(SB.url + "/storage/v1/object/review-photos/" + path, { method: "POST", headers: h({ "Content-Type": "image/jpeg", "x-upsert": "false" }), body: blob })
       .then(function (r) { return r.ok ? path : null; }).catch(function () { return null; });
   }
-  JK.sb = { get: get, post: post, postId: postId, dev: dev, why: why, shrink: shrink, upload: upload, photoUrl: function (p) { return SB.url + "/storage/v1/object/public/review-photos/" + p; }, okPath: function (p) { return /^[a-z0-9_]{1,60}\/[a-z0-9-]{8,40}\.(jpg|webp)$/.test(p); } };
+  JK.sb = { cfg: SB, get: get, post: post, postId: postId, dev: dev, why: why, shrink: shrink, upload: upload, photoUrl: function (p) { return SB.url + "/storage/v1/object/public/review-photos/" + p; }, okPath: function (p) { return /^[a-z0-9_]{1,60}\/[a-z0-9-]{8,40}\.(jpg|webp)$/.test(p); } };
 })();

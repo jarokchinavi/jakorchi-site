@@ -9,7 +9,7 @@
 - Search rules still missing: match on dish, romanized name, names in other languages; food suggestions from the area; ~60 cities with local names (now 8 + Nominatim on Enter); Photon place suggestions
 - Filters we CANNOT offer without data (Halal Navi has them): pork-free, alcohol-free, prayer space, halal certificate. They need a new database field = owner decision.
 - China has no data files yet (places/) · ratings exist for very few places (so Top rated, Price and the price sorts show little)
-- Accounts (then call `JKAuth.signIn`) · biometric login (fingerprint / Face ID via passkeys) would come with accounts, not built · Change name / email / password and Delete account are placeholders
+- Accounts: sign in / create account / skip + saved places sync are built (`docs/app.md`). Still open: forgot-password mail (needs an e-mail service), Change name / email / password and Delete account (placeholders), biometric login (passkeys), reviews per account
 - Directions = links to the visitor's own maps app (`docs/old-app.md` Directions); no own navigation
 
 ## Owner to do
@@ -17,4 +17,5 @@
 1. Check the newest texts in the 8 languages (list in `docs/app.md` > Texts)
 2. Try on a real phone (iPhone + Android): pins, card swipe, Navigate links (Korea: Naver / Kakao; China: Amap, shifted coordinates, not yet tested), Add a restaurant (send one clearly fake test place), List
 3. Turn on 2-step login (2FA) for GitHub, Cloudflare and Supabase
+3b. Supabase dashboard > Authentication > Providers > Email: turn "Confirm email" OFF (accounts work at once, free)
 4. Send the contact email for an About & privacy page (later)
