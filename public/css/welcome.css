@@ -17,7 +17,14 @@ html.in #welcome.on{display:none}
 #welcome form{margin-top:10px}
 #welcome .wf{display:block;margin-top:14px}
 #welcome .wf[hidden]{display:none}
-#welcome .wf span{display:block;font-size:13px;color:var(--mu);margin-bottom:6px}
+#welcome .wf>span:first-child{display:block;font-size:13px;color:var(--mu);margin-bottom:6px}
+#welcome .wp{position:relative;display:block}
+#welcome .wp input{padding-inline-end:54px}
+#welcome .weye{position:absolute;inset-block:0;inset-inline-end:0;width:52px;display:grid;place-items:center;color:var(--mu)}
+#welcome .weye svg{width:22px;height:22px}
+#welcome .weye .sl{display:none}
+#welcome .weye[aria-pressed="true"]{color:var(--gold)}
+#welcome .weye[aria-pressed="true"] .sl{display:block}
 #welcome .wf input{width:100%;height:52px;border-radius:14px;border:1px solid var(--ln);background:var(--surface);color:var(--ink);padding:0 16px;font:400 16px var(--sans);outline:0}
 #welcome .wf input::placeholder{color:var(--mu);opacity:.75}
 #welcome .wf input:focus{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
