@@ -9,7 +9,8 @@
 
   /* the quiet note shows while places are hidden (zoomed out; with a filter on, places show from zoom 11) */
   var note = document.getElementById("znote");
-  function noteUpdate() { if (map) note.classList.toggle("on", map.getZoom() + 1 < (JK.filters && JK.filters.far() ? 11 : 13)); }
+  /* "Zoom in closer…" only when nothing is drawn at this zoom: saved places (Favorites / a list) are drawn at every zoom, so no note then */
+  function noteUpdate() { if (map) { var f = JK.filters, st = f && f.state; note.classList.toggle("on", !!f && map.getZoom() + 1 < f.minZoom() && !(st.fav || st.list)); } }
   document.getElementById("zstep").addEventListener("click", function (e) {
     var b = e.target.closest("[data-zs]"); if (!b || !map) return;
     if (b.dataset.zs === "in") map.zoomIn({ duration: 250 }); else map.zoomOut({ duration: 250 });

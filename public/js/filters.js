@@ -14,6 +14,10 @@
   function active() { return !!(S.cat || S.country || S.halal || S.some || S.veg || S.fav || S.cu || S.food || S.list || S.top || S.price || S.open); }
   /* a filter that picks places from the data (not just saved ones): then pins are shown from further away (zoom 11 instead of 13) */
   function far() { return !!(S.cat || S.country || S.halal || S.some || S.veg || S.cu || S.food || S.top || S.price || S.open); }
+  /* Halal / Some halal / Vegan filter on: those places (a small file, places/diet.json) are shown from very far away, as stacks with a number */
+  function diet() { return !!(S.halal || S.some || S.veg); }
+  /* lowest classic zoom at which places are drawn: diet filter 4 (whole countries) · other data filter 11 · no filter 13 (saved places are drawn at every zoom) */
+  function minZoom() { return diet() ? 4 : far() ? 11 : 13; }
   /* everything except "saved only": used for places from the map data AND for saved places in the List screen */
   function rest(r) {
     if (S.top) { var a = JK.ratings.avg(r.id); if (a == null || a < 4) return false; }
@@ -155,7 +159,7 @@
     clearTimeout(prT); prT = setTimeout(changed, 200);
   });
   document.addEventListener("jk:lang", function () { if (document.getElementById("filtSheet") && !document.getElementById("filtSheet").hidden) render(); });
-  JK.filters = { follow: follow, state: S, pass: pass, match: rest, chipsHtml: chipsHtml, count: count, savedPass: savedPass, active: active, far: far, total: total, open: function () { render(); JK.sheet.open("filtSheet"); },
+  JK.filters = { follow: follow, state: S, pass: pass, match: rest, chipsHtml: chipsHtml, count: count, savedPass: savedPass, active: active, far: far, diet: diet, minZoom: minZoom, total: total, open: function () { render(); JK.sheet.open("filtSheet"); },
     setList: function (id) { S.list = id; changed(); }, redraw: mark,
     setFood: function (slug) { S.food = JK.food.label(slug); S.alt = JK.food.alt(S.food).concat(slug); changed(); JK.toast(S.food); } };
   document.addEventListener("jk:places", function () { cache = null; });

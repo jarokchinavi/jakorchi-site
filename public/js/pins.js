@@ -38,7 +38,7 @@
         [r.lng, r.lat], near ? "bottom" : "center", isel ? 500 : 400, function () { JK.peek.open(r); });
     });
     var vis = [], cls = [];
-    if (z >= (JK.filters.far() ? 11 : 13)) { /* a filter on = pins show from further away (zoom 11) */
+    if (z >= JK.filters.minZoom()) { /* a filter on = pins show from further away (zoom 11; Halal / Vegan filter: from zoom 4) */
       var cand = [], L = JK.places.list;
       var team = []; /* places added by the team / confirmed by visitors: always their own pin (never in a stack, no cap) */
       for (var i = 0; i < L.length; i++) { var r = L[i]; if (r.lat < s || r.lat > n || r.lng < w || r.lng > e || sv.has(r.id)) continue; if (JK.filters.pass(r)) { if (r.nw) { if (r.nws !== "wait" || z >= 16 || JK.places.mine(r.id)) team.push(r); } else cand.push(r); } }
@@ -51,6 +51,7 @@
         var g = new Map();
         cand.forEach(function (r) { var k = key(r), o = g.get(k), f = JK.pinui.flags(r); if (o) { o.n++; o.la += r.lat; o.ln += r.lng; if (f.h) o.h = 1; if (f.v) o.v = 1; } else g.set(k, { n: 1, la: r.lat, ln: r.lng, r: r, h: f.h ? 1 : 0, v: f.v ? 1 : 0 }); });
         var ar = Array.from(g.entries()), CMAX = innerWidth > 700 ? 14 : 8, singles = [];
+        if (z < 11 && JK.filters.diet()) CMAX = innerWidth > 700 ? 60 : 30; /* a whole country of halal / vegan places: more stacks, still with room between them */
         /* calm: only a few stacks (8 on a phone, 14 on a big screen), nearest to the middle first, with room between them;
            lone places wait until zoom 15 (only shown when there are hardly any stacks, so the map is never empty) */
         var tc = [];

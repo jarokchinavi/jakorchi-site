@@ -140,7 +140,14 @@ def main():
     shutil.rmtree(out / "14", ignore_errors=True)
     for f in ("_done.json", "_split.json"):
         if (out / f).exists(): os.remove(out / f)
-    (out / "_index.json").write_text(json.dumps({"v": dig.hexdigest()[:10], "l": index}, separators=(",", ":")), encoding="utf-8")
+    # diet.json = every halal / some-halal / vegan / vegetarian place of all countries (small): the app loads it when a Halal / Vegan filter is on,
+    # so these places can be shown from far away without loading all tiles. These rows also stay inside their normal tiles.
+    diet = sorted((r for r in rows.values() if r[7] or r[8] or r[14]), key=lambda r: r[0])
+    dtext = json.dumps({"p": diet}, ensure_ascii=False, separators=(",", ":"))
+    (out / "diet.json").write_text(dtext, encoding="utf-8")
+    dhash = hashlib.sha1(dtext.encode("utf-8")).hexdigest()[:10]
+    (out / "_index.json").write_text(json.dumps({"v": dig.hexdigest()[:10], "d": dhash, "l": index}, separators=(",", ":")), encoding="utf-8")
+    print(f"diet.json: {len(diet)} halal / vegan / vegetarian places, {len(dtext.encode('utf-8')) / 1024:.0f} KB")
     print(f"{len(rows)} places in {len(index)} files · {total / 1e6:.1f} MB · biggest {biggest / 1024:.0f} KB · average {total / max(1, len(index)) / 1024:.0f} KB")
     print("files per zoom level:", dict(sorted(per_z.items())))
 
