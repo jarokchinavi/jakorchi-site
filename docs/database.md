@@ -16,7 +16,7 @@ Setup files: `database/01…NN-*.sql` (all applied, in this order). New change =
 - dashboard = owner login only (2-step login on)
 - publishable key: read views + add rows · never change / delete · phone ids private · signed-in visitors (Supabase Auth, e-mail + password, "Confirm email" off) only touch their own `user_saved` row
 - views security_invoker · checks in schema private · public RPC: editor_check, editor_add_place
-- after every change: get_advisors security = 0
+- after every change: get_advisors security = 0 (one known WARN since accounts exist: "Leaked password protection disabled", Pro plan only, accepted)
 
 ## Editor mode (database side is ready; the NEW app has no editor screen yet)
 - owner sets the code once in the SQL Editor: select private.set_editor_code('…'); · Claude never sees it

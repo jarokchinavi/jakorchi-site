@@ -6,7 +6,7 @@ What it does:   removes hidden/zero-width characters, turns tabs and wide spaces
 What it does NOT do: change spellings. A shop name is what the shop calls itself, so "Tonkotsu" or "Raamen" stay as they are.
                 Typos are handled by the search instead (js/app.js, fold + fuzzy).
 
-Run:  python tools/clean_names.py   then   python tools/split_places.py   then push."""
+tools/pack_places.py imports `tidy` from here and tidies every name while packing, so a separate run is only needed on old flat squares."""
 import json, glob, re, pathlib
 
 places = pathlib.Path(__file__).resolve().parent.parent / "public" / "places"
@@ -24,18 +24,19 @@ def tidy(s):
         t = " ".join(w if (i and w in SMALL) else w[:1].upper() + w[1:] for i, w in enumerate(t.split(" ")))
     return t
 
-changed = files = 0
-for f in sorted(glob.glob(str(places / "[0-9]*_[0-9]*.json"))):
-    data = json.load(open(f, encoding="utf-8"))
-    n = 0
-    for row in data["p"]:
-        for i in (1, 2):
-            new = tidy(row[i])
-            if new != row[i]:
-                row[i] = new
-                n += 1
-    if n:
-        pathlib.Path(f).write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-        files += 1
-        changed += n
-print(f"{changed} names tidied in {files} files")
+if __name__ == "__main__":
+    changed = files = 0
+    for f in sorted(glob.glob(str(places / "[0-9]*_[0-9]*.json"))):
+        data = json.load(open(f, encoding="utf-8"))
+        n = 0
+        for row in data["p"]:
+            for i in (1, 2):
+                new = tidy(row[i])
+                if new != row[i]:
+                    row[i] = new
+                    n += 1
+        if n:
+            pathlib.Path(f).write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+            files += 1
+            changed += n
+    print(f"{changed} names tidied in {files} files")

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Jakorchi: makes the restaurant files from an OpenStreetMap file (.osm.pbf).
 
-Needs once:  pip install osmium   (version 4 or newer). make-restaurants.bat does this for you.
-Use:         python build_places.py kanto.osm.pbf Japan 3634 3641 1608 1615   (only these map squares: Tokyo)
-             python build_places.py south-korea.osm.pbf Korea                   (the whole file)
-Output:      straight into the website folder ../jakorchi-site/places when it exists (else a 'places' folder here):
-             files like 3638_1612.json (zoom-12 map squares) + _done.json (list of finished squares).
-             Squares that already exist are merged, so Seoul and Tokyo can live side by side.
+Normally it runs in the cloud: .github/workflows/build-places.yml (download from Geofabrik, build, pack, push a data branch). docs/data.md.
+Needs:       pip install "osmium==4.3.1"
+Use:         python build_places.py japan.osm.pbf Japan --out <temp folder>
+             python build_places.py kanto.osm.pbf Japan 3634 3641 1608 1615 --out <temp folder>   (only these zoom-12 squares)
+Output:      flat zoom-12 squares <x>_<y>.json (+ _done.json) in the --out folder (default tools/places-flat). NOT the website:
+             tools/pack_places.py turns them into the small adaptive tiles in public/places/.
 Data: (c) OpenStreetMap contributors (ODbL). Big countries need a lot of memory (China: 8 GB or more).
 Buildings (ways) get their first point as location (approximate).
 Columns per place: [id, name (Latin if OSM has it), local name, kind, cuisine, lat, lng, halal, vegan, hours,
@@ -69,10 +69,9 @@ def tile(lat, lng):
     n = 2 ** Z
     return int((lng + 180) / 360 * n), int((1 - math.asinh(math.tan(math.radians(lat))) / math.pi) / 2 * n)
 
-def main(pbf, country, rng=None):
+def main(pbf, country, rng=None, out=None):
     here = os.path.dirname(os.path.abspath(__file__))
-    site = os.path.join(here, "..", "jakorchi-site", "places")
-    out = os.path.normpath(site) if os.path.isdir(site) else os.path.join(here, "places")
+    out = os.path.abspath(out) if out else os.path.join(here, "places-flat")
     tiles = {}
     fp = osmium.FileProcessor(pbf).with_locations().with_filter(osmium.filter.KeyFilter("amenity", "shop"))
     for o in fp:
@@ -126,6 +125,9 @@ def main(pbf, country, rng=None):
     print(f"Done: {total} places in {len(tiles)} files, saved in: {out}")
 
 if __name__ == "__main__":
+    out = None
+    if "--out" in sys.argv:
+        i = sys.argv.index("--out"); out = sys.argv[i + 1]; del sys.argv[i:i + 2]
     if len(sys.argv) not in (3, 7):
         sys.exit(__doc__)
-    main(sys.argv[1], sys.argv[2], [int(v) for v in sys.argv[3:7]] if len(sys.argv) == 7 else None)
+    main(sys.argv[1], sys.argv[2], [int(v) for v in sys.argv[3:7]] if len(sys.argv) == 7 else None, out)

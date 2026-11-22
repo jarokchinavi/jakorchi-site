@@ -1,0 +1,107 @@
+# Builds the restaurant files in GitHub's cloud (nothing runs on the owner's PC).
+# Start: push a change to tools/build-request.txt (one word: japan | south-korea | china | kansai) or press "Run workflow" on GitHub (Actions tab).
+# Result: a branch data/<region>-<date>-<run> with the new public/places/ files. NOTHING goes live until that branch is merged into main.
+# Source: official OpenStreetMap extract from download.geofabrik.de (ODbL), checked with the MD5 file next to it. osmium is pinned to one version.
+name: Build places
+
+on:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: "japan, south-korea, china or kansai (a small test)"
+        default: japan
+  push:
+    paths:
+      - tools/build-request.txt
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      # actions are pinned to exact commits (checkout v4.4.0, setup-python v5.6.0), not to a tag that could be moved
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
+      - name: Which region
+        id: r
+        env:
+          INPUT_REGION: ${{ github.event.inputs.region }}
+        run: |
+          R="$INPUT_REGION"
+          if [ -z "$R" ]; then R=$(tr -d ' \r\n' < tools/build-request.txt); fi
+          case "$R" in
+            japan)       C=Japan; REP=Japan; U=asia/japan ;;
+            south-korea) C=Korea; REP=Korea; U=asia/south-korea ;;
+            china)       C=China; REP=China; U=asia/china ;;
+            kansai)      C=Japan; REP=;      U=asia/japan/kansai ;;
+            *) echo "unknown region: $R"; exit 1 ;;
+          esac
+          { echo "region=$R"; echo "country=$C"; echo "replace=$REP"; echo "path=$U"; } >> "$GITHUB_OUTPUT"
+
+      - name: Install osmium (one pinned version)
+        run: pip install --only-binary=:all: "osmium==4.3.1"   # ready-made wheel only: no build script from the package is run
+
+      - name: Download from Geofabrik and check the MD5
+        env:
+          U: ${{ steps.r.outputs.path }}
+        run: |
+          F="$(basename "$U")-latest.osm.pbf"
+          curl -fL --retry 3 -o "$RUNNER_TEMP/$F" "https://download.geofabrik.de/$U-latest.osm.pbf"
+          curl -fL --retry 3 -o "$RUNNER_TEMP/$F.md5" "https://download.geofabrik.de/$U-latest.osm.pbf.md5"
+          (cd "$RUNNER_TEMP" && echo "$(cut -d' ' -f1 "$F.md5")  $F" | md5sum -c -)
+          ls -l "$RUNNER_TEMP/$F"
+          echo "PBF=$RUNNER_TEMP/$F" >> "$GITHUB_ENV"
+
+      - name: Build the flat squares
+        env:
+          C: ${{ steps.r.outputs.country }}
+        run: python tools/build_places.py "$PBF" "$C" --out "$RUNNER_TEMP/flat"
+
+      - name: Pack into small adaptive tiles
+        env:
+          REP: ${{ steps.r.outputs.replace }}
+        run: |
+          if [ -n "$REP" ]; then python tools/pack_places.py --in "$RUNNER_TEMP/flat" --replace "$REP"; else python tools/pack_places.py --in "$RUNNER_TEMP/flat"; fi
+
+      - name: Check the result
+        run: |
+          python - <<'PY'
+          import json, os, glob
+          ix = json.load(open("public/places/_index.json"))
+          leaves = ix["l"]; rows = sum(l[3] for l in leaves)
+          sizes = [os.path.getsize(f"public/places/t/{z}/{x}_{y}.json") for z, x, y, n in leaves]
+          halal = some = 0
+          for z, x, y, n in leaves:
+              for r in json.load(open(f"public/places/t/{z}/{x}_{y}.json", encoding="utf-8"))["p"]:
+                  if r[7] == 1: halal += 1
+                  elif r[7] == 2: some += 1
+          allfiles = sum(len(f) for _, _, f in os.walk("public"))
+          lines = [f"places: {rows}", f"tile files: {len(leaves)}", f"all files in public/: {allfiles} (Cloudflare free limit 20000)",
+                   f"data: {sum(sizes)/1e6:.1f} MB · biggest file {max(sizes)/1024:.0f} KB · average {sum(sizes)/len(sizes)/1024:.0f} KB",
+                   f"halal: {halal} · some halal options: {some}"]
+          print("\n".join(lines))
+          open(os.environ["GITHUB_STEP_SUMMARY"], "a").write("\n".join("- " + l for l in lines) + "\n")
+          assert rows > 1000, "far too few places"
+          assert allfiles < 15000, "too many files"
+          assert max(sizes) < 3_000_000, "a tile file is too big"
+          PY
+
+      - name: Save on a data branch (not on main)
+        env:
+          R: ${{ steps.r.outputs.region }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          B="data/$R-$(date +%Y%m%d)-${{ github.run_number }}"
+          git checkout -b "$B"
+          git add public/places
+          git commit -m "Restaurant data: $R (OpenStreetMap, built in GitHub's cloud)"
+          git push origin "$B"
+          echo "Branch: $B" >> "$GITHUB_STEP_SUMMARY"

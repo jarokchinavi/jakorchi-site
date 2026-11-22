@@ -1,20 +1,20 @@
 # Restaurant data (public/places/)
-- `<x>_<y>.json` = one zoom-12 map square · `_done.json` = finished squares (the app uses the count as cache version) · empty square = no file = 404 (ok)
-- 🇰🇷 Seoul: x3488–3495 y1584–1591 · 62 files · ~59,500 places
-- 🇯🇵 Tokyo: bat 4 · Geofabrik kanto · x3634–3641 y1608–1615
-- 🇯🇵 Kyoto: bat 5 · Geofabrik kansai · x3590–3595 y1620–1625 · 36 files · 10,817 places
-- bat 1 Korea / 2 Japan / 3 China = whole country (big; China needs 8 GB memory)
-- build_places.py args: `<pbf> <Country> [x0 x1 y0 y1]` · writes into Desktop jakorchi-site\places and merges `_done.json`
-- big squares (> 300 KB, now 13) also exist as 16 small squares each: `places/14/<x>_<y>.json` + `places/_split.json`, made by `tools/split_places.py` (run it after every data change). App: zoom ≥ 15 loads only the small squares on screen (Gangnam: 0.45 MB instead of 5.5 MB), zoomed out the whole file. The Desktop backup does not hold `places/14` (it is rebuilt by the tool).
-- check new files before pushing: valid JSON · every place inside its own square · area column empty
-- 8% of places have a real English name · ~55% have a known food type
+## Layout (since 2026-11-22): few, small files
+- `_index.json` = `{"v": "<changes with the data>", "l": [[z, x, y, count], …]}` every tile · `t/<z>/<x>_<y>.json` = one tile `{"p": [rows]}`. The app reads the index first, then only the tiles that touch the screen (`js/places.js`, up to ~60,000 places per view, nearest the middle first, never below classic zoom 13 / 11 with a filter).
+- Adaptive tiles (`tools/pack_places.py`): start at zoom 7, a tile with more than 1,500 places is cut in 4 (down to zoom 15). A quiet region = one file, Shinjuku = many small ones. Every place is in ONE tile only (no copies). Result for Seoul, Tokyo, Kyoto: 121,418 places, 201 files, 19 MB raw, ~4 MB over the network (Cloudflare serves brotli; biggest tile ~50 KB) (before: ~370 files, 30 MB, small squares were copies).
+- Copies: `drop_copies` in pack_places.py merges the same restaurant mapped twice in OSM (same normalised name + kind inside ~35 m: 640 found in the first run); the fullest row stays, best diet value and empty fields are merged in. The id of the dropped row disappears (reviews / saved places that used it would lose the link: rare; check `reviews.place_id` before a big rebuild). A whole country stays in the hundreds to low thousands of files (Cloudflare free plan: max 20,000 files per site, 25 MB per file; the build stops at 15,000).
+- Row columns (18): id, name (Latin if OSM has it), local name, kind, cuisine, lat, lng, halal, vegan, hours, address, website, (empty), country, vegetarian, phone, names in other languages, shop/amenity; diet 0 = not listed, 1 = yes, 2 = limited.
+- Source: OpenStreetMap (ODbL) via official extracts from download.geofabrik.de. Buildings (ways) use their first point. ~8% have a real English name · ~55% a known food type.
 
-## Tidy names (2026-11-10)
-`python tools/clean_names.py` (before `split_places.py`): removes hidden characters and odd spaces, trims, Title Case for all-lowercase Latin names. It never changes spelling (a shop name is the shop's own). Run it after every new restaurant import.
-## Halal data and duplicates (2026-11-10)
-- Halal comes from OSM tags `diet:halal` (yes/only = 1, limited = 2), also `halal`, `diet:muslim`, cuisine halal/muslim. Only ~44 places in Kanto/Kansai/Seoul data have it.
-- `make-restaurants.bat` reuses a country file younger than 7 days, downloads a fresh one when older, and writes date + SHA-256 to `downloads-log.txt`.
-- Navigate links use exact coordinates (no place_id). OSM `note`/`comment` tags are mapper notes, not reviews: not shown.
-- KTO Muslim-friendly list (Halal Certified / Self-Certified / Muslim Friendly / Pork Free) is not published as open data (only on visitkorea.or.kr): not copied.
+## Build in GitHub's cloud (nothing on the owner's PC)
+- Workflow `.github/workflows/build-places.yml`: download the extract (MD5 checked) → `tools/build_places.py` (flat zoom-12 squares in a temp folder) → `tools/pack_places.py --in <temp> --replace <Country>` (all names tidied, old rows of that country dropped, other countries kept) → stats + checks → push a branch `data/<region>-<date>-<run>`. NOTHING goes live until that branch is merged into `main` (then bump version, push).
+- Start: change `tools/build-request.txt` (one word: japan | south-korea | china | kansai = small test) and push, or GitHub > Actions > Build places > Run workflow. osmium is pinned (`osmium==4.3.1`). Progress: github.com/jarokchinavi/jakorchi-site/actions.
+- China needs ~8 GB memory (the runner has 16 GB). Re-run a country only now and then: every new data commit adds to the repo history (keep the repo well under 1 GB).
+- Check a new branch before merging: tile count, MB, halal count (job summary), then a quick map test (`docs/checks.md`).
+
+## Halal and duplicates
+- Halal comes from OSM tags `diet:halal` (yes/only = 1, limited = 2), also `halal`, `diet:muslim`, cuisine halal/muslim. (Kanto/Kansai/Seoul: 44 halal, 0 "some halal options".)
+- Navigate links use exact coordinates. OSM `note`/`comment` tags are mapper notes, not reviews: not shown.
+- KTO Muslim-friendly list is not open data: not copied.
 - Places added by the team or by visitors are NOT in these files: they live in the database (`new_places`, see `docs/database.md`).
-- More halal places (researched 2026-11-17): do NOT copy halal directories (Halal Navi, Halal Gourmet Japan, Groovy Japan, Halal Japan …): copyrighted compilations, terms unknown / not for reuse. Allowed: (1) places the owner / team checks one by one (name + position + status from the restaurant's OWN site or the certifier's official list; no copied texts, photos or ratings) added to `new_places` with a numbered SQL file like `12-kyoto-halal.sql`, (2) visitor reports + "Add a restaurant", (3) OSM `diet:halal` (ODbL; also add tags there), (4) plain links to directories, (5) written permission from a certifier (e.g. Kyoto Halal Council).
+- More halal places: do NOT copy halal directories (Halal Navi, Halal Gourmet Japan, Groovy Japan, Halal Japan …): copyrighted compilations. Allowed: (1) places the owner / team checks one by one (name + position + status from the restaurant's OWN site or the certifier's official list; no copied texts, photos or ratings) added to `new_places` with a numbered SQL file like `12-kyoto-halal.sql`, (2) visitor reports + "Add a restaurant", (3) OSM `diet:halal` (ODbL; also add tags there), (4) plain links to directories, (5) written permission from a certifier (e.g. Kyoto Halal Council).

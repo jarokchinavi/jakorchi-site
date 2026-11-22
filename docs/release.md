@@ -11,7 +11,7 @@ If the Cloudflare build fails with no reason (check on GitHub: commit > Checks, 
 `git revert`, push, check `/version.json`. Tell owner: what happened, what was undone, what next. Then find cause.
 
 ## New restaurant data
-Owner runs `make-restaurants.bat` → files in Desktop `places\` → validate (JSON, right square) → copy to `public/places/` + `_done.json` → `python tools/clean_names.py` → `python tools/split_places.py` → push. Details: `docs/data.md`.
+Cloud build (`.github/workflows/build-places.yml`, start by changing `tools/build-request.txt`) → data branch → check the job summary → merge the branch into `main` → bump version → push → live check (map shows places, `/places/_index.json` 200). Details: `docs/data.md`.
 
 ## Database change
 New numbered file in `database/` → test on local Postgres first → `apply_migration` → `get_advisors` security = 0.

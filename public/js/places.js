@@ -1,65 +1,94 @@
-/* Restaurant data: loads only the map squares you see (places/<x>_<y>.json = one zoom-12 square; from zoom 15 the 16 small squares in places/14/).
-   Never loads below zoom 13, never more than 6 squares (9 on a big screen), nearest to the middle first. Places arrive in small portions so the map keeps moving.
-   JK.places = { list, get(id), want(), dname(p), localName(p) } · event "jk:places" when new places arrived. Zoom numbers here are the classic ones (MapLibre + 1). */
+/* Restaurant data: adaptive map tiles (tools/pack_places.py). places/_index.json lists every tile {z,x,y,count}; places/t/<z>/<x>_<y>.json holds one tile.
+   A quiet region is one big tile, a dense city (Shinjuku) many small ones, so a whole country is only a few hundred to a few thousand files.
+   Only tiles that touch the screen are loaded, never below zoom 13 (11 with a filter), nearest to the middle first, until about 45,000 places (90,000 on a big screen).
+   Memory: above 60,000 places (120,000 big screen) the tiles that were on screen longest ago are dropped again (trim), so a long visit never fills the phone.
+   Places arrive in small portions so the map keeps moving. JK.places = { list, get(id), want(), dname(p), localName(p) } · event "jk:places" when new places arrived. Zoom numbers here are the classic ones (MapLibre + 1). */
 (function () {
-  var Z = 12, SZ = 14, BASE = "/places", doneV = "", split = new Set();
+  var BASE = "/places", idxV = "", leaves = null, idxP = null;
   var byId = new Map(), list = [], done = new Set(), queue = [], busy = false, retry = {}, timer = 0;
+  var tileIds = new Map(), usedAt = new Map(), keep = new Set(); /* per tile: its place ids, last time it was on screen; tiles on screen now */
+  /* The phone must not fill up: above CAP places in memory the tiles that were on screen longest ago are dropped (saved places and team places are never dropped) */
+  var CAP = function () { return JK.placeCap || (innerWidth > 700 ? 120000 : 60000); }; /* JK.placeCap = only for tests */
+  function trim() {
+    if (list.length <= CAP()) return false;
+    var cand = []; tileIds.forEach(function (ids, k) { if (!keep.has(k)) cand.push([usedAt.get(k) || 0, k]); });
+    cand.sort(function (a, b) { return a[0] - b[0]; });
+    var target = CAP() * 0.75, n = list.length;
+    for (var i = 0; i < cand.length && n > target; i++) {
+      var k = cand[i][1], ids = tileIds.get(k); ids.forEach(function (id) { byId.delete(id); }); n -= ids.length;
+      tileIds.delete(k); usedAt.delete(k); done.delete(k); delete retry[k];
+    }
+    var rest = list.filter(function (p) { return byId.get(p.id) === p; }); list.length = 0;
+    for (var j = 0; j < rest.length; j++) list.push(rest[j]);
+    return true;
+  }
   var tx = function (lng, z) { return Math.floor((lng + 180) / 360 * Math.pow(2, z)); };
-  var ty = function (lat, z) { var r = lat * Math.PI / 180; return Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * Math.pow(2, z)); };
+  var fy = function (lat, z) { var r = lat * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * Math.pow(2, z); };
 
   var get = function (f) { return fetch(BASE + "/" + f, { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); };
-  var ready = Promise.all([get("_done.json"), get("_split.json")]).then(function (a) {
-    if (a[0] && Array.isArray(a[0].done) && a[0].done.length) doneV = String(a[0].done.length);
-    if (a[1] && Array.isArray(a[1].split)) { split = new Set(a[1].split); doneV += "-" + String(a[1].v || a[1].split.length).replace(/[^\w]/g, ""); }
-  });
+  /* the tile list; if it cannot be read now, it is asked again at the next move */
+  function index() {
+    if (!idxP) idxP = get("_index.json").then(function (j) {
+      if (!j || !Array.isArray(j.l) || !j.l.length) { idxP = null; return null; }
+      idxV = String(j.v || "").replace(/[^\w]/g, "");
+      leaves = j.l.filter(function (a) { return Array.isArray(a) && a.length >= 4 && a[0] >= 5 && a[0] <= 16 && a[1] >= 0 && a[2] >= 0 && a[3] > 0; })
+        .map(function (a) { return { z: a[0] | 0, x: a[1] | 0, y: a[2] | 0, n: a[3] | 0, k: (a[0] | 0) + "/" + (a[1] | 0) + "_" + (a[2] | 0) }; });
+      return leaves;
+    });
+    return idxP;
+  }
   function countryOf(lat, lng) { return lng >= 124 && lng <= 131 && lat >= 33 && lat <= 39 ? "Korea" : lng >= 122.9 && lat <= 46 && lat >= 24 && !(lng < 124 && lat > 30) ? "Japan" : "China"; }
   function parse(a) {
     return { id: a[0], name: a[1], loc: a[2] || "", cat: a[3] || "restaurant", cuisine: a[4] || "", lat: a[5], lng: a[6],
       halal: a[7] === 1, halalL: a[7] === 2, vegan: a[8] === 1, veganL: a[8] === 2, veg: a[14] === 1 || a[8] === 1, vegL: a[14] === 2 || a[8] === 2,
       hours: a[9] || "", addr: a[10] || "", web: a[11] || "", country: a[13] || countryOf(a[5], a[6]), phone: a[15] || "", nm: a[16] || null, sub: a[17] || "" };
   }
-  function loadSq(x, y, small) {
-    return ready.then(function () { return fetch(BASE + "/" + (small ? SZ + "/" : "") + x + "_" + y + ".json" + (doneV ? "?v=" + doneV : "")); })
+  function loadSq(k) {
+    return fetch(BASE + "/t/" + k + ".json" + (idxV ? "?v=" + idxV : ""))
       .then(function (r) { if (r.status === 404) return 0; if (!r.ok) return null; return r.json().then(function (j) { return j.p; }).catch(function () { return 0; }); })
       .catch(function () { return null; });
   }
   function run() {
     if (busy || !queue.length) return; busy = true;
     var keys = queue.splice(0, queue.length);
-    Promise.all(keys.map(function (k) { var p = k.slice(1).split("_").map(Number); return loadSq(p[0], p[1], k[0] === "s"); })).then(async function (res) {
+    Promise.all(keys.map(loadSq)).then(async function (res) {
       var add = 0;
       for (var i = 0; i < res.length; i++) {
         var rows = res[i], k = keys[i];
         if (rows === null) { if (!retry[k]) { retry[k] = 1; queue.push(k); } continue; }
-        done.add(k);
+        done.add(k); var ids = [];
         for (var j = 0; j < (rows || []).length; j += 1200) {
-          rows.slice(j, j + 1200).forEach(function (a) { if (a && !byId.has(a[0])) { var p = parse(a); byId.set(p.id, p); list.push(p); add++; } });
+          rows.slice(j, j + 1200).forEach(function (a) { if (a && !byId.has(a[0])) { var p = parse(a); byId.set(p.id, p); list.push(p); ids.push(p.id); add++; } });
           await new Promise(function (r) { setTimeout(r, 0); });
         }
+        tileIds.set(k, ids);
       }
+      var dropped = trim();
       busy = false;
-      if (add) document.dispatchEvent(new Event("jk:places"));
+      if (add || dropped) document.dispatchEvent(new Event("jk:places"));
       if (queue.length) setTimeout(run, 600);
     });
   }
   function want() {
     var map = JK.mapObj(); if (!map) return;
-    ready.then(function () {
-      var lz = map.getZoom() + 1, far = JK.filters && JK.filters.far(); if (lz >= 11) npLoad(map); if (lz < (far ? 11 : 13)) return; /* a filter on = places load from further away */
-      var b = map.getBounds(), c = b.getCenter(); if (c.lat < 18 || c.lat > 54 || c.lng < 73 || c.lng > 146) return;
-      var x0 = tx(b.getWest(), Z), x1 = tx(b.getEast(), Z), y0 = ty(b.getNorth(), Z), y1 = ty(b.getSouth(), Z), ts = [];
-      for (var x = x0; x <= x1; x++) for (var y = y0; y <= y1; y++) ts.push([x, y]);
-      var cx = tx(c.lng, Z), cy = ty(c.lat, Z);
-      ts.sort(function (p, q) { return (Math.pow(p[0] - cx, 2) + Math.pow(p[1] - cy, 2)) - (Math.pow(q[0] - cx, 2) + Math.pow(q[1] - cy, 2)); });
-      ts = ts.slice(0, (far && lz < 13 ? 1.5 : 1) * (innerWidth > 700 ? 9 : 6));
-      var add = function (k) { if (!done.has(k) && queue.indexOf(k) < 0) queue.push(k); }, n = 1 << (SZ - Z);
-      ts.forEach(function (t) {
-        var x = t[0], y = t[1];
-        if (lz >= 15 && split.has(x + "_" + y) && !done.has("p" + x + "_" + y)) {
-          var a0 = Math.max(tx(b.getWest(), SZ), x * n), a1 = Math.min(tx(b.getEast(), SZ), x * n + n - 1), c0 = Math.max(ty(b.getNorth(), SZ), y * n), c1 = Math.min(ty(b.getSouth(), SZ), y * n + n - 1);
-          for (var a = a0; a <= a1; a++) for (var d = c0; d <= c1; d++) add("s" + a + "_" + d);
-        } else add("p" + x + "_" + y);
+    var lz = map.getZoom() + 1, far = JK.filters && JK.filters.far(); if (lz >= 11) npLoad(map); if (lz < (far ? 11 : 13)) return; /* a filter on = places load from further away */
+    var b = map.getBounds(), c = b.getCenter(); if (c.lat < 18 || c.lat > 54 || c.lng < 73 || c.lng > 146) return;
+    index().then(function (L) {
+      if (!L) return;
+      var W = b.getWest(), E = b.getEast(), N = b.getNorth(), S = b.getSouth(), rg = {}, hit = [];
+      L.forEach(function (l) { /* tiles that touch the screen, with their distance (in zoom-12 squares) to the middle */
+        var r = rg[l.z] || (rg[l.z] = [tx(W, l.z), tx(E, l.z), Math.floor(fy(N, l.z)), Math.floor(fy(S, l.z)), (c.lng + 180) / 360 * Math.pow(2, l.z), fy(c.lat, l.z)]);
+        if (l.x < r[0] || l.x > r[1] || l.y < r[2] || l.y > r[3]) return;
+        var dx = Math.max(l.x - r[4], 0, r[4] - l.x - 1), dy = Math.max(l.y - r[5], 0, r[5] - l.y - 1), s = Math.pow(2, l.z - 12);
+        hit.push([(dx * dx + dy * dy) / (s * s), l]);
       });
+      hit.sort(function (p, q) { return p[0] - q[0]; });
+      var budget = (far && lz < 13 ? 1.5 : 1) * (innerWidth > 700 ? 90000 : 45000), used = 0, now = Date.now(); keep = new Set();
+      for (var i = 0; i < hit.length; i++) {
+        var l = hit[i][1]; if (i && used + l.n > budget) break; used += l.n;
+        keep.add(l.k); usedAt.set(l.k, now);
+        if (!done.has(l.k) && queue.indexOf(l.k) < 0) queue.push(l.k);
+      }
       run();
     });
   }
