@@ -37,10 +37,10 @@ jobs:
           R="$INPUT_REGION"
           if [ -z "$R" ]; then R=$(head -n 1 tools/build-request.txt | tr -d ' \r\n'); fi
           case "$R" in
-            japan)       C=Japan; REP=Japan; U=asia/japan ;;
-            south-korea) C=Korea; REP=Korea; U=asia/south-korea ;;
-            china)       C=China; REP=China; U=asia/china ;;
-            kansai)      C=Japan; REP=;      U=asia/japan/kansai ;;
+            japan)       C=Japan; REP=Japan; U=asia/japan/japan ;;
+            south-korea) C=Korea; REP=Korea; U=asia/south-korea/south-korea ;;
+            china)       C=China; REP=China; U=asia/china/china ;;
+            kansai)      C=Japan; REP=;      U=asia/japan/kansai/kansai ;;
             *) echo "unknown region: $R"; exit 1 ;;
           esac
           { echo "region=$R"; echo "country=$C"; echo "replace=$REP"; echo "path=$U"; } >> "$GITHUB_OUTPUT"
@@ -86,8 +86,8 @@ jobs:
                   elif r[7] == 2: some += 1
           allfiles = sum(len(f) for _, _, f in os.walk("public"))
           lines = [f"places: {rows}", f"tile files: {len(leaves)}", f"all files in public/: {allfiles} (Cloudflare free limit 20000)",
-                   f"data: {sum(sizes)/1e6:.1f} MB · biggest file {max(sizes)/1024:.0f} KB · average {sum(sizes)/len(sizes)/1024:.0f} KB",
-                   f"halal: {halal} · some halal options: {some}"]
+                   f"data: {sum(sizes)/1e6:.1f} MB Â· biggest file {max(sizes)/1024:.0f} KB Â· average {sum(sizes)/len(sizes)/1024:.0f} KB",
+                   f"halal: {halal} Â· some halal options: {some}"]
           print("\n".join(lines))
           open(os.environ["GITHUB_STEP_SUMMARY"], "a").write("\n".join("- " + l for l in lines) + "\n")
           assert rows > 1000, "far too few places"
