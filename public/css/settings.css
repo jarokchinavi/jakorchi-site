@@ -35,6 +35,11 @@ html[dir="rtl"] .chev{transform:rotate(-45deg)}
 .id .nm{margin-top:16px;font:400 28px/1.15 var(--serif);letter-spacing:-.01em;word-break:break-word}
 .id .em{margin-top:4px;font-size:14px;color:var(--mu);word-break:break-word}
 .grp+.grp{margin-top:22px}.id+.grp{margin-top:22px}
+/* About & privacy page */
+.abl{color:var(--mu);font-size:15px;line-height:1.5;margin:4px 2px 0}
+.abp{padding:16px 0;font-size:15px;line-height:1.55}
+.abn{margin:18px 4px 0;font-size:12.5px;line-height:1.5;color:var(--mu)}
+.abn a{color:var(--gold);font-weight:600;text-underline-offset:3px}
 
 /* Jakorchi Plus: membership bar (logo green, thin gold line, gold name) */
 .plusc{width:100%;text-align:start;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px;margin-top:22px;padding:0 20px;

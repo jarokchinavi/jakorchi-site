@@ -40,8 +40,8 @@
     h += head(T("Storage")) + grp(row('data-clear="cache"', T("Clear cache"), "", "", "trash") +
       row('data-clear="map"', armed ? T("Tap again to clear. Favorites and lists stay.") : T("Clear saved map data"), "", "", "layers"));
     /* about */
-    h += head(T("About")) + grp('<button type="button" class="row" data-diag>' + JK.ic("info") + '<span class="l">' + esc(T("Version")) + '</span><span class="v">' + esc(BUILD) + '</span></button>') +
-      '<p class="note">' + esc(T("Jakorchi is a free food guide for travelers in Japan, Korea and China. No account, no ads, no tracking.")) + '</p>';
+    h += head(T("About")) + grp(row("data-about", T("About & privacy"), "", "", "info") + '<button type="button" class="row" data-diag>' + JK.ic("layers") + '<span class="l">' + esc(T("Version")) + '</span><span class="v">' + esc(BUILD) + '</span></button>') +
+      '<p class="note">' + esc(T("Jakorchi is a free food guide for travelers in Japan, Korea and China. No ads, no tracking. An account is optional.")) + '</p>';
     body.innerHTML = h;
   }
   /* ---- pickers (use the shared popup layer) ---- */

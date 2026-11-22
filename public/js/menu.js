@@ -16,7 +16,7 @@
       '<div class="qas">' + q("heart", "Favorites", 'data-list="fav"') + q("addpin", "Add a restaurant", "data-add") + q("bulb", "Add a tip", 'data-soon="Add a tip"') + q("phrase", "Useful phrases", 'data-soon="Useful phrases"') + "</div>" +
       '<div class="ms">' + esc(T("My places")) + '</div><div class="grp">' + lists + "</div>" +
       '<button type="button" class="btn ghost" data-newlist>' + JK.ic("listplus", 20) + esc(T("New list")) + "</button>" +
-      '<div class="foot"><button type="button" class="chip" data-menu-settings>' + JK.ic("gear", 20) + esc(T("Settings")) + '</button><button type="button" class="chip" data-soon="About &amp; privacy">' + JK.ic("info", 20) + esc(T("About")) + "</button>" +
+      '<div class="foot"><button type="button" class="chip" data-menu-settings>' + JK.ic("gear", 20) + esc(T("Settings")) + '</button><button type="button" class="chip" data-about>' + JK.ic("info", 20) + esc(T("About")) + "</button>" +
       (standalone ? "" : '<button type="button" class="chip" ' + (installEv ? "data-install" : 'data-soon="Install the app"') + ">" + JK.ic("install", 20) + esc(T("Install the app")) + "</button>") + "</div>" +
       '<p class="att">' + esc(T("Map and place data © OpenStreetMap contributors (ODbL).")) + "</p>";
   }

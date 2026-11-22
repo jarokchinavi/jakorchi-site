@@ -13,7 +13,6 @@ Read before search, card, filters, report or review work. Map, pins, List, filte
 - Reports: closed / halal / vegan-vegetarian yes-no + food type · "closed" label from 3 yes and more yes than no
 - Saved places + lists only on the phone · Jakorchi Plus "coming soon"
 - Editor mode hidden: open app with `#editor` at end of address (stays in menu once the code is on)
-- About & privacy (`#about`): names the outside services, keep it true; `CONTACT` in js/app.js = contact email ("" hides the line)
 
 ## Hard-won fixes
 1. iPhone home-screen app is laid out short by the status-bar height → measured once (`fixIosGap`, `html.iosgap`); `position:fixed` layers get cut off, so on the map screen stage / sheet / menu live inside `<body>` as `absolute`; map fills under status bar and home bar (`env(safe-area-inset-*)`).
