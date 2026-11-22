@@ -130,7 +130,7 @@ def main():
         (tmp / str(z)).mkdir(parents=True, exist_ok=True)
         (tmp / str(z) / f"{x}_{y}.json").write_text(text, encoding="utf-8")
         b = len(text.encode("utf-8")); total += b; biggest = max(biggest, b)
-        dig.update(f"{z}/{x}/{y}/{len(its)}/{b}".encode()); index.append([z, x, y, len(its)])
+        dig.update(f"{z}/{x}/{y}/{len(its)}/{b}/".encode() + hashlib.sha1(text.encode("utf-8")).digest()); index.append([z, x, y, len(its)])  # content hash: any change in a tile changes the index version
         per_z[z] = per_z.get(z, 0) + 1
     assert sum(i[3] for i in index) == len(rows), "rows lost while packing"
     # swap in the new tiles, remove the old layout (flat squares, 14/, _done.json, _split.json)
