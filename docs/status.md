@@ -8,8 +8,8 @@
 - Still to build from the old app: owner info ("I own or work at this restaurant", note for visitors) · Add a tip (+ share, must-try dish, how to order, show-staff phrases) · "Show on map" in the card · photo reporting + photo viewer · English menu tag + filter · live "Search this area" (Overpass) · editor mode (team adds places verified at once) · list rename / delete / share · blue dot / nearest address / location-off message · Useful phrases · "A new version is ready" notice · offline maps
 - Search rules still missing: match on dish, romanized name, names in other languages; food suggestions from the area; ~60 cities with local names (now 8 + Nominatim on Enter); Photon place suggestions
 - Filters we CANNOT offer without data (Halal Navi has them): pork-free, alcohol-free, prayer space, halal certificate. They need a new database field = owner decision.
-- Whole-country data: JAPAN is live (211,668 places, cloud build). Next: south-korea (whole country; now only the Seoul area), then china, each on its own data branch via `tools/build-request.txt` (`docs/data.md`), merged after the owner's OK. Clean up the old data branches (`data/kansai-…`, `data/japan-…`) with the owner's yes
-- China has no data files yet (places/) · ratings exist for very few places (so Top rated, Price and the price sorts show little)
+- Whole-country data is LIVE for Japan, South Korea and China (376,958 places, cloud build, `docs/data.md`). Clean up the old data branches (`data/kansai-…`, `data/japan-…`, `data/south-korea-…`, `data/china-…`) with the owner's yes; Desktop backup still holds old duplicate data files (delete only with a yes)
+- Ratings exist for very few places (so Top rated, Price and the price sorts show little)
 - Accounts: sign in / create account / skip + saved places sync are built (`docs/app.md`). Still open: forgot-password mail (needs an e-mail service), Change name / email / password and Delete account (placeholders), biometric login (passkeys), reviews per account
 - Directions = links to the visitor's own maps app (`docs/old-app.md` Directions); no own navigation
 
