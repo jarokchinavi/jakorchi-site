@@ -1,1 +1,2 @@
 kansai
+# first line = region (japan, south-korea, china, kansai). Change this file and push = the cloud build starts. Run 2.

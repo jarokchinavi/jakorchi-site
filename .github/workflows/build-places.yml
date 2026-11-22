@@ -35,7 +35,7 @@ jobs:
           INPUT_REGION: ${{ github.event.inputs.region }}
         run: |
           R="$INPUT_REGION"
-          if [ -z "$R" ]; then R=$(tr -d ' \r\n' < tools/build-request.txt); fi
+          if [ -z "$R" ]; then R=$(head -n 1 tools/build-request.txt | tr -d ' \r\n'); fi
           case "$R" in
             japan)       C=Japan; REP=Japan; U=asia/japan ;;
             south-korea) C=Korea; REP=Korea; U=asia/south-korea ;;
@@ -46,7 +46,9 @@ jobs:
           { echo "region=$R"; echo "country=$C"; echo "replace=$REP"; echo "path=$U"; } >> "$GITHUB_OUTPUT"
 
       - name: Install osmium (one pinned version)
-        run: pip install --only-binary=:all: "osmium==4.3.1"   # ready-made wheel only: no build script from the package is run
+        run: |
+          # ready-made wheel only: no build script from the package is run
+          pip install --only-binary=:all: "osmium==4.3.1"
 
       - name: Download from Geofabrik and check the MD5
         env:
