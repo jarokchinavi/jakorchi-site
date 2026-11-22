@@ -1,6 +1,6 @@
 /* The map screen: map, "my location", profile circle in the search bar, light/dark map, map language.
    The map starts the first time the map screen opens (the start page stays light and fast). JK.mapObj() = the MapLibre map or null.
-   Zoom: up to 21 (classic numbers, MapLibre 20). + / - buttons and a quiet note ("Zoom in closer to see restaurants.") while places are hidden. */
+   Zoom: from 2 (whole world) up to 21 (classic numbers, MapLibre 1-20). + / - buttons and a quiet note ("Zoom in closer to see restaurants.") while places are hidden. */
 (function () {
   var map = null, box = document.getElementById("map"), prof = document.getElementById("profBtn"), me = null, starting = false, loaded = false, scr = document.getElementById("mapscr");
   var load = function (k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
@@ -18,7 +18,7 @@
   document.addEventListener("jk:filters", noteUpdate);
   function create(st) {
     var v = load("jk_view", null); if (!v || typeof v.lat !== "number") v = { lat: 35.6812, lng: 139.7671, z: 12.5 };
-    map = new maplibregl.Map({ container: "map", style: st, center: [v.lng, v.lat], zoom: v.z, minZoom: 3, maxZoom: 20, attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false, fadeDuration: 100 });
+    map = new maplibregl.Map({ container: "map", style: st, center: [v.lng, v.lat], zoom: v.z, minZoom: 1, maxZoom: 20, attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false, fadeDuration: 100 });
     map.touchZoomRotate.disableRotation();
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
     /* while you pinch or drag nothing is rebuilt; pins, stacks and data wait until the map is calm (smooth, no flicker) */

@@ -14,7 +14,7 @@ Free food guide, Japan / Korea / China, 9 languages (en nl de fr es zh ja ko ar)
 
 ## Work lean (always)
 - Read this file + ONE docs file from the table. No full scans, no old chats. Current code = truth.
-- Never open `public/places/` (data, 19 MB and growing): use `ls`, `head`, count scripts.
+- Never open `public/places/` (data, 56 MB, 897 files): use `ls`, `head`, count scripts.
 - Every async call has a fallback. No new library without need. New text → all 9 languages in the same update.
 - Repo is PUBLIC: never commit keys, secrets, codes, personal data, emails.
 
