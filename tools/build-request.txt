@@ -1,2 +1,2 @@
-japan
-# first line = region (japan, south-korea, china, kansai). Change this file and push = the cloud build starts. Run 4.
+south-korea
+# first line = region (japan, south-korea, china, kansai). Change this file and push = the cloud build starts. Run 5.
