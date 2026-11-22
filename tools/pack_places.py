@@ -37,6 +37,19 @@ def read_rows(files):
         except Exception as e:
             sys.exit(f"cannot read {f}: {e}")
 
+HALAL_NAME = re.compile(r"(?<![a-z])halal(?![a-z])|ハラル(?!ド)|ハラール|ﾊﾗﾙ|할랄|清真|حلال", re.I)
+
+def halal_by_name(rows):
+    """A place that calls itself halal in its own name (Halal Kebab, 清真兰州牛肉面, ハラールカレー, 할랄킹, ...) but has no halal tag in OpenStreetMap
+    gets diet value 2 = "Some halal options" (not 1: nobody has checked it). Names in other languages count too. Returns how many were set."""
+    n = 0
+    for r in rows.values():
+        if r[7] == 0:
+            names = [r[1] or "", r[2] or ""] + (list(r[16].values()) if isinstance(r[16], dict) else [])
+            if any(HALAL_NAME.search(x) for x in names if isinstance(x, str)):
+                r[7] = 2; n += 1
+    return n
+
 def drop_copies(rows):
     """The same restaurant mapped twice in OpenStreetMap (two nodes, or a node and a building) = one row.
     Same normalised name + same kind inside the same ~35 m cell. Keeper = the row with most filled columns (then the lowest id);
@@ -88,6 +101,7 @@ def main():
     print(f"rows: {kept} kept from the old data, {new} new, {len(rows)} in total")
     rows, dups = drop_copies(rows)
     print(f"copies removed: {dups} (same name + kind within ~35 m; the fullest row stays, diet info and empty fields are merged in)")
+    print(f"halal word in the name -> 'Some halal options': {halal_by_name(rows)} places newly marked")
 
     leaves = []
     def cut(z, x, y, items):

@@ -13,7 +13,7 @@
 - Check a new branch before merging: tile count, MB, halal count (job summary), then a quick map test (`docs/checks.md`).
 
 ## Halal and duplicates
-- Halal comes from OSM tags `diet:halal` (yes/only = 1, limited = 2), also `halal`, `diet:muslim`, cuisine halal/muslim. (Kanto/Kansai/Seoul: 44 halal, 0 "some halal options".)
+- Halal comes from OSM tags `diet:halal` (yes/only = 1, limited = 2), also `halal`, `diet:muslim`, cuisine halal/muslim. Extra rule (owner, 2026-11-22; `halal_by_name` in pack_places.py, runs at every pack): a place with no halal tag that has "halal" / ハラル / ハラール / 할랄 / 清真 / حلال in its own name (any language) = 2, shown as "Some halal options" (never 1: nobody checked it). First run: 97 places (China 66, Japan 26, Korea 5). Now: halal 522, some halal options 97.
 - Navigate links use exact coordinates. OSM `note`/`comment` tags are mapper notes, not reviews: not shown.
 - KTO Muslim-friendly list is not open data: not copied.
 - Places added by the team or by visitors are NOT in these files: they live in the database (`new_places`, see `docs/database.md`).
